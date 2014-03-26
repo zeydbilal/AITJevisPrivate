@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jevis.jeconfig.plugin.object.attribute;
+package org.jevis.jeconfig.plugin.object;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -22,6 +22,10 @@ import org.jevis.jeapi.JEVisException;
 import org.jevis.jeapi.JEVisObject;
 import org.jevis.jeapi.JEVisConstants.*;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.object.attribute.AttributeEditor;
+import org.jevis.jeconfig.plugin.object.attribute.BooleanValueEditor;
+import org.jevis.jeconfig.plugin.object.attribute.FileValueEditor;
+import org.jevis.jeconfig.plugin.object.attribute.StringValueEditor;
 
 /**
  *
@@ -73,6 +77,7 @@ public class ObjectEditor {
 
     public Node buildEditor(JEVisObject obj) {
         checkIfSaved(obj);
+
         _saved = false;
         _editors = new LinkedList<>();
         _currentObject = obj;
@@ -83,11 +88,13 @@ public class ObjectEditor {
         gridPane.setHgap(7);
         gridPane.setVgap(7);
 
+        System.out.println("selected Object: " + obj);
 
         try {
+            System.out.println("Attribute size: " + obj.getAttributes().size());
             int coloum = 0;
             for (JEVisAttribute att : obj.getAttributes()) {
-
+                System.out.println("Attribute-> " + att);
                 AttributeEditor editor = null;
 
                 switch (att.getPrimitiveType()) {

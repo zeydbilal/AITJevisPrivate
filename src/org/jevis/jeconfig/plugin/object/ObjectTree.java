@@ -22,7 +22,6 @@ import org.jevis.jeapi.JEVisDataSource;
 import org.jevis.jeapi.JEVisException;
 import org.jevis.jeapi.JEVisObject;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.plugin.object.attribute.ObjectEditor;
 
 /**
  *

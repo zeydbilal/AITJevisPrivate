@@ -4,7 +4,6 @@
  */
 package org.jevis.jeconfig.plugin.object;
 
-import org.jevis.jeconfig.plugin.object.attribute.ObjectEditor;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;

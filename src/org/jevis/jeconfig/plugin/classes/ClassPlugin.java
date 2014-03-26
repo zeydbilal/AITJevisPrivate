@@ -12,10 +12,10 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.SplitPaneBuilder;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import org.jevis.jeapi.JEVisDataSource;
 import org.jevis.jeapi.JEVisObject;
+import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 
@@ -28,6 +28,8 @@ public class ClassPlugin implements Plugin {
     private StringProperty name = new SimpleStringProperty("*NO_NAME*");
     private StringProperty id = new SimpleStringProperty("*NO_ID*");
     private JEVisDataSource ds;
+    private ClassEditor editor;
+    private ClassTree tf = new ClassTree();
 
     public ClassPlugin(JEVisDataSource ds, String newname) {
         this.ds = ds;
@@ -66,7 +68,7 @@ public class ClassPlugin implements Plugin {
 
     @Override
     public Node getConntentNode() {
-        ClassTree tf = new ClassTree();
+
         VBox editorPane = new VBox();
         editorPane.setId("objecteditorpane");
         TreeView<JEVisObject> tree = tf.SimpleTreeView(ds, editorPane);
@@ -107,7 +109,26 @@ public class ClassPlugin implements Plugin {
 //    }
     @Override
     public void handelRequest(int cmdType) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        try {
+            switch (cmdType) {
+                case Constants.Plugin.Command.SAVE:
+                    System.out.println("speichern");
+                    tf.fireSave();
+                    break;
+                case Constants.Plugin.Command.DELTE:
+//                    tf.fireDelete();
+                    break;
+                case Constants.Plugin.Command.EXPAND:
+//                    System.out.println("Expand");
+                    break;
+                case Constants.Plugin.Command.NEW:
+//                    tf.fireEventNew();
+                    break;
+                default:
+                    System.out.println("Unknows command ignore...");
+            }
+        } catch (Exception ex) {
+        }
     }
 
     @Override

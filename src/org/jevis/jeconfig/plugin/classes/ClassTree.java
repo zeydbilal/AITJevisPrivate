@@ -18,7 +18,6 @@ package org.jevis.jeconfig.plugin.classes;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.beans.property.BooleanProperty;
 import javafx.event.EventHandler;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeCell;
@@ -28,10 +27,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
-import org.jevis.jeapi.JEVisAttribute;
 import org.jevis.jeapi.JEVisDataSource;
 import org.jevis.jeapi.JEVisException;
 import org.jevis.jeapi.JEVisObject;
@@ -112,7 +109,7 @@ public class ClassTree {
         _tree.setEditable(false);
     }
 
-    public void fireSaveAttributes() throws JEVisException {
+    public void fireSave() throws JEVisException {
 //        ClassItem item = _cl.getCurrentItem();
 //        for (JEVisAttribute att : item.getObject().getAttributes()) {
 //        }
