@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.jevis.jeconfig</groupId>
-    <artifactId>JEConfig3</artifactId>
+    <artifactId>JEConfig</artifactId>
     <version>3.0</version>
     <packaging>jar</packaging>
 
-    <name>JEConfig3</name>
+    <name>JEConfig</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
