@@ -17,7 +17,7 @@
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.jeconfig.plugin.object;
+package org.jevis.jeconfig.plugin.classesnew;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,13 +26,13 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisClass;
 
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com> //
  */
-public class ObjectItem extends TreeItem<ObjectTreeObject> {
+public class ClassItem extends TreeItem<ClassTreeObject> {
 
     private boolean hasLoadCh = false;
 
@@ -40,8 +40,8 @@ public class ObjectItem extends TreeItem<ObjectTreeObject> {
     ImageView icon = new ImageView();
     Label nameLabel = new Label("*Missing*");
 
-    public ObjectItem(JEVisObject obj) {
-        super(new ObjectTreeObject(obj));
+    public ClassItem(JEVisClass obj) {
+        super(new ClassTreeObject(obj));
 //        buildGraphic();
     }
 
@@ -54,7 +54,7 @@ public class ObjectItem extends TreeItem<ObjectTreeObject> {
             }
 
             for (TreeItem child : getChildren()) {
-                ((ObjectItem) child).expandAll(expand);
+                ((ClassItem) child).expandAll(expand);
             }
         }
     }
@@ -62,19 +62,19 @@ public class ObjectItem extends TreeItem<ObjectTreeObject> {
     private void initCildren() {
         hasLoadCh = true;
         try {
-            for (JEVisObject child : getValue().getObject().getChildren()) {
-                final TreeItem<ObjectTreeObject> childItem = new ObjectItem(child);
+            for (JEVisClass child : getValue().getObject().getHeirs()) {
+                final TreeItem<ClassTreeObject> childItem = new ClassItem(child);
                 super.getChildren().add(childItem);
 
             }
         } catch (Exception ex) {
-            Logger.getLogger(ObjectItem.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ClassItem.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
 
     @Override
-    public ObservableList<TreeItem<ObjectTreeObject>> getChildren() {
+    public ObservableList<TreeItem<ClassTreeObject>> getChildren() {
         if (!hasLoadCh) {
             initCildren();
         }
@@ -89,41 +89,4 @@ public class ObjectItem extends TreeItem<ObjectTreeObject> {
         return getChildren().isEmpty();
     }
 
-//    //i wonder why the Item holds the graphic and not the Cell..
-//    private void buildGraphic() {
-//        System.out.println("build graphic for: " + getValue().getObject().getName());
-//        icon = getIcon(getValue().getObject());
-//        nameLabel.setText(getValue().getObject().getName());
-//
-//        cell.getChildren().setAll(icon, nameLabel);
-//
-//        setGraphic(cell);
-//
-//    }
-//
-//    private ImageView getIcon(JEVisObject item) {
-//        try {
-//            if (item != null && item.getJEVisClass() != null) {
-//                return ImageConverter.convertToImageView(item.getJEVisClass().getIcon(), 20, 20);
-//            } else {
-//                return JEConfig.getImage("1390343812_folder-open.png", 20, 20);
-//            }
-//
-//        } catch (Exception ex) {
-//            System.out.println("Error while get icon for object: " + ex);
-//
-//            try {
-//                //Fallback icons
-//                if (isLeaf()) {
-//                    return JEConfig.getImage("1390344346_3d_objects.png", 20, 20);
-//                } else {
-//                    return JEConfig.getImage("1390343812_folder-open.png", 20, 20);
-//                }
-//            } catch (NullPointerException ex2) {
-//
-//            }
-//        }
-//        return new ImageView();
-//
-//    }
 }

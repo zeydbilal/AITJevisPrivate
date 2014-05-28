@@ -17,8 +17,9 @@
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.jeconfig.plugin.object;
+package org.jevis.jeconfig.plugin.classesnew;
 
+import org.jevis.jeconfig.plugin.object.*;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.control.TreeItem;
@@ -31,16 +32,14 @@ import org.jevis.api.JEVisObject;
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class NewObjectEventHandler implements EventHandler {
+public class NewClassEventHandler implements EventHandler {
 
-    private TreeItem<ObjectTreeObject> _item;
+    private TreeItem<ClassTreeObject> _item;
     private JEVisObject _object;
     private JEVisClass _class;
     private TreeView _tree;
 
-    public NewObjectEventHandler(TreeView tree, TreeItem<ObjectTreeObject> item, JEVisObject obj, JEVisClass jclass) {
-        _object = obj;
-        _class = jclass;
+    public NewClassEventHandler(TreeView tree, TreeItem<ClassTreeObject> item) {
         _item = item;
         _tree = tree;
     }
@@ -48,9 +47,9 @@ public class NewObjectEventHandler implements EventHandler {
     @Override
     public void handle(Event t) {
         try {
-            JEVisObject newObject = _object.buildObject("New " + _class.getName(), _class);
-            newObject.commit();
-            ObjectItem treeItem = new ObjectItem(newObject);
+            JEVisClass newClass = _object.getDataSource().buildClass("New Classs");
+            newClass.commit();
+            ClassItem treeItem = new ClassItem(newClass);
             _item.getChildren().add(treeItem);
             _tree.getSelectionModel().select(treeItem);
 

@@ -33,11 +33,11 @@ import org.jevis.jeconfig.JEConfig;
  */
 public class DeleteObjectEventHandler implements EventHandler {
 
-    private TreeItem<TreeObject> _item;
+    private TreeItem<ObjectTreeObject> _item;
     private JEVisObject _object;
     private TreeView _tree;
 
-    public DeleteObjectEventHandler(TreeView tree, TreeItem<TreeObject> item, JEVisObject obj) {
+    public DeleteObjectEventHandler(TreeView tree, TreeItem<ObjectTreeObject> item, JEVisObject obj) {
         _object = obj;
         _item = item;
         _tree = tree;
@@ -49,12 +49,12 @@ public class DeleteObjectEventHandler implements EventHandler {
         ConfirmDialog dia = new ConfirmDialog();
         String question = "Do you want to delete the Class \"" + _object.getName() + "\" ?";
 
-        if (dia.show(JEConfig.getStage(), "Delte Object", "Delte Object?", question) == ConfirmDialog.Response.YES) {
+        if (dia.show(JEConfig.getStage(), "Delete Object", "Delete Object?", question) == ConfirmDialog.Response.YES) {
             try {
                 System.out.println("User want to delete: " + _object.getName());
                 System.out.println("Parent: " + _item.getParent());
 
-                TreeItem<TreeObject> parent = _item.getParent();
+                TreeItem<ObjectTreeObject> parent = _item.getParent();
 
                 parent.getChildren().remove(_item);
 //                parent.setExpanded(false);

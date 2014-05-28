@@ -17,8 +17,9 @@
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.jeconfig.plugin.object;
+package org.jevis.jeconfig.plugin.classesnew;
 
+import org.jevis.jeconfig.plugin.object.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.scene.control.TextField;
@@ -30,7 +31,7 @@ import org.jevis.api.JEVisException;
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class ObjectCell extends TreeCell<ObjectTreeObject> {
+public class ClassCell extends TreeCell<ClassTreeObject> {
 
     private TextField textField;
 
@@ -47,21 +48,21 @@ public class ObjectCell extends TreeCell<ObjectTreeObject> {
         try {
             getTreeItem().getValue().getObject().rollBack();
         } catch (JEVisException ex) {
-            Logger.getLogger(ObjectCell.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ClassCell.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         setGraphic(getTreeItem().getValue().getGraphic());
     }
 
     @Override
-    public void commitEdit(ObjectTreeObject t) {
+    public void commitEdit(ClassTreeObject t) {
         super.commitEdit(t);
         updateItem(t, false);
 
     }
 
     @Override
-    public void updateItem(ObjectTreeObject item, boolean emty) {
+    public void updateItem(ClassTreeObject item, boolean emty) {
         super.updateItem(item, emty);
 
         if (!emty) {
@@ -72,9 +73,9 @@ public class ObjectCell extends TreeCell<ObjectTreeObject> {
 
     }
 
-    private void addContexMenu(TreeItem<ObjectTreeObject> objectItem) {
+    private void addContexMenu(TreeItem<ClassTreeObject> objectItem) {
         try {
-            ObjectContextMenu menu = new ObjectContextMenu(objectItem, getTreeView());
+            ClassContextMenu menu = new ClassContextMenu(objectItem, getTreeView());
             setContextMenu(menu);
 
         } catch (Exception ex) {

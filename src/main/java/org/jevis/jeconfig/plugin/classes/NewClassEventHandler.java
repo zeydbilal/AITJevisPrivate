@@ -44,6 +44,7 @@ public class NewClassEventHandler implements EventHandler {
 
     @Override
     public void handle(Event t) {
+        System.out.println("new Class event!");
         try {
             JEVisClass newClass = _object.getDataSource().buildClass("New Class");
             if (!_item.isRoot()) {

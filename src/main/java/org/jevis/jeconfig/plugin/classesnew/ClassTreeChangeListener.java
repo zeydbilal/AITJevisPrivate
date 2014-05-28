@@ -17,7 +17,7 @@
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.jeconfig.plugin.object;
+package org.jevis.jeconfig.plugin.classesnew;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -25,20 +25,21 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.TreeItem;
+import org.jevis.jeconfig.plugin.classesnew.editor.ClassEditor;
 
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class ObjectTreeChangeListener implements EventHandler<ActionEvent>, ChangeListener<TreeItem<ObjectTreeObject>> {
+public class ClassTreeChangeListener implements EventHandler<ActionEvent>, ChangeListener<TreeItem<ClassTreeObject>> {
 
 //    VBox _editorPane;
 //    AnchorPane _editorPane;
-    TreeItem<ObjectTreeObject> _item;
+    TreeItem<ClassTreeObject> _item;
     Button _button;
-    private ObjectEditor _editor;
+    private ClassEditor _editor;
 
-    public ObjectTreeChangeListener(ObjectEditor _editor) {
+    public ClassTreeChangeListener(ClassEditor _editor) {
 //        _editorPane = editorPane;
         this._editor = _editor;
     }
@@ -48,16 +49,18 @@ public class ObjectTreeChangeListener implements EventHandler<ActionEvent>, Chan
     }
 
     @Override
-    public void changed(ObservableValue<? extends TreeItem<ObjectTreeObject>> ov, TreeItem<ObjectTreeObject> t, TreeItem<ObjectTreeObject> t1) {
+    public void changed(ObservableValue<? extends TreeItem<ClassTreeObject>> ov, TreeItem<ClassTreeObject> t, TreeItem<ClassTreeObject> t1) {
         try {
             _item = t1;
-            _editor.setObject(t1.getValue().getObject());
+            _editor.setClass(t1.getValue().getObject());
+            //TODO
+
         } catch (Exception ex) {
 //            Dialogs.showErrorDialog(JEConfig.getStage(), ex.getMessage(), "Error", "Error", ex);
         }
     }
 
-    public TreeItem<ObjectTreeObject> getCurrentItem() {
+    public TreeItem<ClassTreeObject> getCurrentItem() {
         return _item;
     }
 }

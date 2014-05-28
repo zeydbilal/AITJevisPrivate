@@ -46,10 +46,10 @@ import org.jevis.jeconfig.tool.ImageConverter;
 public class ObjectContextMenu extends ContextMenu {
 
     private JEVisObject _obj;
-    private TreeItem<TreeObject> _item;
+    private TreeItem<ObjectTreeObject> _item;
     private TreeView _tree;
 
-    public ObjectContextMenu(TreeItem<TreeObject> item, TreeView tree) {
+    public ObjectContextMenu(TreeItem<ObjectTreeObject> item, TreeView tree) {
         super();
 
         _obj = item.getValue().getObject();
@@ -62,7 +62,7 @@ public class ObjectContextMenu extends ContextMenu {
 //        getItems().add(buildDelete());
 //        getItems().add(buildRename());
 //        getItems().add(buildProperties())
-        getItems().setAll(buildMenuNew(), new SeparatorMenuItem(), buildDelete(), buildRename(), buildProperties());
+        getItems().setAll(buildMenuNew(), new SeparatorMenuItem(), buildDelete(), buildRename());
 
     }
 

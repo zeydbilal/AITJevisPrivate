@@ -17,7 +17,7 @@
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.jeconfig.plugin.object;
+package org.jevis.jeconfig.plugin.classesnew;
 
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -28,23 +28,24 @@ import javafx.scene.control.TreeView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.util.Callback;
+import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.classesnew.editor.ClassEditor;
 
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class ObjectTree extends TreeView<ObjectTreeObject> {
+public class ClassTree extends TreeView<ClassTreeObject> {
 
     private TreeView _tree;
-    private ObjectTreeChangeListener _cl;
-    private ObjectEditor _editor = new ObjectEditor();
+    private ClassTreeChangeListener _cl;
+    private ClassEditor _editor = new ClassEditor();
     private boolean _editable = false;
 
-    public ObjectTree() {
+    public ClassTree() {
 
     }
 
@@ -52,25 +53,25 @@ public class ObjectTree extends TreeView<ObjectTreeObject> {
         return _tree;
     }
 
-    public ObjectTree(JEVisDataSource ds) {
+    public ClassTree(JEVisDataSource ds) {
         super();
         try {
 
-            JEVisObject root = new JEVisRootObject(ds);
-            TreeItem<ObjectTreeObject> rootItem = new ObjectItem(root);
+            JEVisClass root = new JEVisRootClass(ds);
+            TreeItem<ClassTreeObject> rootItem = new ClassItem(root);
 
             setShowRoot(false);
 
             getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-            _cl = new ObjectTreeChangeListener(_editor);
+            _cl = new ClassTreeChangeListener(_editor);
 
             getSelectionModel().selectedItemProperty().addListener(_cl);
 //            setOnKeyReleased(new TreeHotKeys(_tree, _cl));
 
-            setCellFactory(new Callback<TreeView<ObjectTreeObject>, TreeCell<ObjectTreeObject>>() {
+            setCellFactory(new Callback<TreeView<ClassTreeObject>, TreeCell<ClassTreeObject>>() {
                 @Override
-                public TreeCell<ObjectTreeObject> call(TreeView<ObjectTreeObject> p) {
-                    return new ObjectCell();
+                public TreeCell<ClassTreeObject> call(TreeView<ClassTreeObject> p) {
+                    return new ClassCell();
                 }
             });
 
@@ -117,7 +118,7 @@ public class ObjectTree extends TreeView<ObjectTreeObject> {
      * @param ti
      */
     @Override
-    public void edit(TreeItem<ObjectTreeObject> ti) {
+    public void edit(TreeItem<ClassTreeObject> ti) {
         if (_editable) {
 //            System.out.println("edit allowed");
             editableProperty().setValue(true);
@@ -129,11 +130,11 @@ public class ObjectTree extends TreeView<ObjectTreeObject> {
     }
 
     public void expandSelected(boolean expand) {
-        TreeItem<ObjectTreeObject> item = _cl.getCurrentItem();
+        TreeItem<ClassTreeObject> item = _cl.getCurrentItem();
         expand(item, expand);
     }
 
-    private void expand(TreeItem<ObjectTreeObject> item, boolean expand) {
+    private void expand(TreeItem<ClassTreeObject> item, boolean expand) {
         if (!item.isLeaf()) {
             if (item.isExpanded() && !expand) {
                 item.setExpanded(expand);
@@ -141,7 +142,7 @@ public class ObjectTree extends TreeView<ObjectTreeObject> {
                 item.setExpanded(expand);
             }
 
-            for (TreeItem<ObjectTreeObject> child : item.getChildren()) {
+            for (TreeItem<ClassTreeObject> child : item.getChildren()) {
                 expand(child, expand);
             }
         }
@@ -160,25 +161,24 @@ public class ObjectTree extends TreeView<ObjectTreeObject> {
 
     public void fireSaveAttributes(boolean ask) throws JEVisException {
 
-        if (ask) {
-            _editor.checkIfSaved(null);
-        } else {
-            _editor.commitAll();
-        }
-
+//        if (ask) {
+//            _editor.checkIfSaved(null);
+//        } else {
+//            _editor.commitAll();
+//        }
     }
 
     public void fireDelete() {
-        DeleteObjectEventHandler deletEvent = new DeleteObjectEventHandler(
-                this, _cl.getCurrentItem(), _cl.getCurrentItem().getValue().getObject());
-        deletEvent.handle(null);
+//        DeleteObjectEventHandler deletEvent = new DeleteObjectEventHandler(
+//                this, _cl.getCurrentItem(), _cl.getCurrentItem().getValue().getObject());
+//        deletEvent.handle(null);
     }
 
     public void fireEventNew() {
-        ObjectContextMenu newMenu = new ObjectContextMenu(_cl.getCurrentItem(), _tree);
+        ClassContextMenu newMenu = new ClassContextMenu(_cl.getCurrentItem(), _tree);
 
         newMenu.getItems().clear();
-        newMenu.getItems().addAll(newMenu.buildMenuNewContent());
+        newMenu.getItems().addAll(newMenu.buildMenuNew());
 
         com.sun.glass.ui.Robot robot
                 = com.sun.glass.ui.Application.GetApplication().createRobot();
@@ -189,7 +189,7 @@ public class ObjectTree extends TreeView<ObjectTreeObject> {
     }
 
     //TODO i dont like this way
-    public ObjectEditor getEditor() {
+    public ClassEditor getEditor() {
         return _editor;
     }
 }

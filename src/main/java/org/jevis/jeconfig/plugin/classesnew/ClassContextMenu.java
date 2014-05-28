@@ -17,15 +17,28 @@
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.jeconfig.plugin.classes;
+package org.jevis.jeconfig.plugin.classesnew;
 
+import org.jevis.jeconfig.plugin.object.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.image.ImageView;
 import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.tool.ImageConverter;
 
 /**
  *
@@ -34,38 +47,53 @@ import org.jevis.api.JEVisClass;
 public class ClassContextMenu extends ContextMenu {
 
     private JEVisClass _obj;
-    private ClassItem _item;
+    private TreeItem<ClassTreeObject> _item;
     private TreeView _tree;
 
-    public ClassContextMenu(JEVisClass obj, ClassItem item, TreeView tree) {
+    public ClassContextMenu(TreeItem<ClassTreeObject> item, TreeView tree) {
         super();
-        _obj = obj;
+
+        _obj = item.getValue().getObject();
         _item = item;
         _tree = tree;
-//
-//        getItems().add(buildMenuNew());
+
+        getItems().add(buildMenuNew());
+
 //        getItems().add(new SeparatorMenuItem());
 //        getItems().add(buildDelete());
 //        getItems().add(buildRename());
-//        getItems().add(buildProperties());
-//        
+//        getItems().add(buildProperties())
         getItems().setAll(buildMenuNew(), new SeparatorMenuItem(), buildDelete(), buildRename());
 
     }
 
-    private MenuItem buildMenuNew() {
-        MenuItem addMenu = new MenuItem("New");
-        addMenu.setOnAction(new NewClassEventHandler(_tree, _item, _obj));
+    public Menu buildMenuNew() {
+        Menu addMenu = new Menu("New", JEConfig.getImage("list-add.png", 20, 20));
+        addMenu.setOnAction(new NewClassEventHandler(_tree, _item));
+
         return addMenu;
 
     }
 
+    private ImageView getIcon(JEVisClass jclass) {
+        try {
+            return ImageConverter.convertToImageView(jclass.getIcon(), 20, 20);
+        } catch (Exception ex) {
+            return JEConfig.getImage("1393615831_unknown2.png", 20, 20);
+        }
+    }
+
     private MenuItem buildProperties() {
-        MenuItem menu = new MenuItem("Edit");
+        MenuItem menu = new MenuItem("Expand");//shoud be edit but i use it for expand for the time
         menu.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
             public void handle(ActionEvent t) {
 //                PopOver popup = new PopOver(new HBox());
 //                popup.show(_item.getGraphic(), 200d, 200d, Duration.seconds(1));
+                //TMP test
+
+//                System.out.println("expand all");
+//                _item.expandAll(true);
             }
         });
         return menu;
@@ -74,19 +102,23 @@ public class ClassContextMenu extends ContextMenu {
     private MenuItem buildRename() {
         MenuItem menu = new MenuItem("Rename");
         menu.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
             public void handle(ActionEvent t) {
 
-                _tree.setEditable(true);
-                _tree.edit(_item);
-                _tree.setEditable(false);
+//                _tree.edit(_item);
+                //workaround
+                if (_tree instanceof ClassTree) {
+                    ((ClassTree) _tree).fireEventRename();
+                }
+
             }
         });
         return menu;
     }
 
     private MenuItem buildDelete() {
-        MenuItem menu = new MenuItem("Delete");
-        menu.setOnAction(new DeleteClassEventHandler(_tree, _item, _obj));
+        MenuItem menu = new MenuItem("Delete", JEConfig.getImage("list-remove.png", 20, 20));
+        menu.setOnAction(new DeleteClassEventHandler(_tree, _item));
         return menu;
     }
 }

@@ -15,9 +15,9 @@
     </properties>
 
     <organization>
-        <!-- Used as the 'Vendor' for JNLP generation -->
         <name>Envidatec GmbH</name>
     </organization>
+
 
     <build>
         <plugins>
@@ -102,8 +102,88 @@
                     </additionalClasspathElements>
                 </configuration>
             </plugin>
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>keytool-maven-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <id>clean</id>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <id>genkey</id>
+                        <goals>
+                            <goal>generateKeyPair</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <keystore>${project.basedir}/src/main/jnlp/jeconfig.keystore</keystore>
+                    <dname>cn=openjevis.org</dname>
+                    <keypass>keypass</keypass>
+                    <storepass>storepass</storepass>
+                    <alias>JEConfigAutoKey</alias>
+                    <keyalg>RSA</keyalg>
+                </configuration>
+            </plugin>
+            
+            <!--
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>webstart-maven-plugin</artifactId>
+                <version>1.0-beta-6</version>
+                <executions>
+                    <execution>
+                        <id>package</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jnlp</goal>
+                        </goals>
+                        <configuration>
+                            <Permissions>all-permissions</Permissions>
+                            <codebase>./</codebase>
+                            <jnlp>
+                                <mainClass>com.javafx.main.Main</mainClass>                                
+                            </jnlp>
+                            <pack200>
+                                <enabled>true</enabled>
+                            </pack200>
+                            <sign>
+                                <keystore>${project.basedir}/src/main/jnlp/jeconfig.keystore</keystore>
+                                <keypass>keypass</keypass>
+                                <storepass>storepass</storepass>
+                                <alias>JEConfigAutoKey</alias>
+                                <verify>false</verify>
+                            </sign>
+                            <unsignAlreadySignedJars>true</unsignAlreadySignedJars>
+                            <updateManifestEntries>
+                                <Permissions>all-permissions</Permissions>
+                                <Codebase></Codebase>
+                               
+                            </updateManifestEntries>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            -->
+            
+            
+            
         </plugins>
+        
+        
     </build>
+ 
+   
+    
+    
+    
     <dependencies>
         <dependency>
             <groupId>org.jevis.api</groupId>
@@ -125,5 +205,6 @@
             <artifactId>jeapi-sql</artifactId>
             <version>3.0.1</version>
         </dependency>
+       
     </dependencies>
 </project>

@@ -37,6 +37,7 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.application.application.JavaVersionCheck;
 import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.application.dialog.LoginDialog;
+import org.jevis.application.statusbar.Statusbar;
 import org.jevis.commons.application.ApplicationInfo;
 
 /**
@@ -102,6 +103,9 @@ public class JEConfig extends Application {
         vbox.getChildren().addAll(new TopMenu(), toolbar.ToolBarFactory());
         border.setTop(vbox);
         border.setCenter(pMan.getView());
+
+        Statusbar statusBar = new Statusbar(ds);
+        border.setBottom(statusBar);
 
         root.getChildren().addAll(border);
 

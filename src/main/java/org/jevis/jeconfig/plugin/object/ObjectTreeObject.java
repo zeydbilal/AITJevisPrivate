@@ -39,7 +39,7 @@ import org.jevis.jeconfig.tool.ImageConverter;
  *
  * @author fs
  */
-public class TreeObject {
+public class ObjectTreeObject {
 
     private final JEVisObject _obj;
     private final HBox _view = new HBox();
@@ -48,7 +48,7 @@ public class TreeObject {
     ImageView icon = new ImageView();
     Label nameLabel = new Label("*Missing*");
 
-    public TreeObject(JEVisObject obj) {
+    public ObjectTreeObject(JEVisObject obj) {
         this._obj = obj;
     }
 
@@ -61,8 +61,8 @@ public class TreeObject {
         return _view;
     }
 
-    private void buildEditor(final TreeCell<TreeObject> cell) {
-        final TreeObject thosOne = this;
+    private void buildEditor(final TreeCell<ObjectTreeObject> cell) {
+        final ObjectTreeObject thosOne = this;
         if (_textField == null) {
             _textField = new TextField(getObject().getName());
             _textField.setOnKeyReleased(new EventHandler<KeyEvent>() {
@@ -88,7 +88,7 @@ public class TreeObject {
 
     }
 
-    public Node getEditor(final TreeCell<TreeObject> cell) {
+    public Node getEditor(final TreeCell<ObjectTreeObject> cell) {
         buildEditor(cell);
         _textField.setText(getObject().getName());
         _view.getChildren().setAll(icon, _textField);
