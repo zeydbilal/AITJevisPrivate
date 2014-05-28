@@ -1,6 +1,21 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
+ *
+ * This file is part of JEConfig.
+ *
+ * JEConfig is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation in version 3.
+ *
+ * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * JEConfig. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * JEConfig is part of the OpenJEVis project, further project information are
+ * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.plugin.object;
 
@@ -8,23 +23,26 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.animation.FadeTransition;
+import javafx.application.Platform;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.control.Accordion;
 //import javafx.scene.control.Dialogs;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TitledPane;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
-import javafx.util.Duration;
-import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.Dialog;
-import org.controlsfx.dialog.Dialogs;
-import org.jevis.jeapi.JEVisAttribute;
-import org.jevis.jeapi.JEVisException;
-import org.jevis.jeapi.JEVisObject;
-import org.jevis.jeapi.JEVisConstants.*;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisConstants.PrimitiveType;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
+import org.jevis.application.dialog.ConfirmDialog;
+import org.jevis.application.dialog.ExceptionDialog;
+import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
+import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
 import org.jevis.jeconfig.plugin.object.attribute.AttributeEditor;
 import org.jevis.jeconfig.plugin.object.attribute.BooleanValueEditor;
 import org.jevis.jeconfig.plugin.object.attribute.FileValueEditor;
@@ -40,7 +58,18 @@ public class ObjectEditor {
     private List<AttributeEditor> _editors = new LinkedList<>();
     private boolean _saved = true;
 
+//    private AnchorPane _view;
+//    private LoadPane _view;
+    private AnchorPane _view;
+
     public ObjectEditor() {
+        _view = new AnchorPane();
+//        _view = new LoadPane(false);
+        _view.setId("objecteditorpane");
+        _view.getStylesheets().add("/styles/Styles.css");
+        _view.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+//        _view.setContent(_root);
+
     }
 
     public void commitAll() {
@@ -51,11 +80,9 @@ public class ObjectEditor {
             }
         } catch (JEVisException ex) {
             Logger.getLogger(ObjectEditor.class.getName()).log(Level.SEVERE, null, ex);
-//            Dialogs.showErrorDialog(JEConfig.getStage(), ex.getMessage(), "Error", null, ex);
-            Dialogs.create()
-                    .owner(JEConfig.getStage())
-                    .title("Error")
-                    .showException(ex);
+
+            ExceptionDialog dia = new ExceptionDialog();
+            dia.show(JEConfig.getStage(), "Error", "Could not commit to Server", ex, PROGRAMM_INFO);
         }
     }
 
@@ -69,106 +96,120 @@ public class ObjectEditor {
                 }
             }
             if (!_saved) {
-                Action response = Dialogs.create()
-                        .owner(JEConfig.getStage())
-                        .title("Save")
-                        .masthead("Save Attribute Changes")
-                        .message("Changes will be lost if not saved, do you want to save now?")
-                        .showConfirm();
 
-                if (response == Dialog.Actions.OK) {
+                ConfirmDialog dia = new ConfirmDialog();
+                ConfirmDialog.Response re = dia.show(JEConfig.getStage(), "Save", "Save Attribute Changes", "Changes will be lost if not saved, do you want to save now?");
+                if (re == ConfirmDialog.Response.YES) {
                     commitAll();
                 } else {
                     _saved = true;
                 }
 
-//                Dialogs.DialogResponse response = Dialogs.showConfirmDialog(
-//                        JEConfig.getStage(), "Changes will be lost if not saved, do you want to save now?",
-//                        "Save Attribute Changes", "Save", Dialogs.DialogOptions.OK_CANCEL);
-//                if (response == Dialogs.DialogResponse.OK) {
-//                    commitAll();
-//                } else {
-//                    _saved = true;
-//                }
             }
 
         }
     }
 
-    public Node buildEditor(JEVisObject obj) {
+    public Node getView() {
+        return _view;
+    }
+
+    public void setObject(final JEVisObject obj) {
         checkIfSaved(obj);
+        Platform.runLater(new Runnable() {
 
-        _saved = false;
-        _editors = new LinkedList<>();
-        _currentObject = obj;
+            @Override
+            public void run() {
 
-        GridPane gridPane = new GridPane();
+                AnchorPane root = new AnchorPane();
+                final Accordion accordion = new Accordion();
+
+                _saved = false;
+                _editors = new LinkedList<>();
+                _currentObject = obj;
+
+                GridPane gridPane = new GridPane();
 //        gridPane.setPadding(new Insets(20, 0, 20, 20));
-        gridPane.setPadding(new Insets(5, 0, 20, 20));
-        gridPane.setHgap(7);
-        gridPane.setVgap(7);
+                gridPane.setPadding(new Insets(5, 0, 20, 20));
+                gridPane.setHgap(7);
+                gridPane.setVgap(7);
 
-//        System.out.println("selected Object: " + obj);
-        try {
-//            System.out.println("Attribute size: " + obj.getAttributes().size());
-            int coloum = 0;
-            for (JEVisAttribute att : obj.getAttributes()) {
-//                System.out.println("Attribute-> " + att);
-                AttributeEditor editor = null;
+                try {
+                    int coloum = 0;
+                    for (JEVisAttribute att : obj.getAttributes()) {
+                        AttributeEditor editor = null;
 
-                switch (att.getPrimitiveType()) {
-                    case PrimitiveType.STRING:
-                        editor = new StringValueEditor(att);
-                        break;
-                    case PrimitiveType.BOOLEAN:
-                        editor = new BooleanValueEditor(att);
-                        break;
-                    case PrimitiveType.FILE:
-                        editor = new FileValueEditor(att);
-                        break;
-                    default:
-                        editor = new StringValueEditor(att);
-                        break;
+                        switch (att.getPrimitiveType()) {
+                            case PrimitiveType.STRING:
+                                editor = new StringValueEditor(att);
+                                break;
+                            case PrimitiveType.BOOLEAN:
+                                editor = new BooleanValueEditor(att);
+                                break;
+                            case PrimitiveType.FILE:
+                                editor = new FileValueEditor(att);
+                                break;
+                            default:
+                                editor = new StringValueEditor(att);
+                                break;
 
-                }
+                        }
 
-                _editors.add(editor);
+                        _editors.add(editor);
 
-                Label name = new Label("*Missing_Name*");
-//                TextField value = new TextField();
-//                value.setPrefWidth(500);
-                name.setId("attributelabel");
+                        Label name = new Label("*Missing_Name*");
 
-                GridPane.setHalignment(name, HPos.LEFT);
-                gridPane.add(name, 0, coloum);
-                gridPane.add(editor.getEditor(), 1, coloum);
+                        name.setId("attributelabel");
 
-                //Fun Part
-                FadeTransition ft = new FadeTransition(Duration.millis((coloum + 0.5) * 150), name);
-                ft.setFromValue(0.0);
-                ft.setToValue(1.0);
-                ft.play();
+                        GridPane.setHalignment(name, HPos.LEFT);
+                        gridPane.add(name, 0, coloum);
+                        gridPane.add(editor.getEditor(), 1, coloum);
 
-                FadeTransition ft2 = new FadeTransition(Duration.millis((coloum + 0.5) * 150), editor.getEditor());
-                ft2.setFromValue(0.0);
-                ft2.setToValue(1.0);
-                ft2.play();
-
-                name.setText(att.getName() + ":");
+                        name.setText(att.getName() + ":");
 
 //                if (att.hasSample()) {
 //                    value.setText(att.getLatestSample().getValueAsString());
 //                }
-                coloum++;
+                        coloum++;
+                    }
+                } catch (JEVisException ex) {
+                    Logger.getLogger(ObjectEditor.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+                root.getChildren().add(gridPane);
+                AnchorPane.setTopAnchor(gridPane, 0.0);
+                AnchorPane.setRightAnchor(gridPane, 0.0);
+                AnchorPane.setLeftAnchor(gridPane, 0.0);
+                AnchorPane.setBottomAnchor(gridPane, 0.0);
+
+                ScrollPane sp = new ScrollPane();
+                sp.setContent(root);
+                final TitledPane t1 = new TitledPane("Attributes", sp);
+                accordion.getPanes().addAll(t1);
+
+                sp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+
+                t1.setAnimated(false);
+
+                System.out.println("set view for object editor");
+
+                AnchorPane.setTopAnchor(accordion, 0.0);
+                AnchorPane.setRightAnchor(accordion, 0.0);
+                AnchorPane.setLeftAnchor(accordion, 0.0);
+                AnchorPane.setBottomAnchor(accordion, 0.0);
+                accordion.setExpandedPane(t1);
+
+//                System.out.println("animation interrupt");
+//        Platform.runLater(new Runnable() {
+//
+//            @Override
+//            public void run() {
+//                animation.interrupt();
+                _view.getChildren().setAll(accordion);
+                //            }
             }
-        } catch (JEVisException ex) {
-            Logger.getLogger(ObjectEditor.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        });
 
-        final TitledPane t1 = new TitledPane("Attributes", gridPane);
-        t1.setAnimated(false);
-        t1.setExpanded(true);
-
-        return t1;
     }
+
 }

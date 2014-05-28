@@ -1,65 +1,48 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
+ *
+ * This file is part of JEConfig.
+ *
+ * JEConfig is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation in version 3.
+ *
+ * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * JEConfig. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * JEConfig is part of the OpenJEVis project, further project information are
+ * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.plugin.object;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.ObservableList;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import org.jevis.jeapi.JEVisException;
-import org.jevis.jeapi.JEVisObject;
-import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.tool.ImageConverter;
+import org.jevis.api.JEVisObject;
 
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com> //
  */
-public class ObjectItem extends TreeItem<String> {
+public class ObjectItem extends TreeItem<TreeObject> {
 
-    JEVisObject _object;
-    /**
-     * Control if the children of this tree item has been loaded.
-     */
-    private boolean hasLoadedChildren = false;
-    private TreeView _tree;
+    private boolean hasLoadCh = false;
+
+    final HBox cell = new HBox();
+    ImageView icon = new ImageView();
+    Label nameLabel = new Label("*Missing*");
 
     public ObjectItem(JEVisObject obj) {
-//        super(obj.getName(), JEConfig.getImage("1390343812_folder-open.png", 20, 20));//TODo get icon from class
-        _object = obj;
-        addAnimation();
-
-        HBox cell = new HBox();
-        Label name = new Label(obj.getName());
-        cell.getChildren().addAll(getIcon(obj), name);
-
-        setGraphic(cell);
-    }
-
-    private ImageView getIcon(JEVisObject obj) {
-        try {
-//            System.out.println("obj-class: " + obj.getJEVisClass().getName());
-//            throw new RuntimeException();
-
-            return ImageConverter.convertToImageView(_object.getJEVisClass().getIcon(), 20, 20);
-
-        } catch (Exception ex) {
-            System.out.println("Error while get icon for object: " + ex);
-            if (isLeaf()) {
-                return JEConfig.getImage("1390344346_3d_objects.png", 20, 20);
-            } else {
-                return JEConfig.getImage("1390343812_folder-open.png", 20, 20);
-            }
-        }
-
+        super(new TreeObject(obj));
+//        buildGraphic();
     }
 
     public void expandAll(boolean expand) {
@@ -76,42 +59,71 @@ public class ObjectItem extends TreeItem<String> {
         }
     }
 
+    private void initCildren() {
+        hasLoadCh = true;
+        try {
+            for (JEVisObject child : getValue().getObject().getChildren()) {
+                final TreeItem<TreeObject> childItem = new ObjectItem(child);
+                super.getChildren().add(childItem);
+
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(ObjectItem.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
     @Override
-    public ObservableList<TreeItem<String>> getChildren() {
-        if (hasLoadedChildren == false) {
-            loadChildren();
+    public ObservableList<TreeItem<TreeObject>> getChildren() {
+        if (!hasLoadCh) {
+            initCildren();
         }
         return super.getChildren();
     }
 
     @Override
     public boolean isLeaf() {
-        if (hasLoadedChildren == false) {
-            loadChildren();
+        if (!hasLoadCh) {
+            initCildren();
         }
-        return super.getChildren().isEmpty();
+        return getChildren().isEmpty();
     }
 
-    /**
-     * Create some dummy children for this item.
-     */
-    private void loadChildren() {
-        hasLoadedChildren = true;
-        try {
-            for (JEVisObject child : _object.getChildren()) {
-                final ObjectItem newChild = new ObjectItem(child);
-                super.getChildren().add(newChild);
-
-            }
-        } catch (JEVisException ex) {
-            Logger.getLogger(ObjectItem.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    public JEVisObject getObject() {
-        return _object;
-    }
-
-    private void addAnimation() {
-    }
+//    //i wonder why the Item holds the graphic and not the Cell..
+//    private void buildGraphic() {
+//        System.out.println("build graphic for: " + getValue().getObject().getName());
+//        icon = getIcon(getValue().getObject());
+//        nameLabel.setText(getValue().getObject().getName());
+//
+//        cell.getChildren().setAll(icon, nameLabel);
+//
+//        setGraphic(cell);
+//
+//    }
+//
+//    private ImageView getIcon(JEVisObject item) {
+//        try {
+//            if (item != null && item.getJEVisClass() != null) {
+//                return ImageConverter.convertToImageView(item.getJEVisClass().getIcon(), 20, 20);
+//            } else {
+//                return JEConfig.getImage("1390343812_folder-open.png", 20, 20);
+//            }
+//
+//        } catch (Exception ex) {
+//            System.out.println("Error while get icon for object: " + ex);
+//
+//            try {
+//                //Fallback icons
+//                if (isLeaf()) {
+//                    return JEConfig.getImage("1390344346_3d_objects.png", 20, 20);
+//                } else {
+//                    return JEConfig.getImage("1390343812_folder-open.png", 20, 20);
+//                }
+//            } catch (NullPointerException ex2) {
+//
+//            }
+//        }
+//        return new ImageView();
+//
+//    }
 }

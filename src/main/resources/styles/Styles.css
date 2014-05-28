@@ -24,25 +24,30 @@
     -fx-background-color: rgba(0, 100, 100, 0);
 }
 
-.tree:checked{
+/*.tree:checked{
     -fx-background-color: rgba(0, 100, 100, 1);    
-}
+}*/
 
+/*
 .tree-cell:filled{
+    -fx-text-fill: red;
     -fx-text-fill: black; 
     -fx-font-size: 14;
-}
+}*/
 
 .tree-cell:disabled {
     -fx-padding: 3 3 3 3;
 }
 
 .tree-cell:selected {
-    -fx-text-fill: black; -fx-font-size: 14;
+    -fx-text-fill: black; 
+    -fx-font-size: 14;
     -fx-effect: dropshadow(one-pass-box, white, 5, 0, 1, 1);
     -fx-background-color: #1a719c;
 
 }
+
+
 
 
 #watermark{

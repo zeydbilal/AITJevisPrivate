@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
+ * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
  *
  * This file is part of JEConfig.
  *
@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * JEConfig is part of the OpenJEVis project, further project information are
+ * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.plugin.classes;
 
@@ -29,9 +32,9 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
-import org.jevis.jeapi.JEVisDataSource;
-import org.jevis.jeapi.JEVisException;
-import org.jevis.jeapi.JEVisObject;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 
 /**
  *

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
+ * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
  *
  * This file is part of JEConfig.
  *
@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * JEConfig is part of the OpenJEVis project, further project information are
+ * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig;
 
@@ -29,8 +32,8 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import org.jevis.jeapi.JEVisDataSource;
-import org.jevis.jeapi.JEVisObject;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.plugin.classes.ClassPlugin;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
 
@@ -108,9 +111,6 @@ public class PluginManager {
             }
         });
 
-
-
-
         if (_watermark) {
             VBox waterBox = new VBox();
             //TODO better load the watermark from an JEVis Object and not from css
@@ -120,7 +120,6 @@ public class PluginManager {
         } else {
             box.getChildren().addAll(tabPane);
         }
-
 
         return box;
     }

@@ -17,21 +17,12 @@
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.jeconfig.plugin.object.attribute;
-
-import javafx.scene.Node;
-import org.jevis.api.JEVisException;
+package org.jevis.jeconfig.tool;
 
 /**
  *
- * @author Florian Simon <florian.simon@envidatec.com>
+ * @author fs
  */
-public interface AttributeEditor {
+public class DialogFactory {
 
-    boolean hasChanged();
-
-//    void setAttribute(JEVisAttribute att);
-    void commit() throws JEVisException;
-
-    Node getEditor();
 }

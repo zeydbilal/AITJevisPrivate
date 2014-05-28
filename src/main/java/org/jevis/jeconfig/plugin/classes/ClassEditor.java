@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
+ * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
  *
  * This file is part of JEConfig.
  *
@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * JEConfig is part of the OpenJEVis project, further project information are
+ * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.plugin.classes;
 
@@ -22,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -31,11 +35,13 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
+import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 //import javafx.scene.control.Dialogs;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -43,15 +49,15 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javax.measure.unit.Unit;
-import org.controlsfx.dialog.Dialogs;
-import org.jevis.jeapi.JEVisClass;
-import org.jevis.jeapi.JEVisException;
-import org.jevis.jeapi.JEVisType;
-import org.jevis.jecommon.unit.UnitManager;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisType;
+import org.jevis.application.dialog.ExceptionDialog;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
+import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
 import org.jevis.jeconfig.tool.ImageConverter;
 import org.jevis.jeconfig.tool.UnitChooser;
 
@@ -64,8 +70,6 @@ public class ClassEditor {
 //    private Desktop desktop = Desktop.getDesktop();
     private JEVisClass _class;
     Button fIcon;
-    private boolean _typeOpen = false;
-    private boolean _relationOpen = false;
     private TitledPane t2;
     private List<JEVisType> _toDelete;
     private final UnitChooser pop = new UnitChooser();
@@ -78,6 +82,8 @@ public class ClassEditor {
     public Node buildEditor(JEVisClass jclass) {
         _class = jclass;
         _toDelete = new ArrayList<>();
+
+        final Accordion accordion = new Accordion();
 
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(5, 0, 20, 20));
@@ -100,7 +106,6 @@ public class ClassEditor {
         fUnique.setSelected(false);
 
         ClassRelationshipTable table = new ClassRelationshipTable();
-        GridPane tTable = table.buildTree(jclass);
 
         Button fInherit = new Button();
 
@@ -124,7 +129,7 @@ public class ClassEditor {
         GridPane.setValignment(lDescription, VPos.TOP);
         GridPane.setHalignment(lRel, HPos.RIGHT);
         GridPane.setValignment(lRel, VPos.TOP);
-        GridPane.setHgrow(tTable, Priority.ALWAYS);
+//        GridPane.setHgrow(tTable, Priority.ALWAYS);
         GridPane.setHalignment(lTypes, HPos.RIGHT);
         GridPane.setValignment(lTypes, VPos.TOP);
 
@@ -142,11 +147,8 @@ public class ClassEditor {
             }
 
         } catch (JEVisException ex) {
-//            Dialogs.showErrorDialog(JEConfig.getStage(), ex.getMessage(), "Error", "Error", ex);
-            Dialogs.create()
-                    .owner(JEConfig.getStage())
-                    .title("Error")
-                    .showException(ex);
+            ExceptionDialog dia = new ExceptionDialog();
+            dia.show(JEConfig.getStage(), "Error", "Could not connect to Server", ex, PROGRAMM_INFO);
         }
 
         fIcon.setOnAction(new EventHandler<ActionEvent>() {
@@ -169,39 +171,21 @@ public class ClassEditor {
             }
         });
 
-        final TitledPane t1 = new TitledPane("General", gridPane);
+        ScrollPane cpGenerell = new ScrollPane();
+        cpGenerell.setContent(gridPane);
+
+        final TitledPane t1 = new TitledPane("General", cpGenerell);
         t2 = new TitledPane("Types", buildTypeNode());
-
-        TitledPane t3 = new TitledPane("Relationships", tTable);
-        t1.setAnimated(false);
-        t1.setExpanded(true);
-        t2.setExpanded(_typeOpen);
-        t3.setExpanded(_relationOpen);
-
-        t1.expandedProperty().addListener(new ChangeListener<Boolean>() {
+        final TitledPane t3 = new TitledPane("Relationships", table.buildTree(jclass));
+        accordion.getPanes().addAll(t1, t2, t3);
+        Platform.runLater(new Runnable() {
             @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                t1.setAnimated(true);
+            public void run() {
+                accordion.setExpandedPane(t1);//TODO the selected pane is not blue highlighted like if the user clicked.....
             }
         });
 
-        t2.expandedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                _typeOpen = newValue;
-            }
-        });
-        t3.expandedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                _relationOpen = newValue;
-            }
-        });
-
-        VBox root = new VBox();
-        root.getChildren().addAll(t1, t2, t3);
-
-        return root;
+        return accordion;
     }
 
     private ChoiceBox buildPrimitiveTypeBox(JEVisType type) {
@@ -220,6 +204,7 @@ public class ClassEditor {
     }
 
     private Node buildTypeNode() {
+        ScrollPane cp = new ScrollPane();
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(5, 0, 5, 20));
         gridPane.setHgap(7);
@@ -403,7 +388,9 @@ public class ClassEditor {
         gridPane.add(guiType, 2, row);
         gridPane.add(newB, 3, row);
 
-        return gridPane;
+        cp.setContent(gridPane);
+
+        return cp;
     }
 
     private void setUnitButton(Button button, JEVisType type) throws JEVisException {
@@ -430,11 +417,10 @@ public class ClassEditor {
         } catch (Exception ex) {
             Logger.getLogger(ClassEditor.class
                     .getName()).log(Level.SEVERE, null, ex);
-//            Dialogs.showErrorDialog(JEConfig.getStage(), ex.getMessage(), "Error", "Error", ex);
-            Dialogs.create()
-                    .owner(JEConfig.getStage())
-                    .title("Error")
-                    .showException(ex);
+
+            ExceptionDialog dia = new ExceptionDialog();
+            dia.show(JEConfig.getStage(), "Error", "Could not open file", ex, PROGRAMM_INFO);
+
         }
     }
 
@@ -457,10 +443,8 @@ public class ClassEditor {
             Logger.getLogger(ClassEditor.class
                     .getName()).log(Level.SEVERE, null, ex);
 //            Dialogs.showErrorDialog(JEConfig.getStage(), ex.getMessage(), "Error", "Error", ex);
-            Dialogs.create()
-                    .owner(JEConfig.getStage())
-                    .title("Error")
-                    .showException(ex);
+            ExceptionDialog dia = new ExceptionDialog();
+            dia.show(JEConfig.getStage(), "Error", "Could not commit changes to Server", ex, PROGRAMM_INFO);
         }
     }
 
@@ -474,16 +458,15 @@ public class ClassEditor {
         } catch (JEVisException ex) {
             Logger.getLogger(ClassEditor.class
                     .getName()).log(Level.SEVERE, null, ex);
-//            Dialogs.showErrorDialog(JEConfig.getStage(), ex.getMessage(), "Error", "Error", ex);
-            Dialogs.create()
-                    .owner(JEConfig.getStage())
-                    .title("Error")
-                    .showException(ex);
+
+            ExceptionDialog dia = new ExceptionDialog();
+            dia.show(JEConfig.getStage(), "Error", "Could not  rollback changes", ex, PROGRAMM_INFO);
         }
     }
 
     private ImageView getIcon(JEVisClass jclass) {
         try {
+            System.out.println("getIcon for :" + jclass);
             return ImageConverter.convertToImageView(jclass.getIcon(), 30, 30);
         } catch (Exception ex) {
             System.out.println("Error while geeting class icon: " + ex);

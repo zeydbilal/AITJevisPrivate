@@ -1,16 +1,31 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
+ *
+ * This file is part of JEConfig.
+ *
+ * JEConfig is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation in version 3.
+ *
+ * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * JEConfig. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * JEConfig is part of the OpenJEVis project, further project information are
+ * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.plugin.object;
 
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import org.jevis.jeapi.JEVisClass;
-import org.jevis.jeapi.JEVisException;
-import org.jevis.jeapi.JEVisObject;
-import org.jevis.jeconfig.plugin.object.ObjectItem;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 
 /**
  *
@@ -18,12 +33,12 @@ import org.jevis.jeconfig.plugin.object.ObjectItem;
  */
 public class NewObjectEventHandler implements EventHandler {
 
-    private ObjectItem _item;
+    private TreeItem<TreeObject> _item;
     private JEVisObject _object;
     private JEVisClass _class;
     private TreeView _tree;
 
-    public NewObjectEventHandler(TreeView tree, ObjectItem item, JEVisObject obj, JEVisClass jclass) {
+    public NewObjectEventHandler(TreeView tree, TreeItem<TreeObject> item, JEVisObject obj, JEVisClass jclass) {
         _object = obj;
         _class = jclass;
         _item = item;
@@ -35,9 +50,9 @@ public class NewObjectEventHandler implements EventHandler {
         try {
             JEVisObject newObject = _object.buildObject("New " + _class.getName(), _class);
             newObject.commit();
-            ObjectItem newItem = new ObjectItem(newObject);
-            _item.getChildren().add(newItem);
-            _tree.getSelectionModel().select(newItem);
+            ObjectItem treeItem = new ObjectItem(newObject);
+            _item.getChildren().add(treeItem);
+            _tree.getSelectionModel().select(treeItem);
 
         } catch (JEVisException ex) {
             System.out.println("new object: " + ex);

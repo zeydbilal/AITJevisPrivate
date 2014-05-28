@@ -1,18 +1,32 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
+ *
+ * This file is part of JEConfig.
+ *
+ * JEConfig is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation in version 3.
+ *
+ * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * JEConfig. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * JEConfig is part of the OpenJEVis project, further project information are
+ * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.plugin.classes;
 
 import javafx.event.Event;
 import javafx.event.EventHandler;
-//import javafx.scene.control.Dialogs;
 import javafx.scene.control.TreeView;
-import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.Dialog;
-import org.controlsfx.dialog.Dialogs;
-import org.jevis.jeapi.JEVisClass;
+import org.jevis.api.JEVisClass;
+import org.jevis.application.dialog.ConfirmDialog;
+import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.jeconfig.JEConfig;
+import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
 
 /**
  *
@@ -33,40 +47,19 @@ public class DeleteClassEventHandler implements EventHandler {
     @Override
     public void handle(Event t) {
         try {
-            Action response = Dialogs.create()
-                    .owner(JEConfig.getStage())
-                    .title("Delte Object")
-                    .masthead("Delte Object")
-                    .message("Do you want to delete the Class \"" + _object.getName() + "\" ?")
-                    .showConfirm();
+            ConfirmDialog dia = new ConfirmDialog();
+            ConfirmDialog.Response re = dia.show(JEConfig.getStage(), "Delte Object", "Delte Object", "Do you want to delete the Class \"" + _object.getName() + "\" ?");
 
-            if (response == Dialog.Actions.OK) {
-                // ... submit user input
+            if (re == ConfirmDialog.Response.YES) {
                 try {
                     _object.delete();
                     _item.getParent().getChildren().remove(_item);
                 } catch (Exception ex) {
-//                    Dialogs.showErrorDialog(JEConfig.getStage(), ex.getMessage(), "Error", "Error", ex);
-                    Dialogs.create()
-                            .owner(JEConfig.getStage())
-                            .title("Error")
-                            .showException(ex);
+                    ExceptionDialog eDia = new ExceptionDialog();
+                    eDia.show(JEConfig.getStage(), "Error", "Could not delete Class", ex, PROGRAMM_INFO);
                 }
-            } else {
-                // ... user cancelled, reset form to default
             }
 
-//            Dialogs.DialogResponse response = Dialogs.showConfirmDialog(
-//                    JEConfig.getStage(), "Do you want to delete the Class \"" + _object.getName() + "\" ?",
-//                    "Delte Object", "Delete", Dialogs.DialogOptions.OK_CANCEL);
-//            if (response == Dialogs.DialogResponse.OK) {
-//                try {
-//                    _object.delete();
-//                    _item.getParent().getChildren().remove(_item);
-//                } catch (Exception ex) {
-//                    Dialogs.showErrorDialog(JEConfig.getStage(), ex.getMessage(), "Error", "Error", ex);
-//                }
-//            }
         } catch (Exception ex) {
         }
 

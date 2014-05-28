@@ -1,6 +1,21 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
+ *
+ * This file is part of JEConfig.
+ *
+ * JEConfig is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation in version 3.
+ *
+ * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * JEConfig. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * JEConfig is part of the OpenJEVis project, further project information are
+ * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
@@ -19,14 +34,13 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
-import javax.measure.unit.Unit;
-import org.controlsfx.dialog.Dialogs;
-import org.jevis.jeapi.JEVisAttribute;
-import org.jevis.jeapi.JEVisConstants;
-import org.jevis.jeapi.JEVisException;
-import org.jevis.jeapi.JEVisSample;
-import org.jevis.jecommon.unit.UnitManager;
+import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisConstants;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisSample;
+import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.jeconfig.JEConfig;
+import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
 import org.jevis.jeconfig.sample.SampleTable;
 import org.joda.time.DateTime;
 
@@ -114,11 +128,9 @@ public class StringValueEditor implements AttributeEditor {
                                     _newSample = _attribute.buildSample(new DateTime(), _field.getText());
                                 } catch (JEVisException ex) {
                                     Logger.getLogger(StringValueEditor.class.getName()).log(Level.SEVERE, null, ex);
-//                                    Dialogs.showErrorDialog(JEConfig.getStage(), ex.getMessage(), "Error", null, ex);
-                                    Dialogs.create()
-                                            .owner(JEConfig.getStage())
-                                            .title("Error")
-                                            .showException(ex);
+
+                                    ExceptionDialog dia = new ExceptionDialog();
+                                    dia.show(JEConfig.getStage(), "Error", "Could commit changes to Server", ex, PROGRAMM_INFO);
                                 }
                             }
                         }

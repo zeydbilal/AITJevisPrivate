@@ -1,6 +1,21 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
+ *
+ * This file is part of JEConfig.
+ *
+ * JEConfig is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation in version 3.
+ *
+ * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * JEConfig. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * JEConfig is part of the OpenJEVis project, further project information are
+ * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.plugin.classes;
 
@@ -16,9 +31,9 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import org.jevis.jeapi.JEVisClass;
-import org.jevis.jeapi.JEVisException;
-import org.jevis.jeapi.JEVisType;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisType;
 
 /**
  *
@@ -36,7 +51,6 @@ public class TypeTable {
         gridPane.setHgap(7);
         gridPane.setVgap(7);
 
-
         TableColumn otherClassCol = new TableColumn("Attribute");
         otherClassCol.setCellValueFactory(new PropertyValueFactory<RelationshipColum, String>("otherClass"));
         TableColumn typeCol = new TableColumn("Type");
@@ -50,9 +64,6 @@ public class TypeTable {
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table.getColumns().addAll(otherClassCol, typeCol, directionCol);
 
-
-
-
         try {
 //            final ObservableList<JEVisClassRelationship> data = FXCollections.observableArrayList(jclass.getRelationships());
             List<TypeColum> tjc = new LinkedList<>();
@@ -63,7 +74,6 @@ public class TypeTable {
 
             final ObservableList<TypeColum> data = FXCollections.observableArrayList(tjc);
             table.setItems(data);
-
 
         } catch (JEVisException ex) {
             Logger.getLogger(ClassRelationshipTable.class.getName()).log(Level.SEVERE, null, ex);

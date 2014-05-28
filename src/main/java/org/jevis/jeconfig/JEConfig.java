@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
+ * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
  *
  * This file is part of JEConfig.
  *
@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * JEConfig. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * JEConfig is part of the OpenJEVis project, further project information are
+ * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig;
 
@@ -30,10 +33,11 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import org.controlsfx.dialog.Dialogs;
-import org.jevis.jeapi.JEVisDataSource;
-import org.jevis.jeapi.JEVisException;
-import org.jevis.jeapi.sql.JEVisDataSourceSQL;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.application.application.JavaVersionCheck;
+import org.jevis.application.dialog.ExceptionDialog;
+import org.jevis.application.dialog.LoginDialog;
+import org.jevis.commons.application.ApplicationInfo;
 
 /**
  *
@@ -44,58 +48,48 @@ public class JEConfig extends Application {
     private static Stage _primaryStage;
     private static File _lastFile;
 
+    JEVisDataSource ds = null;
+
+    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.0");//todo get API Version from API
+
     @Override
     public void start(Stage primaryStage) {
-        try {
-            System.out.println("Java version: " + System.getProperty("java.version"));
-
-            _primaryStage = primaryStage;
-            buildGUI(primaryStage);
-
-//            PropertySheet ps = new PropertySheet();
-//            PropertySheet ps = new PropertySheet(BeanPropertyUtils.getProperties(new Calendar("", Color.ROYALBLUE)));
-//            Dialog dialog = new Dialog(null, "Calendar properties");
-//            dialog.setContent(ps);
-//            dialog.getActions().addAll(Dialog.Actions.CANCEL);
-//            Button b = new Button("Add calendar");
-//            dialog.show();
-//            b.setOnAction(action -> dialog.show());
-            //test
-        } catch (Exception ex) {
-//            Dialogs.showErrorDialog(primaryStage, ex.getMessage(), "Error", null, ex);
-            Dialogs.create()
-                    .owner(primaryStage)
-                    .title("Error while starting JEConfig")
-                    .showException(ex);
+//        System.out.println("Java version: " + System.getProperty("java.version"));
+        //does this even work on an JAVA FX Application?
+        JavaVersionCheck ceckVersion = new JavaVersionCheck();
+        if (!ceckVersion.isVersionOK()) {
+            System.exit(1);
         }
+
+        _primaryStage = primaryStage;
+        buildGUI(primaryStage);
+
     }
 
     private void buildGUI(Stage primaryStage) {
-//        Application.setUserAgentStylesheet(null);
-//        StyleManager.getInstance().addUserAgentStylesheet(JEConfig.getResource("/styles/main.css"));
-//        StyleManager.getInstance().addUserAgentStylesheet("/styles/Styles.css");
-//        Application.setUserAgentStylesheet("/styles/main.css");
-//        Application.getUserAgentStylesheet().
-//        
-        JEVisDataSource ds = null;
 
         try {
-            ds = new JEVisDataSourceSQL("192.168.2.55", "3306", "jevis", "jevis", "jevistest", "Sys Admin", "jevis");
-            ds.connect("Sys Admin", "jevis");
-//            Login login = new Login(ds);
-//            login.showLoginDialog();
 
-//            login.showLogin(false);
-        } catch (JEVisException ex) {
+            LoginDialog loginD = new LoginDialog();
+            ds = loginD.showSQL(primaryStage);
+
+            if (ds == null) {
+                System.exit(0);
+            }
+
+//            ds = new JEVisDataSourceSQL("192.168.2.55", "3306", "jevis", "jevis", "jevistest", "Sys Admin", "jevis");
+//            ds.connect("Sys Admin", "jevis");
+        } catch (Exception ex) {
             Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
-//            Dialogs.showErrorDialog(primaryStage, ex.getMessage(), "Error", null, ex);
-            Dialogs.create()
-                    .owner(primaryStage)
-                    .title("Error while connecting to JEVis")
-                    .showException(ex);
+            ExceptionDialog dia = new ExceptionDialog();
+            dia.show(primaryStage, "Error", "Could not connect to Server", ex, PROGRAMM_INFO);
+
         }
 
-//        RootPane rp = new RootPane(ds);
+        JEConfig.PROGRAMM_INFO.setJEVisAPI(ds.getInfo());
+        JEConfig.PROGRAMM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
+        JEConfig.PROGRAMM_INFO.addLibrary(org.jevis.application.Info.INFO);
+
         PluginManager pMan = new PluginManager(ds);
         GlobalToolBar toolbar = new GlobalToolBar(pMan);
         pMan.addPluginsByUserSetting(null);
@@ -119,6 +113,7 @@ public class JEConfig extends Application {
         primaryStage.setScene(scene);
         maximize(primaryStage);
         primaryStage.show();
+
     }
 
     /**
@@ -181,4 +176,5 @@ public class JEConfig extends Application {
         image.fitWidthProperty().set(width);
         return image;
     }
+
 }

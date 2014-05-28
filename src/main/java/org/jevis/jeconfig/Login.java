@@ -1,28 +1,28 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
+ *
+ * This file is part of JEConfig.
+ *
+ * JEConfig is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation in version 3.
+ *
+ * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * JEConfig. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * JEConfig is part of the OpenJEVis project, further project information are
+ * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig;
 
-import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-//import javafx.scene.control.Dialogs;
-//import javafx.scene.control.Dialogs.DialogOptions;
-//import javafx.scene.control.Dialogs.DialogResponse;
-import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import org.controlsfx.control.ButtonBar;
-import org.controlsfx.control.ButtonBar.ButtonType;
-import org.controlsfx.control.action.AbstractAction;
-import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.Dialog;
-import org.jevis.jeapi.JEVisDataSource;
-import org.jevis.jeapi.JEVisException;
+import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
 
 /**
  *
@@ -37,23 +37,6 @@ public class Login {
 
     final TextField txUserName = new TextField();
     final PasswordField txPassword = new PasswordField();
-    final Action actionLogin = new AbstractAction("Login") {
-        {
-            ButtonBar.setType(this, ButtonType.OK_DONE);
-        }
-
-        // This method is called when the login button is clicked...
-        @Override
-        public void execute(ActionEvent ae) {
-            System.out.println("---------------------");
-            try {
-
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                System.exit(0);
-            }
-        }
-    };
 
     public JEVisDataSource getDS() throws JEVisException {
         System.out.println("getDS");
@@ -126,53 +109,53 @@ public class Login {
     }
 
     private void validate() {
-        actionLogin.disabledProperty().set(
-                txUserName.getText().trim().isEmpty() || txPassword.getText().trim().isEmpty());
+//        actionLogin.disabledProperty().set(
+//                txUserName.getText().trim().isEmpty() || txPassword.getText().trim().isEmpty());
     }
 
     public void showLoginDialog() {
-        Dialog dlg = new Dialog(null, "Login Dialog");
-
-        // listen to user input on dialog (to enable / disable the login button)
-        ChangeListener<String> changeListener = new ChangeListener<String>() {
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                validate();
-            }
-        };
-        txUserName.textProperty().addListener(changeListener);
-        txPassword.textProperty().addListener(changeListener);
-
-        // layout a custom GridPane containing the input fields and labels
-        final GridPane content = new GridPane();
-        content.setHgap(10);
-        content.setVgap(10);
-
-        content.add(new Label("User name"), 0, 0);
-        content.add(txUserName, 1, 0);
-        GridPane.setHgrow(txUserName, Priority.ALWAYS);
-        content.add(new Label("Password"), 0, 1);
-        content.add(txPassword, 1, 1);
-        GridPane.setHgrow(txPassword, Priority.ALWAYS);
-
-        // create the dialog with a custom graphic and the gridpane above as the
-        // main content region
-        dlg.setResizable(false);
-        dlg.setIconifiable(false);
-//        dlg.setGraphic(new ImageView(HelloDialog.class.getResource("login.png").toString()));
-        dlg.setContent(content);
+//        Dialog dlg = new Dialog(null, "Login Dialog");
+//
+//        // listen to user input on dialog (to enable / disable the login button)
+//        ChangeListener<String> changeListener = new ChangeListener<String>() {
+//            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+//                validate();
+//            }
+//        };
+//        txUserName.textProperty().addListener(changeListener);
+//        txPassword.textProperty().addListener(changeListener);
+//
+//        // layout a custom GridPane containing the input fields and labels
+//        final GridPane content = new GridPane();
+//        content.setHgap(10);
+//        content.setVgap(10);
+//
+//        content.add(new Label("User name"), 0, 0);
+//        content.add(txUserName, 1, 0);
+//        GridPane.setHgrow(txUserName, Priority.ALWAYS);
+//        content.add(new Label("Password"), 0, 1);
+//        content.add(txPassword, 1, 1);
+//        GridPane.setHgrow(txPassword, Priority.ALWAYS);
+//
+//        // create the dialog with a custom graphic and the gridpane above as the
+//        // main content region
+//        dlg.setResizable(false);
+//        dlg.setIconifiable(false);
+////        dlg.setGraphic(new ImageView(HelloDialog.class.getResource("login.png").toString()));
+//        dlg.setContent(content);
+////        dlg.getActions().addAll(actionLogin, Dialog.Actions.CANCEL);
+//        dlg.getActions().clear();
 //        dlg.getActions().addAll(actionLogin, Dialog.Actions.CANCEL);
-        dlg.getActions().clear();
-        dlg.getActions().addAll(actionLogin, Dialog.Actions.CANCEL);
-        validate();
-
-        // request focus on the username field by default (so the user can
-        // type immediately without having to click first)
-        Platform.runLater(new Runnable() {
-            public void run() {
-                txUserName.requestFocus();
-            }
-        });
-
-        dlg.show();
+//        validate();
+//
+//        // request focus on the username field by default (so the user can
+//        // type immediately without having to click first)
+//        Platform.runLater(new Runnable() {
+//            public void run() {
+//                txUserName.requestFocus();
+//            }
+//        });
+//
+//        dlg.show();
     }
 }

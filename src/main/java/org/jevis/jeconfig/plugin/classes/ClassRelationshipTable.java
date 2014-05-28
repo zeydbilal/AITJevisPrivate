@@ -1,6 +1,21 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
+ *
+ * This file is part of JEConfig.
+ *
+ * JEConfig is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation in version 3.
+ *
+ * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * JEConfig. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * JEConfig is part of the OpenJEVis project, further project information are
+ * published at <http://www.OpenJEVis.org/>.
  */
 package org.jevis.jeconfig.plugin.classes;
 
@@ -10,15 +25,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import org.jevis.jeapi.JEVisClass;
-import org.jevis.jeapi.JEVisClassRelationship;
-import org.jevis.jeapi.JEVisException;
+import javafx.scene.layout.AnchorPane;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisClassRelationship;
+import org.jevis.api.JEVisException;
 
 /**
  *
@@ -29,13 +43,9 @@ public class ClassRelationshipTable {
     public ClassRelationshipTable() {
     }
 
-    public GridPane buildTree(JEVisClass jclass) {
-        GridPane gridPane = new GridPane();
-//        gridPane.setPadding(new Insets(20, 0, 20, 20));
-        gridPane.setPadding(new Insets(0, 0, 0, 0));
-        gridPane.setHgap(7);
-        gridPane.setVgap(7);
-
+    public Node buildTree(JEVisClass jclass) {
+        AnchorPane root = new AnchorPane();
+//        root.setStyle("-fx-background-color: blue;");
 
         TableColumn otherClassCol = new TableColumn("JEVisClass");
         otherClassCol.setCellValueFactory(new PropertyValueFactory<RelationshipColum, String>("otherClass"));
@@ -45,33 +55,34 @@ public class ClassRelationshipTable {
         directionCol.setCellValueFactory(new PropertyValueFactory<RelationshipColum, String>("direction"));
 
         TableView table = new TableView();
-        table.setMinWidth(555d);//TODo: replace Dirty workaround
-        table.setPrefHeight(200d);//TODo: replace Dirty workaround
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        table.setPrefSize(200, 200);
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY); //TODO: this in only posible in JAVAFX2.2+
+
+        root.getChildren().add(table);
+
+        AnchorPane.setTopAnchor(table, 10.0);
+        AnchorPane.setRightAnchor(table, 10.0);
+        AnchorPane.setLeftAnchor(table, 10.0);
+        AnchorPane.setBottomAnchor(table, 10.0);
+
         table.getColumns().addAll(otherClassCol, typeCol, directionCol);
 
-
-
-
+        otherClassCol.prefWidthProperty().bind(table.widthProperty().divide(3));
+        typeCol.prefWidthProperty().bind(table.widthProperty().divide(3));
+        directionCol.prefWidthProperty().bind(table.widthProperty().divide(3));
         try {
-//            final ObservableList<JEVisClassRelationship> data = FXCollections.observableArrayList(jclass.getRelationships());
             List<RelationshipColum> tjc = new LinkedList<>();
             for (JEVisClassRelationship rel : jclass.getRelationships()) {
-//                System.out.println("add relationship: " + rel);
                 tjc.add(new RelationshipColum(rel, jclass));
             }
 
             final ObservableList<RelationshipColum> data = FXCollections.observableArrayList(tjc);
             table.setItems(data);
 
-
         } catch (JEVisException ex) {
             Logger.getLogger(ClassRelationshipTable.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        gridPane.add(table, 0, 0);
-        gridPane.setHgrow(table, Priority.ALWAYS);
-
-        return gridPane;
+        return root;
     }
 }
