@@ -51,6 +51,10 @@ public class ImageConverter {
     }
 
     public static ImageView convertToImageView(BufferedImage icon, double w, double h) throws JEVisException {
+        if (icon == null) {
+            return new ImageView();
+        }
+
         Image image = SwingFXUtils.toFXImage(icon, null);
         ImageView iv = new ImageView(image);
         iv.fitHeightProperty().setValue(h);

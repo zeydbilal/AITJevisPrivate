@@ -17,7 +17,7 @@
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.jeconfig.plugin.classes;
+package org.jevis.jeconfig.plugin.classes.editor;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -29,6 +29,7 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
@@ -48,18 +49,24 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javax.measure.unit.Unit;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisType;
 import org.jevis.application.dialog.ExceptionDialog;
+import org.jevis.application.type.DisplayType;
+import org.jevis.application.type.GUIConstants;
+import org.jevis.application.unit.UnitChooserDialog;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
+import org.jevis.jeconfig.plugin.classes.ClassHelper;
+import org.jevis.jeconfig.plugin.classes.ClassRelationshipTable;
 import org.jevis.jeconfig.tool.ImageConverter;
-import org.jevis.jeconfig.tool.UnitChooser;
 
 /**
  *
@@ -72,140 +79,169 @@ public class ClassEditor {
     Button fIcon;
     private TitledPane t2;
     private List<JEVisType> _toDelete;
-    private final UnitChooser pop = new UnitChooser();
+//    private final UnitChooser pop = new UnitChooser();
+    private VBox _view;
+    TextField fName = new TextField();
+    TextArea fDescript = new TextArea();
+    CheckBox fUnique = new CheckBox();
 
     ;
 
     public ClassEditor() {
+        _view = new VBox();
+        _view.setStyle("-fx-background-color: #E2E2E2");
     }
 
-    public Node buildEditor(JEVisClass jclass) {
-        _class = jclass;
-        _toDelete = new ArrayList<>();
+    public void checkIfSaved(JEVisClass obj) {
 
-        final Accordion accordion = new Accordion();
-        accordion.setStyle("-fx-background-color: #E2E2E2");
+    }
 
-        GridPane gridPane = new GridPane();
-        gridPane.setPadding(new Insets(5, 0, 20, 20));
-        gridPane.setHgap(7);
-        gridPane.setVgap(7);
-
-        Label lName = new Label("Name:");
-        Label lDescription = new Label("Description:");
-        Label lIsUnique = new Label("Unique:");
-        Label lIcon = new Label("Icon:");
-        Label lRel = new Label("Relaionships:");
-        Label lInherit = new Label("Inheritance");
-        Label lTypes = new Label("Types:");
-
-        TextField fName = new TextField();
-        fName.prefWidthProperty().set(250d);
-        TextArea fDescript = new TextArea();
-        fIcon = new Button("", getIcon(jclass));
-        CheckBox fUnique = new CheckBox();
-        fUnique.setSelected(false);
-
-        ClassRelationshipTable table = new ClassRelationshipTable();
-
-        Button fInherit = new Button();
-
-        gridPane.add(lName, 0, 0);
-        gridPane.add(fName, 1, 0);
-        gridPane.add(lInherit, 0, 1);
-        gridPane.add(fInherit, 1, 1);
-        gridPane.add(lIcon, 0, 2);
-        gridPane.add(fIcon, 1, 2);
-        gridPane.add(lIsUnique, 0, 3);
-        gridPane.add(fUnique, 1, 3);
-        gridPane.add(lDescription, 0, 4);
-        gridPane.add(fDescript, 1, 4, 2, 1);
-
-        GridPane.setHalignment(lInherit, HPos.LEFT);
-        GridPane.setHalignment(lIcon, HPos.LEFT);
-        GridPane.setHalignment(lName, HPos.LEFT);
-        GridPane.setHalignment(lIsUnique, HPos.LEFT);
-        GridPane.setHalignment(lDescription, HPos.LEFT);
-        GridPane.setValignment(lDescription, VPos.TOP);
-        GridPane.setHalignment(lRel, HPos.LEFT);
-        GridPane.setValignment(lRel, VPos.TOP);
-//        GridPane.setHgrow(tTable, Priority.ALWAYS);
-        GridPane.setHalignment(lTypes, HPos.LEFT);
-        GridPane.setValignment(lTypes, VPos.TOP);
-
-        try {
-            if (jclass != null) {
-                fName.setText(jclass.getName());
-                if (jclass.getInheritance() != null) {
-                    fInherit.setText(jclass.getInheritance().getName());
-                } else {
-                    fInherit.setText("");
-                }
-
-                fDescript.setText(jclass.getDescription());
-                fUnique.setSelected(jclass.isUnique());
-            }
-
-        } catch (JEVisException ex) {
-            ExceptionDialog dia = new ExceptionDialog();
-            dia.show(JEConfig.getStage(), "Error", "Could not connect to Server", ex, PROGRAMM_INFO);
-        }
-
-        fIcon.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                FileChooser fileChooser = new FileChooser();
-                if (JEConfig.getLastFile() != null) {
-                    fileChooser.setInitialDirectory(JEConfig.getLastFile().getParentFile());
-                }
-
-                FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png");
-                FileChooser.ExtensionFilter gifFilter = new FileChooser.ExtensionFilter("GIF files (*.gif)", "*.gif");
-                FileChooser.ExtensionFilter jpgFilter = new FileChooser.ExtensionFilter("JPG files (*.jpg)", "*.jpg");
-                fileChooser.getExtensionFilters().addAll(extFilter, gifFilter, jpgFilter);
-                File file = fileChooser.showOpenDialog(JEConfig.getStage());
-                if (file != null) {
-                    openFile(file);
-                    JEConfig.setLastFile(file);
-                }
-            }
-        });
-
-        ScrollPane cpGenerell = new ScrollPane();
-        cpGenerell.setContent(gridPane);
-
-        final TitledPane t1 = new TitledPane("General", cpGenerell);
-        t2 = new TitledPane("Types", buildTypeNode());
-        final TitledPane t3 = new TitledPane("Relationships", table.buildTree(jclass));
-        accordion.getPanes().addAll(t1, t2, t3);
-        t1.setAnimated(false);
+    public void setClass(final JEVisClass jclass) {
         Platform.runLater(new Runnable() {
+
             @Override
             public void run() {
-                accordion.setExpandedPane(t1);//TODO the selected pane is not blue highlighted like if the user clicked.....
+                _class = jclass;
+                _toDelete = new ArrayList<>();
+
+                final Accordion accordion = new Accordion();
+                accordion.setStyle("-fx-background-color: #E2E2E2");
+
+                GridPane gridPane = new GridPane();
+                gridPane.setPadding(new Insets(5, 0, 20, 20));
+                gridPane.setHgap(7);
+                gridPane.setVgap(7);
+
+                Label lName = new Label("Name:");
+                Label lDescription = new Label("Description:");
+                Label lIsUnique = new Label("Unique:");
+                Label lIcon = new Label("Icon:");
+                Label lRel = new Label("Relaionships:");
+                Label lInherit = new Label("Inheritance");
+                Label lTypes = new Label("Types:");
+
+                fName.prefWidthProperty().set(250d);
+
+                fIcon = new Button("", getIcon(jclass));
+
+                fUnique.setSelected(false);
+
+                ClassRelationshipTable table = new ClassRelationshipTable();
+
+                Button fInherit = new Button("Choose...");
+
+                gridPane.add(lName, 0, 0);
+                gridPane.add(fName, 1, 0);
+                gridPane.add(lInherit, 0, 1);
+                gridPane.add(fInherit, 1, 1);
+                gridPane.add(lIcon, 0, 2);
+                gridPane.add(fIcon, 1, 2);
+                gridPane.add(lIsUnique, 0, 3);
+                gridPane.add(fUnique, 1, 3);
+                gridPane.add(lDescription, 0, 4);
+                gridPane.add(fDescript, 1, 4, 2, 1);
+
+                GridPane.setHalignment(lInherit, HPos.LEFT);
+                GridPane.setHalignment(lIcon, HPos.LEFT);
+                GridPane.setHalignment(lName, HPos.LEFT);
+                GridPane.setHalignment(lIsUnique, HPos.LEFT);
+                GridPane.setHalignment(lDescription, HPos.LEFT);
+                GridPane.setValignment(lDescription, VPos.TOP);
+                GridPane.setHalignment(lRel, HPos.LEFT);
+                GridPane.setValignment(lRel, VPos.TOP);
+//        GridPane.setHgrow(tTable, Priority.ALWAYS);
+                GridPane.setHalignment(lTypes, HPos.LEFT);
+                GridPane.setValignment(lTypes, VPos.TOP);
+
+                try {
+                    if (jclass != null) {
+                        fName.setText(jclass.getName());
+                        if (jclass.getInheritance() != null) {
+                            HBox inBox = new HBox();
+                            Label inLabel = new Label(jclass.getInheritance().getName());
+                            inLabel.setMaxHeight(8);
+                            ImageView inIcon = getIcon(jclass.getInheritance());
+                            inIcon.fitHeightProperty().bind(inLabel.heightProperty());
+                            inBox.getChildren().setAll(inIcon, inLabel);
+                            fInherit.setGraphic(inBox);
+                            fInherit.setText("");
+//                            fInherit.setText(jclass.getInheritance().getName());
+                        } else {
+                            fInherit.setText("Choose...");
+                        }
+
+                        fDescript.setText(jclass.getDescription());
+                        fUnique.setSelected(jclass.isUnique());
+                    }
+
+                } catch (JEVisException ex) {
+                    ExceptionDialog dia = new ExceptionDialog();
+                    dia.show(JEConfig.getStage(), "Error", "Could not connect to Server", ex, PROGRAMM_INFO);
+                }
+
+                fIcon.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent e) {
+                        FileChooser fileChooser = new FileChooser();
+                        if (JEConfig.getLastFile() != null) {
+                            fileChooser.setInitialDirectory(JEConfig.getLastFile().getParentFile());
+                        }
+
+                        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png");
+                        FileChooser.ExtensionFilter gifFilter = new FileChooser.ExtensionFilter("GIF files (*.gif)", "*.gif");
+                        FileChooser.ExtensionFilter jpgFilter = new FileChooser.ExtensionFilter("JPG files (*.jpg)", "*.jpg");
+                        fileChooser.getExtensionFilters().addAll(extFilter, gifFilter, jpgFilter);
+                        File file = fileChooser.showOpenDialog(JEConfig.getStage());
+                        if (file != null) {
+                            openFile(file);
+                            JEConfig.setLastFile(file);
+                            try {
+                                _class.setIcon(file);
+                            } catch (JEVisException ex) {
+                                Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
+                                ExceptionDialog dia = new ExceptionDialog();
+                                dia.show(JEConfig.getStage(), "Error", "Cannot set Icon", ex.getMessage(), ex, JEConfig.PROGRAMM_INFO);
+                            }
+                        }
+                    }
+                });
+
+                ScrollPane cpGenerell = new ScrollPane();
+                cpGenerell.setContent(gridPane);
+
+                final TitledPane t1 = new TitledPane("General", cpGenerell);
+                t2 = new TitledPane("Types", buildTypeNode());
+
+                final TitledPane t3 = new TitledPane("Relationships", table.buildTree(jclass));
+
+                t1.setStyle("-fx-background-color: #E2E2E2");
+                t2.setStyle("-fx-background-color: #E2E2E2");
+                t3.setStyle("-fx-background-color: #E2E2E2");
+                cpGenerell.setStyle("-fx-background-color: #E2E2E2");
+
+                accordion.getPanes().addAll(t1, t2, t3);
+                t1.setAnimated(false);
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        accordion.setExpandedPane(t1);//TODO the selected pane is not blue highlighted like if the user clicked.....
+                    }
+                });
+
+                _view.getChildren().setAll(accordion);
+                VBox.setVgrow(accordion, Priority.ALWAYS);
             }
         });
 
-        return accordion;
     }
 
-    private ChoiceBox buildPrimitiveTypeBox(JEVisType type) {
-        ChoiceBox primType = new ChoiceBox();
-        primType.setItems(ClassHelper.getAllPrimitiveTypes());
-        primType.getSelectionModel().select(ClassHelper.getNameforPrimitiveType(type));
-        primType.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> ov, Number t, Number t1) {
-                System.out.println("new Type: " + t1);
-//                type.setPrimitiveType(i);
-            }
-        });
-
-        return primType;
+    public Node getView() {
+        return _view;
     }
 
     private Node buildTypeNode() {
         ScrollPane cp = new ScrollPane();
+        cp.setStyle("-fx-background-color: #E2E2E2");
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(5, 0, 5, 20));
         gridPane.setHgap(7);
@@ -228,15 +264,41 @@ public class ClassEditor {
         int row = 2;
         try {
             Collections.sort(_class.getTypes());
+            if (_class.getTypes().isEmpty()) {
+                Label emty = new Label("Class has no Attributes");
+                gridPane.add(emty, 0, row, 4, 1);
+                row++;
+            }
             for (final JEVisType type : _class.getTypes()) {
                 type.getPrimitiveType();
-                TextField lName = new TextField(type.getName());
+                final TextField lName = new TextField(type.getName());
 //                lName.setEditable(false);
 
                 //test
                 ChoiceBox guiType = new ChoiceBox();
-                guiType.setItems(FXCollections.observableArrayList(
-                        "String,", "IP-Address", "Number", "File Selector", "Check Box", "PASSWORD Field"));
+//                guiType.setItems(FXCollections.observableArrayList(
+//                        "String,", "IP-Address", "Number", "File Selector", "Check Box", "PASSWORD Field"));
+
+                List<String> gTypes = new ArrayList<>();
+                for (DisplayType id : GUIConstants.ALL) {
+                    gTypes.add(id.getId());
+                }
+
+                ObservableList<String> items = FXCollections.observableList(gTypes);
+                guiType.setItems(items);
+                guiType.getSelectionModel().select(type.getGUIDisplayType());
+                guiType.valueProperty().addListener(new ChangeListener<String>() {
+
+                    @Override
+                    public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                        System.out.println("Select GUI Tpye: " + newValue);
+                        try {
+                            type.setGUIDisplayType(newValue);
+                        } catch (JEVisException ex) {
+                            Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                });
 
                 final Button unitSelector = new Button("Error");
                 unitSelector.setMaxWidth(56.0);
@@ -247,7 +309,26 @@ public class ClassEditor {
                         @Override
                         public void handle(ActionEvent t) {
                             try {
-                                pop.show(type);
+                                UnitChooserDialog dia = new UnitChooserDialog();
+                                if (dia.show(JEConfig.getStage(), type) == UnitChooserDialog.Response.OK) {
+                                    System.out.println("User whants: " + dia.getUnit());
+                                    if (!dia.getAlternativSysmbol().isEmpty()) {
+                                        unitSelector.setText(dia.getAlternativSysmbol());
+                                    } else {
+                                        unitSelector.setText(dia.getUnit().toString());
+                                    }
+
+                                    if (!type.getUnit().equals(dia.getUnit())) {
+                                        type.setUnit(dia.getUnit());
+                                    }
+                                    System.out.println("1: " + type.getAlternativSymbol());
+                                    System.out.println("2: " + dia.getAlternativSysmbol());
+                                    if (!type.getAlternativSymbol().equals(dia.getAlternativSysmbol())) {
+                                        type.setAlternativSymbol(dia.getAlternativSysmbol());
+                                    }
+
+                                }
+
                                 setUnitButton(unitSelector, type);
                             } catch (Exception ex) {
                                 Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
@@ -257,6 +338,43 @@ public class ClassEditor {
                 } catch (Exception ex) {
                     Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
                 }
+
+                lName.setOnAction(new EventHandler<ActionEvent>() {
+
+                    @Override
+                    public void handle(ActionEvent t) {
+                        try {
+                            System.out.println("event name");
+                            if (!lName.getText().isEmpty()) {
+                                System.out.println("name not null");
+                                if (_class.getType(lName.getText()) == null) {
+                                    System.out.println("name is the free");
+                                    type.setName(lName.getText());
+                                }
+                            }
+
+                        } catch (JEVisException ex) {
+                            Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                });
+
+                ChoiceBox primType = new ChoiceBox();
+                primType.setItems(ClassHelper.getAllPrimitiveTypes());
+                primType.getSelectionModel().select(ClassHelper.getNameforPrimitiveType(type));
+                primType.valueProperty().addListener(new ChangeListener<String>() {
+
+                    @Override
+                    public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                        System.out.println("Select GUI Tpye: " + newValue);
+                        try {
+                            type.setPrimitiveType(ClassHelper.getIDforPrimitiveType(newValue));
+
+                        } catch (JEVisException ex) {
+                            Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                });
 
 //                PopOver poUnit = new PopOver(unitSelector);
                 Button up = new Button();
@@ -336,7 +454,7 @@ public class ClassEditor {
 
                 //                                              x, y
                 gridPane.add(lName, 0, row);
-                gridPane.add(buildPrimitiveTypeBox(type), 1, row);
+                gridPane.add(primType, 1, row);
                 gridPane.add(guiType, 2, row);
                 gridPane.add(unitSelector, 3, row);
                 gridPane.add(remove, 4, row);
@@ -358,7 +476,7 @@ public class ClassEditor {
         gridPane.add(newSep, 0, row++, 6, 1);
 
         final TextField lName = new TextField("New Attribute");
-        final ChoiceBox pTypeBox = buildPrimitiveTypeBox(null);
+//        final ChoiceBox pTypeBox = buildPrimitiveTypeBox(null);
 
         Button newB = new Button();
         newB.setGraphic(JEConfig.getImage("list-add.png", 20, 20));
@@ -368,7 +486,7 @@ public class ClassEditor {
                 try {
                     JEVisType newType = _class.buildType(lName.getText());
                     JEVisType lastType = _class.getTypes().get(_class.getTypes().size() - 1);
-                    newType.setPrimitiveType(ClassHelper.getIDforPrimitiveType(pTypeBox.getSelectionModel().getSelectedItem().toString()));
+//                    newType.setPrimitiveType(ClassHelper.getIDforPrimitiveType(pTypeBox.getSelectionModel().getSelectedItem().toString()));
                     newType.setGUIPosition(lastType.getGUIPosition() + 1);
                     System.out.println("new pos for new Type: " + newType.getGUIPosition());
 
@@ -385,9 +503,9 @@ public class ClassEditor {
                 "Text", "IP-Address", "Number", "File Selector", "Check Box", "PASSWORD Field"));
 
         gridPane.add(lName, 0, row);
-        gridPane.add(pTypeBox, 1, row);
-        gridPane.add(guiType, 2, row);
-        gridPane.add(newB, 3, row);
+//        gridPane.add(pTypeBox, 1, row);
+//        gridPane.add(guiType, 2, row);
+        gridPane.add(newB, 1, row);
 
         cp.setContent(gridPane);
 
@@ -422,6 +540,33 @@ public class ClassEditor {
             ExceptionDialog dia = new ExceptionDialog();
             dia.show(JEConfig.getStage(), "Error", "Could not open file", ex, PROGRAMM_INFO);
 
+        }
+    }
+
+    public void commitAll() {
+        System.out.println("Commit Class");
+        try {
+            _class.setName(fName.getText());
+            _class.setDescription(fDescript.getText());
+            _class.setUnique(fUnique.isSelected());
+
+            //ToDo: if inheritace change also change the tree
+            _class.commit();
+
+            for (JEVisType type : _class.getTypes()) {
+                if (!_toDelete.contains(type)) {
+                    System.out.println("Commit: " + type);
+                    type.commit();
+                }
+            }
+            for (JEVisType type : _toDelete) {
+                type.delete();
+            }
+
+        } catch (JEVisException ex) {
+            Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
+            ExceptionDialog dia = new ExceptionDialog();
+            dia.show(JEConfig.getStage(), "Error", "Error while saving Class", ex.getLocalizedMessage(), ex, JEConfig.PROGRAMM_INFO);
         }
     }
 
@@ -468,6 +613,10 @@ public class ClassEditor {
     private ImageView getIcon(JEVisClass jclass) {
         try {
             System.out.println("getIcon for :" + jclass);
+            if (jclass.getIcon() == null) {
+                return JEConfig.getImage("1393615831_unknown2.png", 30, 30);
+            }
+
             return ImageConverter.convertToImageView(jclass.getIcon(), 30, 30);
         } catch (Exception ex) {
             System.out.println("Error while geeting class icon: " + ex);

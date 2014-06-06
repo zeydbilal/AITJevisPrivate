@@ -19,39 +19,29 @@
  */
 package org.jevis.jeconfig.plugin.classes;
 
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.ProgressIndicator;
-//import javafx.scene.control.Dialogs;
 import javafx.scene.control.TreeItem;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import org.jevis.application.dialog.ExceptionDialog;
-import org.jevis.jeconfig.JEConfig;
-import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
+import org.jevis.jeconfig.plugin.classes.editor.ClassEditor;
 
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class ClassTreeChangeListener implements EventHandler<ActionEvent>, ChangeListener<TreeItem<String>> {
+public class ClassTreeChangeListener implements EventHandler<ActionEvent>, ChangeListener<TreeItem<ClassTreeObject>> {
 
-    VBox _editorPane;
-    ClassItem _item;
+//    VBox _editorPane;
+//    AnchorPane _editorPane;
+    TreeItem<ClassTreeObject> _item;
     Button _button;
     private ClassEditor _editor;
 
-    public ClassTreeChangeListener(VBox editorPane) {
-        _editorPane = editorPane;
-        _editor = new ClassEditor();
-//        _button = save;//TODo replace by some kind of listener or so.....
+    public ClassTreeChangeListener(ClassEditor _editor) {
+//        _editorPane = editorPane;
+        this._editor = _editor;
     }
 
     @Override
@@ -59,86 +49,18 @@ public class ClassTreeChangeListener implements EventHandler<ActionEvent>, Chang
     }
 
     @Override
-    public void changed(ObservableValue<? extends TreeItem<String>> ov, TreeItem<String> t, final TreeItem<String> t1) {
+    public void changed(ObservableValue<? extends TreeItem<ClassTreeObject>> ov, TreeItem<ClassTreeObject> t, TreeItem<ClassTreeObject> t1) {
         try {
-
-            BorderPane ap = new BorderPane();
-
-//            ap.setStyle("-fx-background-color: blue;");
-            StackPane sp = new StackPane();
-//            sp.setAlignment(Pos.CENTER);
-            final ProgressIndicator pi = new ProgressIndicator();
-            pi.setMaxWidth(50d);
-            pi.setMinHeight(50d);
-
-            sp.getChildren().add(pi);
-            ap.setCenter(sp);
-            _editorPane.getChildren().clear();
-            _editorPane.getChildren().add(ap);
-            VBox.setVgrow(ap, Priority.ALWAYS);
-
-            final Thread animation = new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(1000);
-
-                    } catch (InterruptedException ex) {
-
-                    }
-                    Platform.runLater(new Runnable() {
-                        public void run() {
-                            pi.setProgress(-1);
-                        }
-                    });
-                }
-            };
-            animation.start();
-
-            new Thread() {
-
-                // runnable for that thread
-                @Override
-                public void run() {
-                    try {
-                        //test simulate long loading time
-//                        try {Thread.sleep(1000);} catch (InterruptedException ex) {}
-
-                        ClassItem item = (ClassItem) t1;
-                        _item = item;
-
-                        final Node editor = _editor.buildEditor(item.getObject());
-                        animation.interrupt();
-
-                        // update ProgressIndicator on FX thread
-                        Platform.runLater(new Runnable() {
-
-                            @Override
-                            public void run() {
-                                _editorPane.getChildren().clear();
-                                _editorPane.getChildren().add(editor);
-                                VBox.setVgrow(editor, Priority.ALWAYS);
-                            }
-                        });
-
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-
-                }
-            }.start();
+            _item = t1;
+            _editor.setClass(t1.getValue().getObject());
+            //TODO
 
         } catch (Exception ex) {
-            ExceptionDialog dia = new ExceptionDialog();
-            dia.show(JEConfig.getStage(), "Error", "Error in class tree", ex, PROGRAMM_INFO);
+//            Dialogs.showErrorDialog(JEConfig.getStage(), ex.getMessage(), "Error", "Error", ex);
         }
     }
 
-    public ClassItem getCurrentItem() {
+    public TreeItem<ClassTreeObject> getCurrentItem() {
         return _item;
-    }
-
-    public ClassEditor getCurrentEditor() {
-        return _editor;
     }
 }

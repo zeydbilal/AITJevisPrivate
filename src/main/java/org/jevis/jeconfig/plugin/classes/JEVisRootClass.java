@@ -17,10 +17,11 @@
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.jeconfig.plugin.classesnew;
+package org.jevis.jeconfig.plugin.classes;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisClassRelationship;
@@ -37,7 +38,7 @@ public class JEVisRootClass implements JEVisClass {
 
     private final List<JEVisClass> _children;
     private final JEVisDataSource _ds;
-    private String _name = "Fake Root";
+    private String _name = "Classes";
 
     public JEVisRootClass(JEVisDataSource ds) throws JEVisException {
         this._ds = ds;
@@ -82,7 +83,7 @@ public class JEVisRootClass implements JEVisClass {
 
     @Override
     public BufferedImage getIcon() throws JEVisException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return null;
     }
 
     @Override
@@ -97,7 +98,7 @@ public class JEVisRootClass implements JEVisClass {
 
     @Override
     public String getDescription() throws JEVisException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return "This Class is a fake and does not exist on the Server";
     }
 
     @Override
@@ -107,12 +108,12 @@ public class JEVisRootClass implements JEVisClass {
 
     @Override
     public List<JEVisType> getTypes() throws JEVisException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new ArrayList<>();
     }
 
     @Override
     public JEVisType getType(String typename) throws JEVisException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return null;
     }
 
     @Override
@@ -122,7 +123,7 @@ public class JEVisRootClass implements JEVisClass {
 
     @Override
     public JEVisClass getInheritance() throws JEVisException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return null;
     }
 
     @Override
@@ -132,17 +133,17 @@ public class JEVisRootClass implements JEVisClass {
 
     @Override
     public List<JEVisClass> getValidParents() throws JEVisException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new ArrayList<>();
     }
 
     @Override
     public boolean isAllowedUnder(JEVisClass jevisClass) throws JEVisException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return false;
     }
 
     @Override
     public boolean isUnique() throws JEVisException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return true;
     }
 
     @Override
@@ -157,17 +158,17 @@ public class JEVisRootClass implements JEVisClass {
 
     @Override
     public List<JEVisClassRelationship> getRelationships() throws JEVisException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new ArrayList<>();
     }
 
     @Override
     public List<JEVisClassRelationship> getRelationships(int type) throws JEVisException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new ArrayList<>();
     }
 
     @Override
     public List<JEVisClassRelationship> getRelationships(int type, int direction) throws JEVisException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new ArrayList<>();
     }
 
     @Override
@@ -187,7 +188,7 @@ public class JEVisRootClass implements JEVisClass {
 
     @Override
     public int compareTo(JEVisClass o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return -1;
     }
 
 }

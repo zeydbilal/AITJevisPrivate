@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.object;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -36,7 +37,10 @@ import javafx.scene.image.ImageView;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.commons.json.JsonFactory;
+import org.jevis.commons.json.JsonFileExporter;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.export.JsonExportDialog;
 import org.jevis.jeconfig.tool.ImageConverter;
 
 /**
@@ -58,12 +62,29 @@ public class ObjectContextMenu extends ContextMenu {
 
         getItems().add(buildMenuNew());
 
-//        getItems().add(new SeparatorMenuItem());
-//        getItems().add(buildDelete());
-//        getItems().add(buildRename());
-//        getItems().add(buildProperties())
-        getItems().setAll(buildMenuNew(), new SeparatorMenuItem(), buildDelete(), buildRename());
+        getItems().setAll(buildMenuNew(), new SeparatorMenuItem(), buildDelete(), buildRename(), buildExport());
 
+    }
+
+    private MenuItem buildExport() {
+        MenuItem menu = new MenuItem("Export", JEConfig.getImage("1401894975_Export.png", 20, 20));
+        menu.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent t) {
+//                JsonFileExporter exporter = new JsonFileExporter();
+//                JsonFactory facory = new JsonFactory();
+
+//                try {
+                JsonExportDialog dia = new JsonExportDialog(JEConfig.getStage(), "Export", _obj);
+//                    JsonFileExporter.writeToFile(new File("/tmp/object.json"), JsonFactory.buildObject(_obj, true, true, true));
+//                } catch (JEVisException ex) {
+//                    Logger.getLogger(ObjectContextMenu.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+            }
+        }
+        );
+        return menu;
     }
 
     public List<MenuItem> buildMenuNewContent() {

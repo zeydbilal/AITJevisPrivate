@@ -21,10 +21,11 @@ package org.jevis.jeconfig.plugin.classes;
 
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 
 /**
  *
@@ -32,29 +33,28 @@ import org.jevis.api.JEVisException;
  */
 public class NewClassEventHandler implements EventHandler {
 
-    private ClassItem _item;
-    private JEVisClass _object;
+    private TreeItem<ClassTreeObject> _item;
+    private JEVisObject _object;
+    private JEVisClass _class;
     private TreeView _tree;
 
-    public NewClassEventHandler(TreeView tree, ClassItem item, JEVisClass obj) {
-        _object = obj;
+    public NewClassEventHandler(TreeView tree, TreeItem<ClassTreeObject> item) {
         _item = item;
         _tree = tree;
     }
 
     @Override
     public void handle(Event t) {
-        System.out.println("new Class event!");
         try {
-            JEVisClass newClass = _object.getDataSource().buildClass("New Class");
-            if (!_item.isRoot()) {
-                newClass.buildRelationship(_object, JEVisConstants.ClassRelationship.INHERIT, JEVisConstants.Direction.FORWARD);
-                newClass.commit();
-            }
+            //TOD= ceck if class allready exists?!
+            JEVisClass newClass = _object.getDataSource().buildClass("New Classs");
+            newClass.commit();
+            ClassItem treeItem = new ClassItem(newClass);
 
-            ClassItem newItem = new ClassItem(newClass);
-            _item.getChildren().add(newItem);
-            _tree.getSelectionModel().select(newItem);
+            //TODO: if class is a herrit from an other add it there
+            _tree.getRoot().getChildren().add(treeItem);
+//            _item.getChildren().add(treeItem);
+            _tree.getSelectionModel().select(treeItem);
 
         } catch (JEVisException ex) {
             System.out.println("new object: " + ex);

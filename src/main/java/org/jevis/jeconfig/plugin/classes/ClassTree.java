@@ -21,115 +21,193 @@ package org.jevis.jeconfig.plugin.classes;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.jeconfig.plugin.classes.editor.ClassEditor;
 
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class ClassTree {
+public class ClassTree extends TreeView<ClassTreeObject> {
 
-    private TreeView _tree;
-    ClassTreeChangeListener _cl;
+    private ClassTreeChangeListener _cl;
+    private ClassEditor _editor = new ClassEditor();
+    private boolean _editable = false;
+    private JEVisDataSource _ds;
 
     public ClassTree() {
+
     }
 
-    public TreeView<JEVisObject> SimpleTreeView(JEVisDataSource ds, VBox editorPane) {
+    public ClassTree(JEVisDataSource ds) {
+        super();
         try {
+            _ds = ds;
 
-            ClassItem rootItem = new ClassItem(ds);//TDO replace with root  
+            JEVisClass root = new JEVisRootClass(ds);
+            TreeItem<ClassTreeObject> rootItem = new ClassItem(root);
+
+            setShowRoot(true);
             rootItem.setExpanded(true);
-            TreeView treeView = new TreeView(rootItem);
-            _tree = treeView;
 
-            treeView.showRootProperty().set(false);
-            treeView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-            _cl = new ClassTreeChangeListener(editorPane);
-            treeView.getSelectionModel().selectedItemProperty().addListener(_cl);
-            treeView.setOnKeyReleased(new TreeHotKeys(treeView, _cl));
+            getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+            _cl = new ClassTreeChangeListener(_editor);
 
-//            treeView.setEditable(true);
-            treeView.setCellFactory(new Callback<TreeView<String>, TreeCell<String>>() {
+            getSelectionModel().selectedItemProperty().addListener(_cl);
+//            setOnKeyReleased(new TreeHotKeys(_tree, _cl));
+
+            setCellFactory(new Callback<TreeView<ClassTreeObject>, TreeCell<ClassTreeObject>>() {
                 @Override
-                public TreeCell<String> call(TreeView<String> p) {
+                public TreeCell<ClassTreeObject> call(TreeView<ClassTreeObject> p) {
                     return new ClassCell();
                 }
             });
-            treeView.setId("objecttree");
-//            treeView.setStyle(JEConfig.getResource("Styles.css"));
-            treeView.getStylesheets().add("/styles/Styles.css");
 
-            return treeView;
+            addEventHandler(KeyEvent.KEY_RELEASED, new EventHandler<KeyEvent>() {
+
+                @Override
+                public void handle(KeyEvent t) {
+                    if (t.getCode() == KeyCode.F2) {
+                        System.out.println("F2 rename event");
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                fireEventRename();
+                            }
+                        });
+
+                    } else if (t.getCode() == KeyCode.DELETE) {
+                        fireDelete();
+                    }
+                }
+
+            });
+
+            setId("objecttree");
+
+            getStylesheets().add("/styles/Styles.css");
+            setPrefWidth(500);
+
+            setRoot(rootItem);
+            setEditable(true);
+
         } catch (Exception ex) {
-            Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
+//            Logger.getLogger(ObjectTree.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
-        return null;
 
     }
 
-    private void addChildren(TreeItem<JEVisObject> treeItemRoot, JEVisObject obj) {
-        try {
-            for (JEVisObject child : obj.getChildren()) {
-                Image folderIcon = new Image(getClass().getResourceAsStream("1390343812_folder-open.png"));
-                Image objectIcon = new Image(getClass().getResourceAsStream("1390344346_3d_objects.png"));
-                TreeItem<JEVisObject> childItem;
-                if (!child.getChildren().isEmpty()) {
-                    childItem = new TreeItem<>(child, new ImageView(folderIcon));
-                } else {
-                    childItem = new TreeItem<>(child, new ImageView(objectIcon));
-                }
+    /**
+     * Workaround, it was not posible to have an double click without the chnage
+     * for the default edit. Its posible to ste setEditable(false) but then we
+     * had strange behavior.
+     *
+     * @param ti
+     */
+    @Override
+    public void edit(TreeItem<ClassTreeObject> ti) {
+        if (_editable) {
+//            System.out.println("edit allowed");
+            editableProperty().setValue(true);
+            super.edit(ti);
+            _editable = false;
+        } else {
+//            System.out.println("not allowed");
+        }
+    }
 
-                treeItemRoot.getChildren().add(childItem);
-                if (!child.getChildren().isEmpty()) {
+    public void expandSelected(boolean expand) {
+        TreeItem<ClassTreeObject> item = _cl.getCurrentItem();
+        expand(item, expand);
+    }
 
-                    addChildren(childItem, child);
-                }
+    private void expand(TreeItem<ClassTreeObject> item, boolean expand) {
+        if (!item.isLeaf()) {
+            if (item.isExpanded() && !expand) {
+                item.setExpanded(expand);
+            } else if (!item.isExpanded() && expand) {
+                item.setExpanded(expand);
             }
+
+            for (TreeItem<ClassTreeObject> child : item.getChildren()) {
+                expand(child, expand);
+            }
+        }
+    }
+
+    public synchronized void setEditFix(boolean edit) {
+        System.out.println("Fix allow: " + edit);
+        _editable = edit;
+    }
+
+    public void fireEventRename() {
+        System.out.println("fireRename");
+        setEditFix(true);
+        edit(_cl.getCurrentItem());
+    }
+
+    public void fireSaveAttributes(boolean ask) throws JEVisException {
+
+        if (ask) {
+            _editor.checkIfSaved(null);
+        } else {
+            _editor.commitAll();
+            //TODO: replace this dump way of refeshing
+            getSelectionModel().getSelectedItem().setExpanded(true);
+        }
+    }
+
+    public void fireDelete() {
+        System.out.println("delete event");
+        DeleteClassEventHandler deletEvent = new DeleteClassEventHandler(
+                this, _cl.getCurrentItem());
+        deletEvent.handle(null);
+    }
+
+    public void fireEventNew() {
+        try {
+
+            JEVisClass currentClass = _cl.getCurrentItem().getValue().getObject();
+            JEVisClass newClass = _ds.buildClass("Unnamed New Classs");
+            newClass.commit();//TODO: find a better solution....
+            final ClassItem treeItem = new ClassItem(newClass);
+            if (currentClass instanceof JEVisRootClass) {
+            } else {
+                newClass.buildRelationship(currentClass, JEVisConstants.ClassRelationship.INHERIT, JEVisConstants.Direction.FORWARD);
+            }
+
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    System.out.println("select Class: " + treeItem);
+                    System.out.println("CurrentItem: " + _cl.getCurrentItem());
+                    System.out.println("SelectetItem: " + getSelectionModel());
+                    _cl.getCurrentItem().getChildren().add(treeItem);
+                    getSelectionModel().select(treeItem);
+                    fireEventRename();
+                }
+            });
+
         } catch (JEVisException ex) {
             Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    public void fireEventRename() {
-        _tree.setEditable(true);
-        _tree.edit(_cl.getCurrentItem());
-        _tree.setEditable(false);
-    }
-
-    public void fireSave() throws JEVisException {
-        _cl.getCurrentEditor().comitAll();
-    }
-
-    private class TreeHotKeys implements EventHandler<KeyEvent> {
-
-        private TreeView _tree;
-        private ClassTreeChangeListener _listener;
-
-        public TreeHotKeys(TreeView tree, ClassTreeChangeListener listener) {
-            _tree = tree;
-            _listener = listener;
-        }
-
-        @Override
-        public void handle(KeyEvent t) {
-            if (t.getCode() == KeyCode.F2) {
-                fireEventRename();
-            }
-
-        }
+    //TODO i dont like this way
+    public ClassEditor getEditor() {
+        return _editor;
     }
 }

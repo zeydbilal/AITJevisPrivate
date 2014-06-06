@@ -19,17 +19,20 @@
  */
 package org.jevis.jeconfig.plugin.classes;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.SplitPaneBuilder;
-import javafx.scene.control.TreeView;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisException;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
@@ -43,8 +46,9 @@ public class ClassPlugin implements Plugin {
     private StringProperty name = new SimpleStringProperty("*NO_NAME*");
     private StringProperty id = new SimpleStringProperty("*NO_ID*");
     private JEVisDataSource ds;
-    private ClassEditor editor;
-    private ClassTree tf = new ClassTree();
+    private BorderPane border;
+//    private ObjectTree tf;
+    private ClassTree tree;
 
     public ClassPlugin(JEVisDataSource ds, String newname) {
         this.ds = ds;
@@ -83,21 +87,33 @@ public class ClassPlugin implements Plugin {
 
     @Override
     public Node getConntentNode() {
+        if (border == null) {
 
-        VBox editorPane = new VBox();
-        editorPane.setId("objecteditorpane");
-//        System.out.println("1");
-        TreeView<JEVisObject> tree = tf.SimpleTreeView(ds, editorPane);
-//        System.out.println("2");
+//            VBox editorPane = new VBox();
+//            editorPane.setId("objecteditorpane");
+            tree = new ClassTree(ds);
 
-        SplitPane sp = SplitPaneBuilder.create()
-                .items(tree, editorPane)
-                .dividerPositions(new double[]{.2d, 0.8d}) // why does this not work!?
-                .orientation(Orientation.HORIZONTAL)
-                .build();
-        sp.setId("mainsplitpane");
+            VBox left = new VBox();
+            left.setStyle("-fx-background-color: #E2E2E2;");
+//            SearchBox search = new SearchBox();
+            left.getChildren().addAll(tree);
+            VBox.setVgrow(tree, Priority.ALWAYS);
+//            VBox.setVgrow(search, Priority.NEVER);
 
-        return sp;
+            SplitPane sp = SplitPaneBuilder.create()
+                    .items(left, tree.getEditor().getView())
+                    .dividerPositions(new double[]{.2d, 0.8d}) // why does this not work!?
+                    .orientation(Orientation.HORIZONTAL)
+                    .build();
+            sp.setId("mainsplitpane");
+            sp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+
+            border = new BorderPane();
+            border.setCenter(sp);
+            border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+        }
+
+        return border;
     }
 
     @Override
@@ -120,43 +136,50 @@ public class ClassPlugin implements Plugin {
         this.ds = ds;
     }
 
-//    @Override
-//    public void handelRequest(Command command) {
-//        throw new UnsupportedOperationException("Not supported yet.");
-//    }
     @Override
     public void handelRequest(int cmdType) {
-        System.out.println("Classplugin command handler: " + cmdType);
         try {
             switch (cmdType) {
                 case Constants.Plugin.Command.SAVE:
-                    System.out.println("speichern");
-//                    editor.comitAll();
-                    tf.fireSave();
+                    System.out.println("save");
+                    tree.fireSaveAttributes(false);
                     break;
                 case Constants.Plugin.Command.DELTE:
-//                    tf.fireDelete();
+                    tree.fireDelete();
                     break;
                 case Constants.Plugin.Command.EXPAND:
-//                    System.out.println("Expand");
+                    System.out.println("Expand");
                     break;
                 case Constants.Plugin.Command.NEW:
-//                    tf.fireEventNew();
+                    tree.fireEventNew();
                     break;
                 default:
                     System.out.println("Unknows command ignore...");
             }
         } catch (Exception ex) {
         }
+
+    }
+
+    @Override
+    public void fireCloseEvent() {
+        try {
+            tree.fireSaveAttributes(true);
+        } catch (JEVisException ex) {
+            Logger.getLogger(ClassPlugin.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void Save() {
+        try {
+            tree.fireSaveAttributes(false);
+        } catch (JEVisException ex) {
+            Logger.getLogger(ClassPlugin.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
     public ImageView getIcon() {
         return JEConfig.getImage("1394482166_blueprint_tool.png", 20, 20);
-    }
-
-    @Override
-    public void fireCloseEvent() {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

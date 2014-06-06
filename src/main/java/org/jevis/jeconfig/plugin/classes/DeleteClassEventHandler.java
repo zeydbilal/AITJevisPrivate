@@ -19,14 +19,17 @@
  */
 package org.jevis.jeconfig.plugin.classes;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.application.dialog.ConfirmDialog;
-import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.jeconfig.JEConfig;
-import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
 
 /**
  *
@@ -34,33 +37,43 @@ import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
  */
 public class DeleteClassEventHandler implements EventHandler {
 
-    private ClassItem _item;
-    private JEVisClass _object;
+    private TreeItem<ClassTreeObject> _item;
+    private JEVisClass _class;
     private TreeView _tree;
 
-    public DeleteClassEventHandler(TreeView tree, ClassItem item, JEVisClass obj) {
-        _object = obj;
+    public DeleteClassEventHandler(TreeView tree, TreeItem<ClassTreeObject> item) {
         _item = item;
         _tree = tree;
+        _class = _item.getValue().getObject();
     }
 
     @Override
     public void handle(Event t) {
+
         try {
             ConfirmDialog dia = new ConfirmDialog();
-            ConfirmDialog.Response re = dia.show(JEConfig.getStage(), "Delte Object", "Delte Object", "Do you want to delete the Class \"" + _object.getName() + "\" ?");
+            String question = "Do you want to delete the Class \"" + _class.getName() + "\" ?";
 
-            if (re == ConfirmDialog.Response.YES) {
+            if (dia.show(JEConfig.getStage(), "Delete Class", "Delete Class?", question) == ConfirmDialog.Response.YES) {
                 try {
-                    _object.delete();
-                    _item.getParent().getChildren().remove(_item);
+                    System.out.println("User want to delete: " + _class.getName());
+//                    System.out.println("Parent: " + _item.getParent());
+
+                    TreeItem<ClassTreeObject> parent = _item.getParent();
+
+                    parent.getChildren().remove(_item);
+                    _class.delete();
+
+                    _tree.getSelectionModel().select(parent);
+
                 } catch (Exception ex) {
-                    ExceptionDialog eDia = new ExceptionDialog();
-                    eDia.show(JEConfig.getStage(), "Error", "Could not delete Class", ex, PROGRAMM_INFO);
+                    ex.printStackTrace();
+//                    Dialogs.showErrorDialog(JEConfig.getStage(), ex.getMessage(), "Error", "Error", ex);
+
                 }
             }
-
-        } catch (Exception ex) {
+        } catch (JEVisException ex) {
+            Logger.getLogger(DeleteClassEventHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }

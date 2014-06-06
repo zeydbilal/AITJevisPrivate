@@ -17,7 +17,7 @@
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.jeconfig.plugin.classesnew;
+package org.jevis.jeconfig.plugin.classes;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -98,6 +98,7 @@ public class ClassTreeObject {
 
     public Node getEditor(final TreeCell<ClassTreeObject> cell) {
         try {
+            System.out.println("getCellEditor for: " + getObject().getName());
             buildEditor(cell);
             _textField.setText(getObject().getName());
             _view.getChildren().setAll(icon, _textField);

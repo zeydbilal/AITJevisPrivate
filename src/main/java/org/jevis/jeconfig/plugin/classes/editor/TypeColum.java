@@ -17,9 +17,8 @@
  * JEConfig is part of the OpenJEVis project, further project information are
  * published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.jeconfig.plugin.classesnew.editor;
+package org.jevis.jeconfig.plugin.classes.editor;
 
-import org.jevis.jeconfig.plugin.classes.*;
 import javafx.beans.property.SimpleStringProperty;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisConstants.Direction;
