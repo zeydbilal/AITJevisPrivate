@@ -47,6 +47,7 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -55,6 +56,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javax.measure.unit.Unit;
 import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisType;
 import org.jevis.application.dialog.ExceptionDialog;
@@ -76,6 +78,7 @@ public class ClassEditor {
 
 //    private Desktop desktop = Desktop.getDesktop();
     private JEVisClass _class;
+    private TextField fInherit;
     Button fIcon;
     private TitledPane t2;
     private List<JEVisType> _toDelete;
@@ -117,7 +120,7 @@ public class ClassEditor {
                 Label lIsUnique = new Label("Unique:");
                 Label lIcon = new Label("Icon:");
                 Label lRel = new Label("Relaionships:");
-                Label lInherit = new Label("Inheritance");
+                Label lInherit = new Label("Inheritance:");
                 Label lTypes = new Label("Types:");
 
                 fName.prefWidthProperty().set(250d);
@@ -128,7 +131,15 @@ public class ClassEditor {
 
                 ClassRelationshipTable table = new ClassRelationshipTable();
 
-                Button fInherit = new Button("Choose...");
+//                Button fInherit = new Button("Choose...");
+                fInherit = new TextField();
+                try {
+                    if (jclass.getInheritance() != null) {
+                        fInherit.setText(jclass.getInheritance().getName());
+                    }
+                } catch (JEVisException ex) {
+                    Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
+                }
 
                 gridPane.add(lName, 0, 0);
                 gridPane.add(fName, 1, 0);
@@ -163,11 +174,9 @@ public class ClassEditor {
                             ImageView inIcon = getIcon(jclass.getInheritance());
                             inIcon.fitHeightProperty().bind(inLabel.heightProperty());
                             inBox.getChildren().setAll(inIcon, inLabel);
-                            fInherit.setGraphic(inBox);
-                            fInherit.setText("");
 //                            fInherit.setText(jclass.getInheritance().getName());
                         } else {
-                            fInherit.setText("Choose...");
+//                            fInherit.setText("Choose...");
                         }
 
                         fDescript.setText(jclass.getDescription());
@@ -191,12 +200,23 @@ public class ClassEditor {
                         FileChooser.ExtensionFilter gifFilter = new FileChooser.ExtensionFilter("GIF files (*.gif)", "*.gif");
                         FileChooser.ExtensionFilter jpgFilter = new FileChooser.ExtensionFilter("JPG files (*.jpg)", "*.jpg");
                         fileChooser.getExtensionFilters().addAll(extFilter, gifFilter, jpgFilter);
-                        File file = fileChooser.showOpenDialog(JEConfig.getStage());
+                        final File file = fileChooser.showOpenDialog(JEConfig.getStage());
                         if (file != null) {
                             openFile(file);
                             JEConfig.setLastFile(file);
                             try {
                                 _class.setIcon(file);
+                                Platform.runLater(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Image image = new Image(file.toURI().toString());
+                                        ImageView iView = new ImageView(image);
+                                        iView.setFitHeight(30);
+                                        iView.setFitWidth(30);
+                                        fIcon.setGraphic(iView);
+                                    }
+                                });
+
                             } catch (JEVisException ex) {
                                 Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
                                 ExceptionDialog dia = new ExceptionDialog();
@@ -573,6 +593,13 @@ public class ClassEditor {
     public void comitAll() {
         System.out.println("Class Commit all");
         try {
+            if (!fInherit.getText().isEmpty()) {
+                if (_class.getDataSource().getJEVisClass(fInherit.getText()) != null) {
+                    JEVisClass newHerit = _class.getDataSource().getJEVisClass(fInherit.getText());
+                    _class.buildRelationship(newHerit, JEVisConstants.ClassRelationship.INHERIT, JEVisConstants.Direction.FORWARD);
+                }
+            }
+
             _class.commit();
 
             for (JEVisType type : _class.getTypes()) {

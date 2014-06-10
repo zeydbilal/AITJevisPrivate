@@ -36,13 +36,21 @@ import org.jevis.api.JEVisType;
  */
 public class JEVisRootClass implements JEVisClass {
 
-    private final List<JEVisClass> _children;
+    private List<JEVisClass> _children = new ArrayList<JEVisClass>();
     private final JEVisDataSource _ds;
     private String _name = "Classes";
 
     public JEVisRootClass(JEVisDataSource ds) throws JEVisException {
         this._ds = ds;
-        _children = _ds.getJEVisClasses();
+
+        List<JEVisClass> allClasses = _ds.getJEVisClasses();
+        for (JEVisClass jclass : allClasses) {
+            if (jclass.getInheritance() == null) {
+                _children.add(jclass);
+            }
+
+        }
+
     }
 
     public JEVisRootClass(JEVisDataSource ds, List<JEVisClass> roots) throws JEVisException {

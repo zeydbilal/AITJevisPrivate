@@ -34,7 +34,9 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.classes.editor.ClassEditor;
+import org.jevis.jeconfig.tool.NewClassDialog;
 
 /**
  *
@@ -165,6 +167,7 @@ public class ClassTree extends TreeView<ClassTreeObject> {
             _editor.checkIfSaved(null);
         } else {
             _editor.commitAll();
+
             //TODO: replace this dump way of refeshing
             getSelectionModel().getSelectedItem().setExpanded(true);
         }
@@ -179,27 +182,51 @@ public class ClassTree extends TreeView<ClassTreeObject> {
 
     public void fireEventNew() {
         try {
+            NewClassDialog dia = new NewClassDialog();
 
-            JEVisClass currentClass = _cl.getCurrentItem().getValue().getObject();
-            JEVisClass newClass = _ds.buildClass("Unnamed New Classs");
-            newClass.commit();//TODO: find a better solution....
-            final ClassItem treeItem = new ClassItem(newClass);
-            if (currentClass instanceof JEVisRootClass) {
-            } else {
-                newClass.buildRelationship(currentClass, JEVisConstants.ClassRelationship.INHERIT, JEVisConstants.Direction.FORWARD);
+            JEVisClass currentClass = null;
+            if (_cl.getCurrentItem() != null) {
+                currentClass = _cl.getCurrentItem().getValue().getObject();
+            }
+            if (currentClass.getName().equals("Classes")) {//fake parent is null
+                currentClass = null;
             }
 
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    System.out.println("select Class: " + treeItem);
-                    System.out.println("CurrentItem: " + _cl.getCurrentItem());
-                    System.out.println("SelectetItem: " + getSelectionModel());
-                    _cl.getCurrentItem().getChildren().add(treeItem);
-                    getSelectionModel().select(treeItem);
-                    fireEventRename();
+            System.out.println("Current class: " + currentClass);
+            if (dia.show(JEConfig.getStage(), currentClass, _ds) == NewClassDialog.Response.YES
+                    && dia.getClassName() != null
+                    && !dia.getClassName().equals("")) {
+
+                JEVisClass newClass = _ds.buildClass(dia.getClassName());
+                newClass.commit();//TODO: find a better solution....
+
+                TreeItem newParent = getRoot();
+
+                if (dia.getInheritance() != null) {
+                    newClass.buildRelationship(dia.getInheritance(), JEVisConstants.ClassRelationship.INHERIT, JEVisConstants.Direction.FORWARD);
+                    for (int i = 0; i < 10000; i++) {
+                        if (getTreeItem(i) != null) {
+                            if (getTreeItem(i).getValue().getObject().getName().equals(dia.getInheritance().getName())) {
+                                newParent = getTreeItem(i);
+                            }
+                        }
+                    }
+                } else {
+
                 }
-            });
+                final ClassItem treeItem = new ClassItem(newClass);
+                final TreeItem tmp = newParent;//workaround
+
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        tmp.getChildren().add(treeItem);
+                        getSelectionModel().select(treeItem);
+//                fireEventRename();
+
+                    }
+                });
+            }
 
         } catch (JEVisException ex) {
             Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
