@@ -19,7 +19,6 @@
  */
 package org.jevis.jeconfig.plugin.object;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -32,13 +31,10 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
 import javafx.scene.image.ImageView;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
-import org.jevis.commons.json.JsonFactory;
-import org.jevis.commons.json.JsonFileExporter;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.export.JsonExportDialog;
 import org.jevis.jeconfig.tool.ImageConverter;
@@ -50,19 +46,23 @@ import org.jevis.jeconfig.tool.ImageConverter;
 public class ObjectContextMenu extends ContextMenu {
 
     private JEVisObject _obj;
-    private TreeItem<ObjectTreeObject> _item;
-    private TreeView _tree;
+    private ObjectTree _tree;
 
-    public ObjectContextMenu(TreeItem<ObjectTreeObject> item, TreeView tree) {
+    public ObjectContextMenu(JEVisObject obj, ObjectTree tree) {
         super();
 
-        _obj = item.getValue().getObject();
-        _item = item;
+        _obj = obj;
         _tree = tree;
 
         getItems().add(buildMenuNew());
 
-        getItems().setAll(buildMenuNew(), new SeparatorMenuItem(), buildDelete(), buildRename(), buildExport());
+        getItems().setAll(
+                buildNew2(),
+                new SeparatorMenuItem(),
+                buildDelete(),
+                buildRename(),
+                buildExport()
+        );
 
     }
 
@@ -72,15 +72,7 @@ public class ObjectContextMenu extends ContextMenu {
 
             @Override
             public void handle(ActionEvent t) {
-//                JsonFileExporter exporter = new JsonFileExporter();
-//                JsonFactory facory = new JsonFactory();
-
-//                try {
                 JsonExportDialog dia = new JsonExportDialog(JEConfig.getStage(), "Export", _obj);
-//                    JsonFileExporter.writeToFile(new File("/tmp/object.json"), JsonFactory.buildObject(_obj, true, true, true));
-//                } catch (JEVisException ex) {
-//                    Logger.getLogger(ObjectContextMenu.class.getName()).log(Level.SEVERE, null, ex);
-//                }
             }
         }
         );
@@ -94,7 +86,14 @@ public class ObjectContextMenu extends ContextMenu {
                 MenuItem classItem;
 
                 classItem = new CheckMenuItem(jlass.getName(), getIcon(jlass));
-                classItem.setOnAction(new NewObjectEventHandler(_tree, _item, _obj, jlass));
+                classItem.setOnAction(new EventHandler<ActionEvent>() {
+
+                    @Override
+                    public void handle(ActionEvent t) {
+                        _tree.fireEventNew(_obj);
+                    }
+                }
+                );
                 newContent.add(classItem);
             }
         } catch (JEVisException ex) {
@@ -136,6 +135,25 @@ public class ObjectContextMenu extends ContextMenu {
         return menu;
     }
 
+    private MenuItem buildNew2() {
+        MenuItem menu = new MenuItem("New", JEConfig.getImage("list-add.png", 20, 20));
+        menu.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent t) {
+
+//                _tree.edit(_item);
+                //workaround
+                if (_tree instanceof ObjectTree) {
+//                    ((ObjectTree) _tree).fireEventRename();
+                    _tree.fireEventNew(_obj);
+
+                }
+
+            }
+        });
+        return menu;
+    }
+
     private MenuItem buildRename() {
         MenuItem menu = new MenuItem("Rename");
         menu.setOnAction(new EventHandler<ActionEvent>() {
@@ -155,7 +173,13 @@ public class ObjectContextMenu extends ContextMenu {
 
     private MenuItem buildDelete() {
         MenuItem menu = new MenuItem("Delete", JEConfig.getImage("list-remove.png", 20, 20));
-        menu.setOnAction(new DeleteObjectEventHandler(_tree, _item, _obj));
+        menu.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent t) {
+                _tree.fireDelete(_obj);
+            }
+        });
         return menu;
     }
 }

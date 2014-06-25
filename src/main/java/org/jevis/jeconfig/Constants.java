@@ -38,6 +38,7 @@ public interface Constants {
             public static int PASE = 4;
             public static int EXPAND = 5;
             public static int COLLAPSE = 6;
+            public static int RELOAD = 7;
         }
     }
 

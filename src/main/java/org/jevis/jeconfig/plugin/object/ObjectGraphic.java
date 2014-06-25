@@ -1,0 +1,121 @@
+/**
+ * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
+ *
+ * This file is part of JEConfig.
+ *
+ * JEConfig is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation in version 3.
+ *
+ * JEConfig is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * JEConfig. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * JEConfig is part of the OpenJEVis project, further project information are
+ * published at <http://www.OpenJEVis.org/>.
+ */
+package org.jevis.jeconfig.plugin.object;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisRelationship;
+import org.jevis.commons.CommonClasses;
+import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.tool.ImageConverter;
+
+/**
+ *
+ * @author Florian Simon <florian.simon@envidatec.com>
+ */
+public class ObjectGraphic {
+
+    private final HBox _view = new HBox();
+    private final HBox _edior = new HBox();
+    private ImageView icon = new ImageView();
+    private final Label nameLabel = new Label("*Missing*");
+    private final JEVisObject _obj;
+    private final ObjectContextMenu _menu;
+    private final ObjectTree _tree;
+    private Tooltip _tip;
+
+    public ObjectGraphic(JEVisObject obj, ObjectTree tree) {
+        _obj = obj;
+        _tree = tree;
+        _menu = new ObjectContextMenu(obj, tree);
+
+        icon = getIcon(_obj);
+        _view.setAlignment(Pos.CENTER_LEFT);
+        _view.setSpacing(3);
+        _view.setPadding(new Insets(0, 0, 0, 5));
+
+        try {
+            if (_obj.getJEVisClass().getName().equals(CommonClasses.LINK.NAME)) {
+
+                if (_obj.getLinkedObject() != null) {
+                    icon = getIcon(_obj.getLinkedObject());
+                } else {
+                    icon = JEConfig.getImage("1403724422_link_break.png", 20, 20);
+                }
+
+            }
+        } catch (JEVisException ex) {
+            Logger.getLogger(ObjectGraphic.class.getName()).log(Level.SEVERE, null, ex);
+            icon = JEConfig.getImage("1403724422_link_break.png", 20, 20);
+        }
+
+        try {
+            _tip = new Tooltip(String.format("ID:       %s\nName: %s\nClass:  %s\n", obj.getID().toString(), obj.getName(), obj.getJEVisClass().getName()));
+        } catch (JEVisException ex) {
+            Logger.getLogger(ObjectGraphic.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    public Node getGraphic() {
+//        icon = getIcon(_obj);
+        nameLabel.setText(_obj.getName());
+        _view.getChildren().setAll(icon, nameLabel);
+
+        return _view;
+    }
+
+    public ObjectContextMenu getContexMenu() {
+        return _menu;
+    }
+
+    public Tooltip getToolTip() {
+        return _tip;
+    }
+
+    public String getText() {
+        return "";
+    }
+
+    private ImageView getIcon(JEVisObject item) {
+        try {
+            if (item != null && item.getJEVisClass() != null) {
+                return ImageConverter.convertToImageView(item.getJEVisClass().getIcon(), 20, 20);//20
+            } else {
+                return JEConfig.getImage("1390343812_folder-open.png", 20, 20);
+            }
+
+        } catch (Exception ex) {
+            System.out.println("Error while get icon for object: " + ex);
+        }
+        return new ImageView();
+
+    }
+
+}

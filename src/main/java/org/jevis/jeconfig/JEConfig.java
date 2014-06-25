@@ -20,9 +20,15 @@
 package org.jevis.jeconfig;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 //import javafx.scene.control.Dialogs;
@@ -33,12 +39,17 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.application.application.JavaVersionCheck;
 import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.application.dialog.LoginDialog;
 import org.jevis.application.statusbar.Statusbar;
 import org.jevis.commons.application.ApplicationInfo;
+import org.jevis.jeconfig.tool.WelcomePage;
 
 /**
  *
@@ -105,6 +116,7 @@ public class JEConfig extends Application {
         border.setCenter(pMan.getView());
 
         Statusbar statusBar = new Statusbar(ds);
+
         border.setBottom(statusBar);
 
         root.getChildren().addAll(border);
@@ -118,6 +130,38 @@ public class JEConfig extends Application {
         maximize(primaryStage);
         primaryStage.show();
 
+        try {
+            WelcomePage welcome = new WelcomePage(primaryStage, new URI("http://openjevis.org/projects/openjevis/wiki/JEConfig_testing"));
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        root.disableProperty().bind(statusBar.connectedProperty.not());
+
+        primaryStage.onCloseRequestProperty().addListener(new ChangeListener<EventHandler<WindowEvent>>() {
+
+            @Override
+            public void changed(ObservableValue<? extends EventHandler<WindowEvent>> ov, EventHandler<WindowEvent> t, EventHandler<WindowEvent> t1) {
+                try {
+                    System.out.println("Disconnect");
+                    ds.disconnect();
+                } catch (JEVisException ex) {
+                    Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
+
+//        statusBar.connectedProperty.addListener(new ChangeListener<Boolean>() {
+//
+//            @Override
+//            public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
+//                if (t1 == true) {
+//                    root.disableProperty()
+//                } else {
+//
+//                }
+//            }
+//        });
     }
 
     /**
@@ -130,6 +174,29 @@ public class JEConfig extends Application {
      */
     public static void main(String[] args) {
         launch(args);
+    }
+
+    private void test() {
+        try {
+
+            System.out.println("test start");
+            JEVisClass orgaDirClass = ds.getJEVisClass("Organization Directory");
+            JEVisClass orgaClass = ds.getJEVisClass("Organization");
+            System.out.println("orgaClass: " + orgaClass);
+            List<JEVisObject> orgaDirList = ds.getObjects(orgaDirClass, true);
+            JEVisObject orgaDir = orgaDirList.get(0);
+            System.out.println("OrgaDir: " + orgaDir);
+//            long id = orgaDir.getID();
+//            orgaDir = ds.getObject(id);
+
+            JEVisObject newOrga = orgaDir.buildObject("NEW ORGANIZATION", orgaClass);
+            System.out.println("new Orga: " + newOrga);
+            System.out.println("test done");
+
+        } catch (JEVisException ex) {
+            Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
 
     public static Stage getStage() {

@@ -19,35 +19,55 @@
  */
 package org.jevis.jeconfig.plugin.classes;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
 import javafx.util.Callback;
 import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisClassRelationship;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
+import org.jevis.application.dialog.ConfirmDialog;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.classes.editor.ClassEditor;
+import org.jevis.jeconfig.plugin.object.ObjectTree;
 import org.jevis.jeconfig.tool.NewClassDialog;
 
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class ClassTree extends TreeView<ClassTreeObject> {
+public class ClassTree extends TreeView<JEVisClass> {
 
-    private ClassTreeChangeListener _cl;
     private ClassEditor _editor = new ClassEditor();
     private boolean _editable = false;
     private JEVisDataSource _ds;
+
+    private HashMap<String, TreeItem<JEVisClass>> _itemCache;
+    private HashMap<String, ClassGraphic> _graphicCache;
+    private HashMap<TreeItem<JEVisClass>, ObservableList<TreeItem<JEVisClass>>> _itemChildren;
+
+    private JEVisClass _dragClass;
 
     public ClassTree() {
 
@@ -58,22 +78,39 @@ public class ClassTree extends TreeView<ClassTreeObject> {
         try {
             _ds = ds;
 
+            _itemCache = new HashMap<>();
+            _graphicCache = new HashMap<>();
+            _itemChildren = new HashMap<>();
+
             JEVisClass root = new JEVisRootClass(ds);
-            TreeItem<ClassTreeObject> rootItem = new ClassItem(root);
+            TreeItem<JEVisClass> rootItem = buildItem(root);
 
             setShowRoot(true);
             rootItem.setExpanded(true);
 
             getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-            _cl = new ClassTreeChangeListener(_editor);
+            _editor.setTreeView(this);
 
-            getSelectionModel().selectedItemProperty().addListener(_cl);
-//            setOnKeyReleased(new TreeHotKeys(_tree, _cl));
+            setCellFactory(new Callback<TreeView<JEVisClass>, TreeCell<JEVisClass>>() {
 
-            setCellFactory(new Callback<TreeView<ClassTreeObject>, TreeCell<ClassTreeObject>>() {
                 @Override
-                public TreeCell<ClassTreeObject> call(TreeView<ClassTreeObject> p) {
+                public TreeCell<JEVisClass> call(TreeView<JEVisClass> p) {
                     return new ClassCell();
+                }
+            });
+
+            getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<JEVisClass>>() {
+
+                @Override
+                public void changed(ObservableValue<? extends TreeItem<JEVisClass>> ov, TreeItem<JEVisClass> t, TreeItem<JEVisClass> t1) {
+                    try {
+                        if (t1 != null) {
+                            _editor.setJEVisClass(t1.getValue());
+                        }
+                    } catch (Exception ex) {
+                        System.out.println("Error while changing editor: " + ex);
+                    }
+
                 }
             });
 
@@ -91,7 +128,8 @@ public class ClassTree extends TreeView<ClassTreeObject> {
                         });
 
                     } else if (t.getCode() == KeyCode.DELETE) {
-                        fireDelete();
+
+                        fireDelete(getSelectionModel().getSelectedItem().getValue());
                     }
                 }
 
@@ -112,31 +150,106 @@ public class ClassTree extends TreeView<ClassTreeObject> {
 
     }
 
-    /**
-     * Workaround, it was not posible to have an double click without the chnage
-     * for the default edit. Its posible to ste setEditable(false) but then we
-     * had strange behavior.
-     *
-     * @param ti
-     */
-    @Override
-    public void edit(TreeItem<ClassTreeObject> ti) {
-        if (_editable) {
-//            System.out.println("edit allowed");
-            editableProperty().setValue(true);
-            super.edit(ti);
-            _editable = false;
-        } else {
-//            System.out.println("not allowed");
+    public TreeItem<JEVisClass> buildItem(JEVisClass object) {
+        if (object != null) {
+            try {
+
+                if (_itemCache.containsKey(object.getName())) {
+                    return _itemCache.get(object.getName());
+                }
+
+                final TreeItem<JEVisClass> newItem = new ClassItem(object, this);
+                _itemCache.put(object.getName(), newItem);
+
+                return newItem;
+            } catch (JEVisException ex) {
+                Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
+                ex.printStackTrace();
+            }
+        }
+
+        return null;
+    }
+
+    public TreeItem<JEVisClass> getObjectTreeItem(JEVisClass object) {
+        return buildItem(object);
+    }
+
+    public void addChildrenList(TreeItem<JEVisClass> item, ObservableList<TreeItem<JEVisClass>> list) {
+        _itemChildren.put(item, list);
+        try {
+            for (JEVisClass child : item.getValue().getHeirs()) {
+                TreeItem<JEVisClass> newItem = buildItem(child);
+                list.add(newItem);
+            }
+        } catch (JEVisException ex) {
+            Logger.getLogger(ObjectTree.class.getName()).log(Level.SEVERE, null, ex);
+        }
+//        sortList(list);
+
+    }
+
+    private void getAllExpanded(List<TreeItem<JEVisClass>> list, TreeItem<JEVisClass> item) {
+        if (item.isExpanded()) {
+            list.add(item);
+            for (TreeItem<JEVisClass> i : item.getChildren()) {
+                getAllExpanded(list, i);
+            }
         }
     }
 
-    public void expandSelected(boolean expand) {
-        TreeItem<ClassTreeObject> item = _cl.getCurrentItem();
-        expand(item, expand);
+    private void expandAll(List<TreeItem<JEVisClass>> list, TreeItem<JEVisClass> root) {
+//        System.out.println("expand all");
+        for (final TreeItem<JEVisClass> item : root.getChildren()) {
+            for (final TreeItem<JEVisClass> child : list) {
+                try {
+                    if (item.getValue().getName().equals(child.getValue().getName())) {
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                item.setExpanded(true);
+                            }
+                        });
+
+                    }
+                } catch (JEVisException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            expandAll(list, item);
+        }
     }
 
-    private void expand(TreeItem<ClassTreeObject> item, boolean expand) {
+    public void reload() {
+
+    }
+
+    public ObservableList<TreeItem<JEVisClass>> getChildrenList(TreeItem<JEVisClass> item) {
+        if (item == null || item.getValue() == null) {
+            return FXCollections.emptyObservableList();
+        }
+
+        if (_itemChildren.containsKey(item)) {
+            return _itemChildren.get(item);
+        }
+
+        ObservableList<TreeItem<JEVisClass>> list = FXCollections.observableArrayList();
+        try {
+            for (JEVisClass child : item.getValue().getHeirs()) {
+                TreeItem<JEVisClass> newItem = buildItem(child);
+                list.add(newItem);
+            }
+        } catch (JEVisException ex) {
+            Logger.getLogger(ObjectTree.class.getName()).log(Level.SEVERE, null, ex);
+        }
+//        sortList(list);
+        _itemChildren.put(item, list);
+
+        return list;
+
+    }
+
+    private void expand(TreeItem<JEVisClass> item, boolean expand) {
         if (!item.isLeaf()) {
             if (item.isExpanded() && !expand) {
                 item.setExpanded(expand);
@@ -144,24 +257,22 @@ public class ClassTree extends TreeView<ClassTreeObject> {
                 item.setExpanded(expand);
             }
 
-            for (TreeItem<ClassTreeObject> child : item.getChildren()) {
+            for (TreeItem<JEVisClass> child : item.getChildren()) {
                 expand(child, expand);
             }
         }
     }
 
-    public synchronized void setEditFix(boolean edit) {
-        System.out.println("Fix allow: " + edit);
-        _editable = edit;
-    }
-
     public void fireEventRename() {
         System.out.println("fireRename");
-        setEditFix(true);
-        edit(_cl.getCurrentItem());
+
+//        edit(_cl.getCurrentItem());
     }
 
     public void fireSaveAttributes(boolean ask) throws JEVisException {
+        TreeItem<JEVisClass> selectedItem = getSelectionModel().getSelectedItem();
+
+        getSelectionModel().getSelectedItem().getParent().setExpanded(false);
 
         if (ask) {
             _editor.checkIfSaved(null);
@@ -171,64 +282,95 @@ public class ClassTree extends TreeView<ClassTreeObject> {
             //TODO: replace this dump way of refeshing
             getSelectionModel().getSelectedItem().setExpanded(true);
         }
+
+        getSelectionModel().getSelectedItem().getParent().setExpanded(true);
+        getSelectionModel().select(selectedItem);
+
     }
 
-    public void fireDelete() {
+    public void fireDelete(JEVisClass jclass) {
         System.out.println("delete event");
-        DeleteClassEventHandler deletEvent = new DeleteClassEventHandler(
-                this, _cl.getCurrentItem());
-        deletEvent.handle(null);
+        if (jclass == null) {
+            jclass = getSelectionModel().getSelectedItem().getValue();
+        }
+
+        if (jclass != null) {
+            try {
+                ConfirmDialog dia = new ConfirmDialog();
+                String question = "Do you want to delete the Class \"" + jclass.getName() + "\" ?";
+
+                if (dia.show(JEConfig.getStage(), "Delete Class", "Delete Class?", question) == ConfirmDialog.Response.YES) {
+                    try {
+                        System.out.println("User want to delete: " + jclass.getName());
+
+                        if (jclass.getInheritance() != null) {
+                            for (JEVisClassRelationship rel : jclass.getRelationships(JEVisConstants.ClassRelationship.INHERIT)) {
+                                jclass.deleteRelationship(rel);
+                            }
+                        }
+
+                        TreeItem<JEVisClass> item = getObjectTreeItem(jclass);
+                        TreeItem<JEVisClass> parentItem = item.getParent();
+
+                        jclass.delete();
+
+                        parentItem.getChildren().remove(item);
+                        getSelectionModel().select(parentItem);
+
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            } catch (JEVisException ex) {
+                Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
     }
 
-    public void fireEventNew() {
+    public void fireEventNew(TreeItem<JEVisClass> item) {
         try {
+            System.out.println("fire new class:" + item);
             NewClassDialog dia = new NewClassDialog();
 
             JEVisClass currentClass = null;
-            if (_cl.getCurrentItem() != null) {
-                currentClass = _cl.getCurrentItem().getValue().getObject();
-            }
-            if (currentClass.getName().equals("Classes")) {//fake parent is null
+
+            if (item == null && getSelectionModel().getSelectedItem() != null) {
+                currentClass = getSelectionModel().getSelectedItem().getValue();
+            } else if (currentClass != null && currentClass.getName().equals("Classes")) {
                 currentClass = null;
             }
 
-            System.out.println("Current class: " + currentClass);
+            if (currentClass != null && currentClass.getName().equals("Classes")) {
+                currentClass = null;
+            }
+
             if (dia.show(JEConfig.getStage(), currentClass, _ds) == NewClassDialog.Response.YES
                     && dia.getClassName() != null
                     && !dia.getClassName().equals("")) {
+                System.out.println("dia end");
+                System.out.println("build class: " + dia.getClassName());
 
                 JEVisClass newClass = _ds.buildClass(dia.getClassName());
-                newClass.commit();//TODO: find a better solution....
 
-                TreeItem newParent = getRoot();
+                final TreeItem<JEVisClass> treeItem = buildItem(newClass);
 
                 if (dia.getInheritance() != null) {
-                    newClass.buildRelationship(dia.getInheritance(), JEVisConstants.ClassRelationship.INHERIT, JEVisConstants.Direction.FORWARD);
-                    for (int i = 0; i < 10000; i++) {
-                        if (getTreeItem(i) != null) {
-                            if (getTreeItem(i).getValue().getObject().getName().equals(dia.getInheritance().getName())) {
-                                newParent = getTreeItem(i);
-                            }
-                        }
-                    }
+                    getChildrenList(getObjectTreeItem(dia.getInheritance())).add(getObjectTreeItem(newClass));
                 } else {
-
+                    getChildrenList(getObjectTreeItem(getRoot().getValue())).add(getObjectTreeItem(newClass));
                 }
-                final ClassItem treeItem = new ClassItem(newClass);
-                final TreeItem tmp = newParent;//workaround
 
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
-                        tmp.getChildren().add(treeItem);
                         getSelectionModel().select(treeItem);
-//                fireEventRename();
-
                     }
                 });
             }
 
         } catch (JEVisException ex) {
+            ex.printStackTrace();
             Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -236,5 +378,162 @@ public class ClassTree extends TreeView<ClassTreeObject> {
     //TODO i dont like this way
     public ClassEditor getEditor() {
         return _editor;
+    }
+
+    public ClassGraphic getClassGraphic(JEVisClass object) {
+        try {
+            if (_graphicCache.containsKey(object.getName())) {
+                return _graphicCache.get(object.getName());
+            }
+
+//        System.out.println("grahic does not exist create for: " + object);
+            ClassGraphic graph = new ClassGraphic(object, this);
+
+            _graphicCache.put(object.getName(), graph);
+            return graph;
+        } catch (JEVisException ex) {
+            Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return null;
+    }
+
+    public JEVisClass getDragItem() {
+        return _dragClass;
+    }
+
+    public void setDragItem(JEVisClass obj) {
+        _dragClass = obj;
+    }
+
+    public class ClassCell extends TreeCell<JEVisClass> {
+
+        @Override
+        protected void updateItem(final JEVisClass obj, boolean emty) {
+            super.updateItem(obj, emty);
+            if (!emty) {
+                ClassGraphic grph = getClassGraphic(obj);
+                setText(grph.getText());
+                setGraphic(grph.getGraphic());
+//                setTooltip(grph.getToolTip());
+                setContextMenu(grph.getContexMenu());
+
+                //---------------------- Drag & Drop part --------------
+                setOnDragDetected(new EventHandler<MouseEvent>() {
+
+                    @Override
+                    public void handle(MouseEvent e) {
+                        try {
+                            System.out.println("Drag Source: " + obj.getName());
+                            ClipboardContent content = new ClipboardContent();
+//                        content.putString(obj.getName());
+                            Dragboard dragBoard = startDragAndDrop(TransferMode.MOVE);
+                            content.put(DataFormat.PLAIN_TEXT, obj.getName());
+                            dragBoard.setContent(content);
+
+                            setDragItem(obj);
+                            e.consume();
+                        } catch (JEVisException ex) {
+                            Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                });
+
+                setOnDragDone(new EventHandler<DragEvent>() {
+                    @Override
+                    public void handle(DragEvent dragEvent) {
+                        try {
+                            System.out.println("Drag done on " + obj.getName());
+                            dragEvent.consume();
+                        } catch (JEVisException ex) {
+                            Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                });
+
+                //TODO: ceh if its ok to move the Object here
+                setOnDragOver(new EventHandler<DragEvent>() {
+                    @Override
+                    public void handle(DragEvent dragEvent) {
+                        try {
+                            if (obj != null) {
+                                System.out.println("Drag Over: " + obj.getName());
+                                dragEvent.acceptTransferModes(TransferMode.MOVE);
+                            } else {
+                                System.out.println("Drag Over NULL!!");
+                            }
+
+                            dragEvent.consume();
+                        } catch (JEVisException ex) {
+                            Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                });
+
+                setOnDragDropped(new EventHandler<DragEvent>() {
+                    @Override
+                    public void handle(DragEvent dragEvent) {
+                        try {
+                            System.out.println("\nDrag dropped on " + obj.getName());
+                            System.out.println("To Drag: " + getDragItem().getName());
+
+                            System.out.println("add new Relationship: " + getDragItem().getName() + "-> " + obj.getName());
+
+                            //if the inherit is the faske root we create no now relationship but set the inherit to null
+                            if (obj.getName().equals(getRoot().getValue().getName())) {
+                                System.out.println("New root is Fake Root");
+                                for (JEVisClassRelationship rel : getDragItem().getRelationships(JEVisConstants.ClassRelationship.INHERIT)) {
+                                    getDragItem().deleteRelationship(rel);
+                                }
+
+                            } else {
+                                System.out.println("new Root is NOT fake root");
+                                JEVisClassRelationship newRel = getDragItem().buildRelationship(obj, JEVisConstants.ClassRelationship.INHERIT, JEVisConstants.Direction.FORWARD);
+                                System.out.println("new Rel: " + newRel);
+                                for (JEVisClassRelationship rel : getDragItem().getRelationships(JEVisConstants.ClassRelationship.INHERIT)) {
+                                    System.out.println("Rel: " + rel);
+                                    if (!rel.equals(newRel)) {
+                                        System.out.println("remove relationship " + getDragItem().getName() + " -> " + rel.getOtherClass(getDragItem()).getName());
+                                        getDragItem().deleteRelationship(rel);
+
+                                        TreeItem<JEVisClass> dragParentItem = getObjectTreeItem(rel.getOtherClass(getDragItem().getInheritance()));
+                                        getChildrenList(dragParentItem).remove(getObjectTreeItem(getDragItem()));
+
+                                    }
+                                }
+                            }
+
+                            Platform.runLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        TreeItem<JEVisClass> dragItem = getObjectTreeItem(getDragItem());
+
+                                        TreeItem<JEVisClass> dragParentItem = dragItem.getParent();
+                                        System.out.println("ParentItem: " + dragParentItem.getValue().getName());
+                                        TreeItem<JEVisClass> targetItem = getObjectTreeItem(obj);
+
+                                        getChildrenList(dragParentItem).remove(dragItem);
+                                        getChildrenList(targetItem).add(dragItem);
+                                        targetItem.setExpanded(true);
+
+                                    } catch (JEVisException ex) {
+                                        Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
+                                }
+                            });
+
+                        } catch (JEVisException ex) {
+                            Logger.getLogger(ClassCell.class.getName()).log(Level.SEVERE, null, ex);
+                            ex.printStackTrace();
+                        }
+
+                        dragEvent.consume();
+                    }
+                });
+
+            }
+
+        }
     }
 }

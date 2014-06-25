@@ -19,24 +19,15 @@
  */
 package org.jevis.jeconfig.plugin.classes;
 
-import org.jevis.jeconfig.plugin.object.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
 import javafx.scene.image.ImageView;
 import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.ImageConverter;
 
@@ -47,13 +38,13 @@ import org.jevis.jeconfig.tool.ImageConverter;
 public class ClassContextMenu extends ContextMenu {
 
     private JEVisClass _obj;
-    private TreeItem<ClassTreeObject> _item;
-    private TreeView _tree;
+    private TreeItem<JEVisClass> _item;
+    private ClassTree _tree;
 
-    public ClassContextMenu(TreeItem<ClassTreeObject> item, TreeView tree) {
+    public ClassContextMenu(TreeItem<JEVisClass> item, ClassTree tree) {
         super();
 
-        _obj = item.getValue().getObject();
+        _obj = item.getValue();
         _item = item;
         _tree = tree;
 
@@ -69,7 +60,13 @@ public class ClassContextMenu extends ContextMenu {
 
     public Menu buildMenuNew() {
         Menu addMenu = new Menu("New", JEConfig.getImage("list-add.png", 20, 20));
-        addMenu.setOnAction(new NewClassEventHandler(_tree, _item));
+        addMenu.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent t) {
+                _tree.fireEventNew(_item);
+            }
+        });
 
         return addMenu;
 
@@ -118,7 +115,13 @@ public class ClassContextMenu extends ContextMenu {
 
     private MenuItem buildDelete() {
         MenuItem menu = new MenuItem("Delete", JEConfig.getImage("list-remove.png", 20, 20));
-        menu.setOnAction(new DeleteClassEventHandler(_tree, _item));
+        menu.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent t) {
+                _tree.fireDelete(_obj);
+            }
+        });
         return menu;
     }
 }

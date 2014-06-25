@@ -22,6 +22,7 @@ package org.jevis.jeconfig.tool;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
@@ -81,6 +82,7 @@ public class NewClassDialog {
      * @return
      */
     public Response show(Stage owner, final JEVisClass heir, final JEVisDataSource ds) {
+        System.out.println("new Calss Dialog");
         final Stage stage = new Stage();
 
         final BooleanProperty isOK = new SimpleBooleanProperty(false);
@@ -101,7 +103,7 @@ public class NewClassDialog {
 
         HBox buttonPanel = new HBox();
 
-        Button ok = new Button("OK");
+        final Button ok = new Button("OK");
         ok.setDefaultButton(true);
 
         Button cancel = new Button("Cancel");
@@ -117,9 +119,16 @@ public class NewClassDialog {
         final TextField nameF = new TextField();
         nameF.setPromptText("Enter new name here");
 
+        final Label warning = new Label("Exists!");
+        warning.setTextFill(Color.web("#CB5959"));
+
         final TextField heritB = new TextField();
         heritB.setPromptText("Iherit class name");
         heritB.setDisable(true);
+
+        System.out.println("ff");
+        warning.setMaxWidth(50);
+        warning.setVisible(false);
 
         if (heir != null) {
             try {
@@ -131,27 +140,40 @@ public class NewClassDialog {
             } catch (JEVisException ex) {
                 Logger.getLogger(NewClassDialog.class.getName()).log(Level.SEVERE, null, ex);
             }
+        } else {
+            System.out.println("g");
+            heritB.setText("");
+            heritB.setDisable(true);
+            iherit.setSelected(false);
+            inherit = null;
+            System.out.println("bb");
         }
 
+        System.out.println("23213");
         GridPane gp = new GridPane();
         gp.setPadding(new Insets(10));
         gp.setHgap(10);
         gp.setVgap(5);
         int x = 0;
-
+        System.out.println("safsef");
         gp.add(nameL, 0, x);
         gp.add(nameF, 1, x);
+        gp.add(warning, 2, x);
         gp.add(iherit, 0, ++x, 1, 1);
         gp.add(heritB, 1, x, 1, 1);
+        System.out.println("lskdfj");
 
         Separator sep = new Separator(Orientation.HORIZONTAL);
         sep.setMinHeight(10);
         Node header = buildHeader("New Class");
+        System.out.println("okjf");
 
         root.getChildren().addAll(header, new Separator(Orientation.HORIZONTAL), gp, buttonPanel);
         VBox.setVgrow(buttonPanel, Priority.NEVER);
         VBox.setVgrow(header, Priority.NEVER);
 
+        System.out.println("iadg");
+        ok.setDisable(true);
         ok.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
@@ -180,9 +202,34 @@ public class NewClassDialog {
             @Override
             public void handle(KeyEvent t) {
                 name = nameF.getText();
+                try {
+                    if (!name.equals("") && ds.getJEVisClass(name) == null) {
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                ok.setDisable(false);
+                                warning.setVisible(false);
+                            }
+                        });
+
+                    } else {
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                ok.setDisable(true);
+                                warning.setVisible(true);
+                            }
+                        });
+
+                    }
+                } catch (JEVisException ex) {
+                    Logger.getLogger(NewClassDialog.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
             }
         });
 
+        System.out.println("asfsidf");
         iherit.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override

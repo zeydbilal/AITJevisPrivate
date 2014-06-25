@@ -145,13 +145,16 @@ public class ObjectPlugin implements Plugin {
                     tree.fireSaveAttributes(false);
                     break;
                 case Constants.Plugin.Command.DELTE:
-                    tree.fireDelete();
+                    tree.fireDelete(tree.getSelectedObject());
                     break;
                 case Constants.Plugin.Command.EXPAND:
                     System.out.println("Expand");
                     break;
                 case Constants.Plugin.Command.NEW:
-                    tree.fireEventNew();
+                    tree.fireEventNew(tree.getSelectedObject());
+                    break;
+                case Constants.Plugin.Command.RELOAD:
+                    tree.reload();
                     break;
                 default:
                     System.out.println("Unknows command ignore...");

@@ -60,7 +60,12 @@ public class GlobalToolBar {
         addEventHandler(delete, Constants.Plugin.Command.DELTE);
 
         Separator sep1 = new Separator();
-        toolBar.getItems().addAll(save, newB, delete, sep1);
+
+        ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
+        changeBackgroundOnHoverUsingBinding(reload);
+        addEventHandler(reload, Constants.Plugin.Command.RELOAD);
+
+        toolBar.getItems().addAll(save, newB, delete, sep1, reload);
 
         //test
         return toolBar;

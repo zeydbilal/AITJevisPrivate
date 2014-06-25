@@ -19,31 +19,27 @@
  */
 package org.jevis.jeconfig.plugin.classes;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
 import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
 
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com> //
  */
-public class ClassItem extends TreeItem<ClassTreeObject> {
+public class ClassItem extends TreeItem<JEVisClass> {
 
-    private boolean hasLoadCh = false;
-
-    final HBox cell = new HBox();
-    ImageView icon = new ImageView();
-    Label nameLabel = new Label("*Missing*");
+    private boolean _doInit = true;
+    private final ClassTree _tree;
 
     public ClassItem(JEVisClass obj) {
-        super(new ClassTreeObject(obj));
-//        buildGraphic();
+        super(obj);
+        _tree = null;
+    }
+
+    public ClassItem(JEVisClass obj, ClassTree tree) {
+        super(obj);
+        _tree = tree;
     }
 
     public void expandAll(boolean expand) {
@@ -60,33 +56,17 @@ public class ClassItem extends TreeItem<ClassTreeObject> {
         }
     }
 
-    private void initCildren() {
-        hasLoadCh = true;
-        try {
-            for (JEVisClass child : getValue().getObject().getHeirs()) {
-                final TreeItem<ClassTreeObject> childItem = new ClassItem(child);
-                super.getChildren().add(childItem);
-
-            }
-        } catch (Exception ex) {
-            Logger.getLogger(ClassItem.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-    }
-
     @Override
-    public ObservableList<TreeItem<ClassTreeObject>> getChildren() {
-        if (!hasLoadCh) {
-            initCildren();
+    public ObservableList<TreeItem<JEVisClass>> getChildren() {
+        if (_doInit) {
+            _doInit = false;
+            _tree.addChildrenList(this, super.getChildren());
         }
         return super.getChildren();
     }
 
     @Override
     public boolean isLeaf() {
-        if (!hasLoadCh) {
-            initCildren();
-        }
         return getChildren().isEmpty();
     }
 

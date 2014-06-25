@@ -67,7 +67,8 @@ import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
 import org.jevis.jeconfig.plugin.classes.ClassHelper;
-import org.jevis.jeconfig.plugin.classes.ClassRelationshipTable;
+import org.jevis.jeconfig.plugin.classes.ClassTree;
+import org.jevis.jeconfig.plugin.classes.relationship.VaildParentEditor;
 import org.jevis.jeconfig.tool.ImageConverter;
 
 /**
@@ -87,6 +88,7 @@ public class ClassEditor {
     TextField fName = new TextField();
     TextArea fDescript = new TextArea();
     CheckBox fUnique = new CheckBox();
+    private ClassTree _tree = null;
 
     ;
 
@@ -99,7 +101,11 @@ public class ClassEditor {
 
     }
 
-    public void setClass(final JEVisClass jclass) {
+    public void setTreeView(ClassTree tree) {
+        _tree = tree;
+    }
+
+    public void setJEVisClass(final JEVisClass jclass) {
         Platform.runLater(new Runnable() {
 
             @Override
@@ -120,7 +126,7 @@ public class ClassEditor {
                 Label lIsUnique = new Label("Unique:");
                 Label lIcon = new Label("Icon:");
                 Label lRel = new Label("Relaionships:");
-                Label lInherit = new Label("Inheritance:");
+//                Label lInherit = new Label("Inheritance:");
                 Label lTypes = new Label("Types:");
 
                 fName.prefWidthProperty().set(250d);
@@ -129,30 +135,30 @@ public class ClassEditor {
 
                 fUnique.setSelected(false);
 
-                ClassRelationshipTable table = new ClassRelationshipTable();
-
+//                ClassRelationshipTable table = new ClassRelationshipTable();
 //                Button fInherit = new Button("Choose...");
-                fInherit = new TextField();
-                try {
-                    if (jclass.getInheritance() != null) {
-                        fInherit.setText(jclass.getInheritance().getName());
-                    }
-                } catch (JEVisException ex) {
-                    Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
-                }
+//                fInherit = new TextField();
+//                try {
+//                    if (jclass.getInheritance() != null) {
+//                        fInherit.setText(jclass.getInheritance().getName());
+//                    }
+//                } catch (JEVisException ex) {
+//                    Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+                int x = 0;
 
-                gridPane.add(lName, 0, 0);
-                gridPane.add(fName, 1, 0);
-                gridPane.add(lInherit, 0, 1);
-                gridPane.add(fInherit, 1, 1);
-                gridPane.add(lIcon, 0, 2);
-                gridPane.add(fIcon, 1, 2);
-                gridPane.add(lIsUnique, 0, 3);
-                gridPane.add(fUnique, 1, 3);
-                gridPane.add(lDescription, 0, 4);
-                gridPane.add(fDescript, 1, 4, 2, 1);
+                gridPane.add(lName, 0, x);
+                gridPane.add(fName, 1, x);
+//                gridPane.add(lInherit, 0, 1);
+//                gridPane.add(fInherit, 1, 1);
+                gridPane.add(lIcon, 0, ++x);
+                gridPane.add(fIcon, 1, x);
+                gridPane.add(lIsUnique, 0, ++x);
+                gridPane.add(fUnique, 1, x);
+                gridPane.add(lDescription, 0, ++x);
+                gridPane.add(fDescript, 1, x, 1, 2);
 
-                GridPane.setHalignment(lInherit, HPos.LEFT);
+//                GridPane.setHalignment(lInherit, HPos.LEFT);
                 GridPane.setHalignment(lIcon, HPos.LEFT);
                 GridPane.setHalignment(lName, HPos.LEFT);
                 GridPane.setHalignment(lIsUnique, HPos.LEFT);
@@ -232,7 +238,11 @@ public class ClassEditor {
                 final TitledPane t1 = new TitledPane("General", cpGenerell);
                 t2 = new TitledPane("Types", buildTypeNode());
 
-                final TitledPane t3 = new TitledPane("Relationships", table.buildTree(jclass));
+                VaildParentEditor redit = new VaildParentEditor();
+                redit.setJEVisClass(jclass);
+
+                final TitledPane t3 = new TitledPane("Vaild Parents", redit.getView());
+//                final TitledPane t3 = new TitledPane("Relationships", table.buildTree(jclass));
 
                 t1.setStyle("-fx-background-color: #E2E2E2");
                 t2.setStyle("-fx-background-color: #E2E2E2");
@@ -241,6 +251,8 @@ public class ClassEditor {
 
                 accordion.getPanes().addAll(t1, t2, t3);
                 t1.setAnimated(false);
+                t2.setAnimated(false);
+                t3.setAnimated(false);
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
@@ -551,8 +563,13 @@ public class ClassEditor {
             _class.setIcon(file);
 //            File newIcon = desktop.open(file);
             _class.commit();
-//            fIcon.setGraphic(getImageView(_class));
 
+            //reload tree(icon)
+            if (_tree != null) {
+                _tree.reload();
+            }
+
+//            fIcon.setGraphic(getImageView(_class));
         } catch (Exception ex) {
             Logger.getLogger(ClassEditor.class
                     .getName()).log(Level.SEVERE, null, ex);
@@ -582,6 +599,8 @@ public class ClassEditor {
             for (JEVisType type : _toDelete) {
                 type.delete();
             }
+
+            _tree.reload();
 
         } catch (JEVisException ex) {
             Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);

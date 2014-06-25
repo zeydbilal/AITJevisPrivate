@@ -139,19 +139,24 @@ public class ClassPlugin implements Plugin {
     @Override
     public void handelRequest(int cmdType) {
         try {
+            System.out.println("Command to ClassPlugin: " + cmdType);
             switch (cmdType) {
                 case Constants.Plugin.Command.SAVE:
                     System.out.println("save");
                     tree.fireSaveAttributes(false);
                     break;
                 case Constants.Plugin.Command.DELTE:
-                    tree.fireDelete();
+                    tree.fireDelete(tree.getSelectionModel().getSelectedItem().getValue());
                     break;
                 case Constants.Plugin.Command.EXPAND:
                     System.out.println("Expand");
                     break;
                 case Constants.Plugin.Command.NEW:
-                    tree.fireEventNew();
+                    tree.fireEventNew(null);
+                    break;
+                case Constants.Plugin.Command.RELOAD:
+                    System.out.println("reload");
+                    tree.reload();
                     break;
                 default:
                     System.out.println("Unknows command ignore...");

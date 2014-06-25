@@ -191,8 +191,6 @@ public class ObjectEditor {
 
                 t1.setAnimated(false);
 
-                System.out.println("set view for object editor");
-
                 AnchorPane.setTopAnchor(accordion, 0.0);
                 AnchorPane.setRightAnchor(accordion, 0.0);
                 AnchorPane.setLeftAnchor(accordion, 0.0);

@@ -19,30 +19,28 @@
  */
 package org.jevis.jeconfig.plugin.object;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.collections.ObservableList;
-import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
 import org.jevis.api.JEVisObject;
 
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com> //
  */
-public class ObjectItem extends TreeItem<ObjectTreeObject> {
+public class ObjectItem extends TreeItem<JEVisObject> {
 
-    private boolean hasLoadCh = false;
-
-    final HBox cell = new HBox();
-    ImageView icon = new ImageView();
-    Label nameLabel = new Label("*Missing*");
+    private boolean _doInit = true;
+    private final ObjectTree _tree;
 
     public ObjectItem(JEVisObject obj) {
-        super(new ObjectTreeObject(obj));
-//        buildGraphic();
+        super(obj);
+        System.out.println("ohoh falsch cronstrucktor");
+        _tree = null;
+    }
+
+    public ObjectItem(JEVisObject obj, ObjectTree tree) {
+        super(obj);
+        _tree = tree;
     }
 
     public void expandAll(boolean expand) {
@@ -59,71 +57,18 @@ public class ObjectItem extends TreeItem<ObjectTreeObject> {
         }
     }
 
-    private void initCildren() {
-        hasLoadCh = true;
-        try {
-            for (JEVisObject child : getValue().getObject().getChildren()) {
-                final TreeItem<ObjectTreeObject> childItem = new ObjectItem(child);
-                super.getChildren().add(childItem);
-
-            }
-        } catch (Exception ex) {
-            Logger.getLogger(ObjectItem.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-    }
-
     @Override
-    public ObservableList<TreeItem<ObjectTreeObject>> getChildren() {
-        if (!hasLoadCh) {
-            initCildren();
+    public ObservableList<TreeItem<JEVisObject>> getChildren() {
+        if (_doInit) {
+            _doInit = false;
+            _tree.addChildrenList(this, super.getChildren());
         }
         return super.getChildren();
     }
 
     @Override
     public boolean isLeaf() {
-        if (!hasLoadCh) {
-            initCildren();
-        }
         return getChildren().isEmpty();
     }
 
-//    //i wonder why the Item holds the graphic and not the Cell..
-//    private void buildGraphic() {
-//        System.out.println("build graphic for: " + getValue().getObject().getName());
-//        icon = getIcon(getValue().getObject());
-//        nameLabel.setText(getValue().getObject().getName());
-//
-//        cell.getChildren().setAll(icon, nameLabel);
-//
-//        setGraphic(cell);
-//
-//    }
-//
-//    private ImageView getIcon(JEVisObject item) {
-//        try {
-//            if (item != null && item.getJEVisClass() != null) {
-//                return ImageConverter.convertToImageView(item.getJEVisClass().getIcon(), 20, 20);
-//            } else {
-//                return JEConfig.getImage("1390343812_folder-open.png", 20, 20);
-//            }
-//
-//        } catch (Exception ex) {
-//            System.out.println("Error while get icon for object: " + ex);
-//
-//            try {
-//                //Fallback icons
-//                if (isLeaf()) {
-//                    return JEConfig.getImage("1390344346_3d_objects.png", 20, 20);
-//                } else {
-//                    return JEConfig.getImage("1390343812_folder-open.png", 20, 20);
-//                }
-//            } catch (NullPointerException ex2) {
-//
-//            }
-//        }
-//        return new ImageView();
-//
-//    }
 }

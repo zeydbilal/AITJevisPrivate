@@ -103,6 +103,11 @@ public class JEVisRootObject implements JEVisObject {
     }
 
     @Override
+    public boolean isAllowedUnder(JEVisObject otherObject) throws JEVisException {
+        return false;
+    }
+
+    @Override
     public boolean delete() throws JEVisException {
         return false;
     }
@@ -110,11 +115,6 @@ public class JEVisRootObject implements JEVisObject {
     @Override
     public JEVisObject buildObject(String name, JEVisClass type) throws JEVisException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public boolean isLink() {
-        return false;
     }
 
     @Override
@@ -182,4 +182,8 @@ public class JEVisRootObject implements JEVisObject {
         return "JEVisRootObject{ This Object is a fake and does not exist on the Server }";
     }
 
+//    @Override
+//    public JEVisObject buildLink(String name, JEVisObject parent) throws JEVisException {
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//    }
 }
