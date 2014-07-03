@@ -49,8 +49,10 @@ public class ClassRelationshipTable {
 
         TableColumn otherClassCol = new TableColumn("JEVisClass");
         otherClassCol.setCellValueFactory(new PropertyValueFactory<RelationshipColum, String>("otherClass"));
+
         TableColumn typeCol = new TableColumn("Type");
         typeCol.setCellValueFactory(new PropertyValueFactory<RelationshipColum, String>("type"));
+
         TableColumn directionCol = new TableColumn("Direction");
         directionCol.setCellValueFactory(new PropertyValueFactory<RelationshipColum, String>("direction"));
 

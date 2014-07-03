@@ -21,6 +21,7 @@ package org.jevis.jeconfig.tool;
 
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -33,9 +34,11 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -54,7 +57,8 @@ import javafx.stage.StageStyle;
 public class WelcomePage {
 
     private Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.Welcome");
-    CheckBox remember = new CheckBox("Dont show again");
+    CheckBox remember = new CheckBox("Dont show this again");
+    private boolean isLoading = true;
 
     public WelcomePage(Stage owner, URI welcomepage) {
         System.out.println("start Welcome Screen");
@@ -82,7 +86,7 @@ public class WelcomePage {
         Scene scene = new Scene(root);
         stage.setScene(scene);
 
-        WebView page = new WebView();
+        final WebView page = new WebView();
         final WebEngine webEngine = page.getEngine();
         webEngine.setJavaScriptEnabled(true);
 
@@ -96,10 +100,13 @@ public class WelcomePage {
                             Platform.runLater(new Runnable() {
                                 @Override
                                 public void run() {
-                                    stage.show();
-                                }
-                            });
+                                    //does not work, some multy thred probems i gues
+//                                    isLoading = false;
+//                                    stage.showAndWait();
 
+                                }
+
+                            });
                         }
                     }
                 });
@@ -144,13 +151,14 @@ public class WelcomePage {
             @Override
             public void handle(ActionEvent t) {
                 stage.hide();
+                storePreference();
             }
         });
 
         try {
             webEngine.load(welcomepage.toURL().toExternalForm());
             stage.showAndWait();
-            storePreference();
+
         } catch (MalformedURLException ex) {
             Logger.getLogger(WelcomePage.class.getName()).log(Level.SEVERE, null, ex);
 

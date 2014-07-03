@@ -26,6 +26,7 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import org.jevis.application.dialog.AboutDialog;
+import org.jevis.jeconfig.csv.CSVImportDialog;
 
 /**
  *
@@ -36,15 +37,33 @@ public class TopMenu extends MenuBar {
     public TopMenu() {
         super();
         Menu menuFile = new Menu("File");
+        Menu subMenuImport = new Menu("Import File");
+        MenuItem importCSV = new MenuItem("CSV");
+        MenuItem importXML = new MenuItem("XML");
+        MenuItem importJSON = new MenuItem("JEVis Data Files");
+
+        subMenuImport.getItems().addAll(importCSV, importXML, importJSON);
         menuFile.getItems().add(new MenuItem("New"));
         menuFile.getItems().add(new SeparatorMenuItem());
+        menuFile.getItems().add(subMenuImport);
         MenuItem exit = new MenuItem("Exit");
+        menuFile.getItems().add(exit);
+
+        importJSON.setDisable(true);
+        importXML.setDisable(true);
+
         exit.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent t) {
                 System.exit(0);
             }
         });
-        menuFile.getItems().add(exit);
+
+        importCSV.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent t) {
+                CSVImportDialog impDia = new CSVImportDialog();
+                impDia.show(JEConfig.getStage(), JEConfig.getDataSource());
+            }
+        });
 
         // --- Menu Edit
         Menu menuEdit = new Menu("Edit");

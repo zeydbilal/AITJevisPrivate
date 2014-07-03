@@ -198,18 +198,18 @@ public class ClassEditor {
                     @Override
                     public void handle(ActionEvent e) {
                         FileChooser fileChooser = new FileChooser();
-                        if (JEConfig.getLastFile() != null) {
-                            fileChooser.setInitialDirectory(JEConfig.getLastFile().getParentFile());
+                        if (JEConfig.getLastPath() != null) {
+                            fileChooser.setInitialDirectory(JEConfig.getLastPath().getParentFile());
                         }
 
                         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png");
                         FileChooser.ExtensionFilter gifFilter = new FileChooser.ExtensionFilter("GIF files (*.gif)", "*.gif");
                         FileChooser.ExtensionFilter jpgFilter = new FileChooser.ExtensionFilter("JPG files (*.jpg)", "*.jpg");
-                        fileChooser.getExtensionFilters().addAll(extFilter, gifFilter, jpgFilter);
+                        fileChooser.getExtensionFilters().addAll(gifFilter, extFilter, jpgFilter);
                         final File file = fileChooser.showOpenDialog(JEConfig.getStage());
                         if (file != null) {
                             openFile(file);
-                            JEConfig.setLastFile(file);
+                            JEConfig.setLastPath(file);
                             try {
                                 _class.setIcon(file);
                                 Platform.runLater(new Runnable() {

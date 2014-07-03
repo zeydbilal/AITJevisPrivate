@@ -25,6 +25,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -59,10 +60,13 @@ public class JEConfig extends Application {
 
     private static Stage _primaryStage;
     private static File _lastFile;
+    private static JEVisDataSource _mainDS;
 
     JEVisDataSource ds = null;
 
-    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.0");//todo get API Version from API
+    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.0 2014-07-03");
+    private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
+    private static String _lastpath = "";
 
     @Override
     public void start(Stage primaryStage) {
@@ -97,6 +101,7 @@ public class JEConfig extends Application {
             dia.show(primaryStage, "Error", "Could not connect to Server", ex, PROGRAMM_INFO);
 
         }
+        _mainDS = ds;
 
         JEConfig.PROGRAMM_INFO.setJEVisAPI(ds.getInfo());
         JEConfig.PROGRAMM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
@@ -131,11 +136,12 @@ public class JEConfig extends Application {
         primaryStage.show();
 
         try {
-            WelcomePage welcome = new WelcomePage(primaryStage, new URI("http://openjevis.org/projects/openjevis/wiki/JEConfig_testing"));
+            WelcomePage welcome = new WelcomePage(primaryStage, new URI("http://openjevis.org/projects/openjevis/wiki/JEConfig3#JEConfig-Version-3"));
         } catch (URISyntaxException ex) {
             Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+        //Disable GUI is StatusBar note an disconnect
         root.disableProperty().bind(statusBar.connectedProperty.not());
 
         primaryStage.onCloseRequestProperty().addListener(new ChangeListener<EventHandler<WindowEvent>>() {
@@ -151,17 +157,9 @@ public class JEConfig extends Application {
             }
         });
 
-//        statusBar.connectedProperty.addListener(new ChangeListener<Boolean>() {
-//
-//            @Override
-//            public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
-//                if (t1 == true) {
-//                    root.disableProperty()
-//                } else {
-//
-//                }
-//            }
-//        });
+        //test
+//        CSVImportDialog impDia = new CSVImportDialog();
+//        impDia.show(JEConfig._primaryStage, ds);
     }
 
     /**
@@ -176,39 +174,36 @@ public class JEConfig extends Application {
         launch(args);
     }
 
-    private void test() {
-        try {
-
-            System.out.println("test start");
-            JEVisClass orgaDirClass = ds.getJEVisClass("Organization Directory");
-            JEVisClass orgaClass = ds.getJEVisClass("Organization");
-            System.out.println("orgaClass: " + orgaClass);
-            List<JEVisObject> orgaDirList = ds.getObjects(orgaDirClass, true);
-            JEVisObject orgaDir = orgaDirList.get(0);
-            System.out.println("OrgaDir: " + orgaDir);
-//            long id = orgaDir.getID();
-//            orgaDir = ds.getObject(id);
-
-            JEVisObject newOrga = orgaDir.buildObject("NEW ORGANIZATION", orgaClass);
-            System.out.println("new Orga: " + newOrga);
-            System.out.println("test done");
-
-        } catch (JEVisException ex) {
-            Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
+    /**
+     * Returns the main JEVis Datasource of this JEConfig Try not to use this
+     * because it will may disapear
+     *
+     * @return
+     * @deprecated
+     */
+    public static JEVisDataSource getDataSource() {
+        return _mainDS;
     }
 
     public static Stage getStage() {
         return _primaryStage;
     }
 
-    public static File getLastFile() {
-        return _lastFile;
+//    public static File getLastFile() {
+//        return _lastFile;
+//    }
+    public static File getLastPath() {
+        if (_lastpath.equals("")) {
+            _lastpath = pref.get("lastPath", System.getProperty("user.home"));
+        }
+        return new File(_lastpath);
     }
 
-    public static void setLastFile(File file) {
+    public static void setLastPath(File file) {
         _lastFile = file;
+        _lastpath = file.getPath();
+        pref.put("lastPath", file.getPath());
+
     }
 
     public static void maximize(Stage primaryStage) {

@@ -38,11 +38,9 @@ import javafx.geometry.VPos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Separator;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
@@ -63,7 +61,6 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.resource.ResourceLoader;
 import org.jevis.commons.CommonClasses;
-import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.NumberSpinner;
 
 /**
