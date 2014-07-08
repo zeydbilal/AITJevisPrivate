@@ -56,6 +56,11 @@ public class CSVParser {
             if (count < header) {
                 continue;
             }
+
+            if (line.isEmpty()) {
+                continue;
+            }
+
             CSVLine csvline = new CSVLine(line, enclosed, seperator, count);
             cslines.add(csvline);
 

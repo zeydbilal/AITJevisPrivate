@@ -140,8 +140,8 @@ public class CSVTable extends TableView<CSVLine> {
                         DateTime ts = tsColumn.getValueAsDate(line.getColumn(tsColumn.getColumn()));
                         System.out.println("TS: " + ts);
                         if (header.getMeaning() == CSVColumnHeader.Meaning.Value) {
-                            Double value = header.getDoubleValue(line.getColumn(header.getColumn()));
-                            JEVisSample newSample = header.getTarget().buildSample(ts, value, "CSV Import");
+                            Double value = header.getValueAsDouble(line.getColumn(header.getColumn()));
+                            JEVisSample newSample = header.getTarget().buildSample(ts, value, "CSV Import by " + _ds.getCurrentUser().getName());
                             _newSamples.add(newSample);
                             System.out.println("new Sample: " + newSample);
                         }

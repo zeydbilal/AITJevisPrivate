@@ -45,10 +45,13 @@ public class SampleTable extends TableView {
         TableColumn valueColum = new TableColumn("Value");
         valueColum.setCellValueFactory(new PropertyValueFactory<TableSample, String>("Value"));
 
+        TableColumn noteColum = new TableColumn("Note");
+        noteColum.setCellValueFactory(new PropertyValueFactory<TableSample, String>("Note"));
+
         setMinWidth(555d);//TODo: replace Dirty workaround
         setPrefHeight(200d);//TODo: replace Dirty workaround
         setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        getColumns().addAll(tsColum, valueColum);
+        getColumns().addAll(tsColum, valueColum, noteColum);
 
         List<TableSample> tjc = new LinkedList<>();
         for (JEVisSample sample : att.getAllSamples()) {
@@ -64,6 +67,7 @@ public class SampleTable extends TableView {
 
         private SimpleStringProperty date = new SimpleStringProperty("Error");
         private SimpleStringProperty value = new SimpleStringProperty("Error");
+        private SimpleStringProperty note = new SimpleStringProperty("Error");
 
         /**
          *
@@ -74,6 +78,7 @@ public class SampleTable extends TableView {
             try {
                 this.date = new SimpleStringProperty(sample.getTimestamp().toString());
                 this.value = new SimpleStringProperty(sample.getValueAsString());
+                this.note = new SimpleStringProperty(sample.getNote());
             } catch (Exception ex) {
             }
         }
@@ -84,6 +89,14 @@ public class SampleTable extends TableView {
 
         public void setDate(String fName) {
             date.set(fName);
+        }
+
+        public String getNote() {
+            return note.get();
+        }
+
+        public void setNote(String noteString) {
+            note.set(noteString);
         }
 
         public String getValue() {

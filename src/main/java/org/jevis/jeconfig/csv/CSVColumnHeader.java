@@ -20,6 +20,7 @@
 package org.jevis.jeconfig.csv;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -51,6 +52,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -66,7 +69,6 @@ import org.jevis.jeconfig.JEConfig;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeParser;
 
 /**
  *
@@ -74,38 +76,50 @@ import org.joda.time.format.DateTimeParser;
  */
 public class CSVColumnHeader {
 
-    private VBox root = new VBox(5);
-    private ComboBox<String> timeZone;
-    private TextField formate = new TextField();
-    private Label timeZoneL = new Label("TimeZone:");
-    private Label targetL = new Label("Target:");
-    private Button targetButton = new Button("Choose..");
+    private final VBox root = new VBox(5);
 
     Label typeL = new Label("Meaning:");
     Label formateL = new Label("Formate:");
     JEVisAttribute _target = null;
     private ComboBox<String> meaning;
-    private RadioButton value = new RadioButton("Value");
-    private RadioButton date = new RadioButton("Date");
-    private ToggleGroup group = new ToggleGroup();
     private HashMap<Integer, CSVLine> _lines = new HashMap<Integer, CSVLine>();
     private HashMap<Integer, SimpleObjectProperty<Node>> _valuePropertys = new HashMap<Integer, SimpleObjectProperty<Node>>();
     private HashMap<Integer, CSVCellGraphic> _valueGraphic = new HashMap<Integer, CSVCellGraphic>();
 
+    private TimeZone _selectedTimeZone = TimeZone.getDefault();
+    DecimalFormatSymbols symbols = DecimalFormatSymbols.getInstance();
+
+    private static double FIELD_WIDTH = 210;
+    private static double ROW_HIGHT = 25;
+
     private CSVTable _table;
+    private String _currentFormate;
+
+    private String _groupingSeparator;
+    private char _decimalSeparator;
+
+    private SimpleDateFormat _dateFormater = new SimpleDateFormat();
 
     public static enum Meaning {
 
         Ignore, Date, DateTime, Time, Value, Text, Index
     };
 
+    public static enum DateTimeMode {
+
+        Date, DateTime, Time
+    };
     private Meaning currentMeaning = Meaning.Ignore;
     private int coloumNr = -1;
 
     public CSVColumnHeader(CSVTable table, int column) {
         coloumNr = column;
         _table = table;
-        buildGraphic();
+
+        root.setPrefHeight(110);
+
+        buildMeaningButton();
+        buildIgnoreGraphic();
     }
 
     public int getColumn() {
@@ -117,7 +131,15 @@ public class CSVColumnHeader {
     }
 
     private String getCurrentFormate() {
-        return formate.getText();
+        return _currentFormate;
+    }
+
+    private String getGroupingSeparator() {
+        return _groupingSeparator;
+    }
+
+    private char getDecimalSeparator() {
+        return _decimalSeparator;
     }
 
     public SimpleObjectProperty getValueProperty(CSVLine line) {
@@ -131,8 +153,10 @@ public class CSVColumnHeader {
             _valueGraphic.put(lineNumber, graphic);
             graphic.setText(getFormatedValue(line.getColumn(coloumNr)));
             graphic.setValid(valueIsValid(line.getColumn(coloumNr)));
+            graphic.setToolTipText(line.getColumn(coloumNr));
 
             if (getMeaning() == Meaning.Ignore) {
+                graphic.setIgnore();
                 graphic.getGraphic().setDisable(true);
             }
 
@@ -142,51 +166,34 @@ public class CSVColumnHeader {
     }
 
     public String getFormatedValue(String value) {
+        System.out.println("get formatedt value: " + value);
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat(getCurrentFormate());
 
             switch (currentMeaning) {
                 case Date:
-
-                    Date date = sdf.parse(value);
-                    return sdf.format(date);
+                    Date date = getDateFormater().parse(value);
+                    return getDateFormater().format(date);
                 case DateTime:
-                    Date datetime = sdf.parse(value);
-                    return sdf.format(datetime);
+                    Date datetime = getDateFormater().parse(value);
+                    return getDateFormater().format(datetime);
                 case Time:
-                    Date time = sdf.parse(value);
-                    return sdf.format(time);
+                    Date time = getDateFormater().parse(value);
+                    return getDateFormater().format(time);
                 case Value:
-                    DecimalFormat df = new DecimalFormat(getCurrentFormate());
-                    Number number = df.parse(value);
-                    Double dValue = number.doubleValue();
-
-                    return df.format(dValue);
+                    //hmm lokks some kinde if strage i bet there is a better ways
+                    DecimalFormat df = new DecimalFormat("###,###,###,###,###,###,###,###,###,###.00###################################");
+                    return df.format(getValueAsDouble(value));
+//                    return getValueAsDouble(value) + "";
                 case Index:
                     break;
                 case Ignore:
+                    return value;
 //                    System.out.println("To Ignore");
             }
-        } catch (ParseException pe) {
+        } catch (Exception pe) {
             return value;
         }
         return value;
-    }
-
-    /**
-     *
-     * @param value
-     * @return
-     * @throws ParseException
-     */
-    public double getDoubleValue(String value) throws ParseException {
-        if (getMeaning() == Meaning.Value) {
-            DecimalFormat df = new DecimalFormat(getCurrentFormate());
-            Number number = df.parse(value);
-            return number.doubleValue();
-        } else {
-            throw new ParseException(value, coloumNr);
-        }
     }
 
     /**
@@ -204,6 +211,37 @@ public class CSVColumnHeader {
         }
     }
 
+    public double getValueAsDouble(String value) throws ParseException {
+//        DecimalFormat df = new DecimalFormat("#.#", symbols);
+//        System.out.println("org value: " + value);
+//        System.out.println("Seperator in use: " + symbols.getDecimalSeparator());
+//        String tmpValue = value;
+//
+//        if (getDecimalSeparator() == ',') {
+//            tmpValue = tmpValue.replace('.', ' ');//removeall grouping chars
+//        } else {
+//            tmpValue = tmpValue.replace(',', ' ');//removeall grouping chars
+//        }
+//        tmpValue = tmpValue.replaceAll(" ", "");
+//        tmpValue = tmpValue.trim();//some locales use the spaceas grouping
+//        System.out.println("Value after fix: " + tmpValue);
+//
+//        Number number = df.parse(tmpValue);
+
+        String tmpValue = value;
+        if (getDecimalSeparator() == ',') {
+            tmpValue = tmpValue.replace('.', ' ');//removeall grouping chars
+            tmpValue = tmpValue.replaceAll(",", ".");
+        } else {
+            tmpValue = tmpValue.replace(',', ' ');//removeall grouping chars
+        }
+        tmpValue = tmpValue.replaceAll(" ", "");
+
+        Double number = Double.valueOf(tmpValue);
+
+        return number;
+    }
+
     /**
      *
      * @param value
@@ -212,19 +250,18 @@ public class CSVColumnHeader {
      */
     public DateTime getValueAsDate(String value) throws ParseException {
         if (getMeaning() == Meaning.Date || getMeaning() == Meaning.DateTime || getMeaning() == Meaning.Time) {
-            SimpleDateFormat sdf = new SimpleDateFormat(getCurrentFormate());
-            Date datetime = sdf.parse(value);
+            Date datetime = getDateFormater().parse(value);
             datetime.getTime();
-
-            //TODO is this right? i think its now thred save
             DateTimeZone.setDefault(DateTimeZone.forTimeZone(getTimeZone()));
-//            DateTimeParser dtp = DateTimeFormat.forPattern(getCurrentFormate()).getParser();
-
             return DateTimeFormat.forPattern(getCurrentFormate()).parseDateTime(value);
 
         } else {
             throw new ParseException(value, coloumNr);
         }
+    }
+
+    public SimpleDateFormat getDateFormater() {
+        return _dateFormater;
     }
 
     /**
@@ -235,27 +272,41 @@ public class CSVColumnHeader {
      */
     public boolean valueIsValid(String value) {
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat(getCurrentFormate());
 
             switch (currentMeaning) {
                 case Date:
-                    Date date = sdf.parse(value);
+                    Date date = getDateFormater().parse(value);
                     date.getTime();
                     return true;
                 case DateTime:
-                    Date datetime = sdf.parse(value);
+                    Date datetime = getDateFormater().parse(value);
                     datetime.getTime();
                     return true;
                 case Time:
-                    Date time = sdf.parse(value);
+                    Date time = getDateFormater().parse(value);
                     time.getTime();
                     return true;
                 case Value:
-                    DecimalFormat df = new DecimalFormat(getCurrentFormate());
-                    Number number = df.parse(value);
-                    Double dValue = number.doubleValue();
 
+                    getValueAsDouble(value);
                     return true;
+
+//                    symbols.setDecimalSeparator(getDecimalSeparator());
+//                    DecimalFormat df = new DecimalFormat("#,#", symbols);
+//                    String tmpValue = value;
+//
+//                    if (getDecimalSeparator() == ',') {
+//                        tmpValue = tmpValue.replace('.', ' ');//removeall grouping chars
+//                    } else {
+//                        tmpValue = tmpValue.replace(',', ' ');//removeall grouping chars
+//                    }
+//                    tmpValue = tmpValue.trim();//some locales use the spaceas grouping
+//
+//                    Number number = df.parse(tmpValue);
+//                    Double dValue = number.doubleValue();
+//
+//                    System.out.println("Value is valid: " + dValue);
+//                    return true;
                 case Text:
                     //TODO maybe check for .... if the attriute is from type string
                     return true;
@@ -271,13 +322,13 @@ public class CSVColumnHeader {
     }
 
     public void formteAllRows() {
-        _table.setScrollBottom();
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                _table.setScrollBottom();
-            }
-        });
+//        _table.setScrollBottom();
+//        Platform.runLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                _table.setScrollBottom();
+//            }
+//        });
 
         Iterator it = _valuePropertys.entrySet().iterator();
         while (it.hasNext()) {
@@ -290,8 +341,10 @@ public class CSVColumnHeader {
 
             graphic.setText(getFormatedValue(csvLIne.getColumn(coloumNr)));
             graphic.setValid(valueIsValid(csvLIne.getColumn(coloumNr)));
+            graphic.setToolTipText("Original: '" + csvLIne.getColumn(coloumNr) + "'");
 
             if (getMeaning() == Meaning.Ignore) {
+                graphic.setIgnore();
                 graphic.getGraphic().setDisable(true);
             } else {
                 graphic.getGraphic().setDisable(false);
@@ -312,7 +365,7 @@ public class CSVColumnHeader {
     }
 
     public TimeZone getTimeZone() {
-        return TimeZone.getTimeZone(timeZone.getSelectionModel().getSelectedItem());
+        return _selectedTimeZone;
     }
 
     public Meaning getMeaning() {
@@ -322,65 +375,38 @@ public class CSVColumnHeader {
     private void setMeaning(Meaning meaning) {
         currentMeaning = meaning;
 
-        timeZoneL.setDisable(true);
-        timeZone.setDisable(true);
-        formate.setDisable(true);
-        formateL.setDisable(true);
-        targetL.setDisable(true);
-        targetButton.setDisable(true);
-
         switch (meaning) {
             case Date:
-                System.out.println("is Date");
-                timeZoneL.setDisable(false);
-                timeZone.setDisable(false);
-                formate.setDisable(false);
-                formateL.setDisable(false);
-                formate.setText("yyyy-MM-dd");
-                timeZoneL.setDisable(false);
-                timeZone.setDisable(false);
-
+                buildDateTime(Meaning.Date);
                 break;
             case DateTime:
-                System.out.println("is DateTime");
-                formate.setDisable(false);
-                formateL.setDisable(false);
-                formate.setText("yyyy-MM-dd HH:mm:ss");
-                timeZoneL.setDisable(false);
-                timeZone.setDisable(false);
-
+                buildDateTime(Meaning.DateTime);
                 break;
             case Time:
-                System.out.println("is Time");
-                formate.setDisable(false);
-                formateL.setDisable(false);
-                formate.setText("HH:mm:ss");
-                timeZoneL.setDisable(false);
-                timeZone.setDisable(false);
+                buildDateTime(Meaning.Time);
                 break;
             case Value:
-                System.out.println("is Value");
-                formate.setDisable(false);
-                formateL.setDisable(false);
-                targetL.setDisable(false);
-                targetButton.setDisable(false);
-                formate.setText("#.#");
+                buildValueGraphic();
+                break;
+            case Text:
+                buildTextGraphic();
                 break;
             case Index:
-                System.out.println("is Index");
-                formate.setText("#");
                 break;
             case Ignore:
-//                System.out.println("To Ignore");
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        buildIgnoreGraphic();
+                    }
+                });
 
         }
 
         formteAllRows();
     }
 
-    private void buildGraphic() {
-        root.setPadding(new Insets(8, 8, 8, 8));
-
+    private void buildMeaningButton() {
         ObservableList<String> options = FXCollections.observableArrayList();
 
         for (Meaning meaningEnum : Meaning.values()) {
@@ -388,31 +414,7 @@ public class CSVColumnHeader {
         }
 
         meaning = new ComboBox<String>(options);
-
         meaning.getSelectionModel().selectFirst();
-
-        formate.setPromptText("Formate");
-
-        ObservableList<String> timeZoneOpt = FXCollections.observableArrayList();
-        String[] allTimeZones = TimeZone.getAvailableIDs();
-
-        timeZoneOpt = FXCollections.observableArrayList(allTimeZones);
-        timeZone = new ComboBox<String>(timeZoneOpt);
-//        timeZone.getSelectionModel().select("UTC");
-        timeZone.getSelectionModel().select(TimeZone.getDefault().getID());
-
-        timeZoneL.setDisable(true);
-        timeZone.setDisable(true);
-
-        formate.setText("#.#");
-
-        formate.textProperty().addListener(new ChangeListener<String>() {
-
-            @Override
-            public void changed(ObservableValue<? extends String> ov, String t, String t1) {
-                formteAllRows();
-            }
-        });
 
         meaning.valueProperty().addListener(new ChangeListener<String>() {
 
@@ -426,29 +428,160 @@ public class CSVColumnHeader {
             }
         });
 
-        value.setToggleGroup(group);
-        date.setToggleGroup(group);
-        group.selectToggle(value);
+        meaning.setPrefSize(FIELD_WIDTH, ROW_HIGHT);
+    }
 
-        group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+    private void buildTextGraphic() {
+        root.setPadding(new Insets(8, 8, 8, 8));
+
+        Label targetL = new Label("Target:");
+        Button targetB = buildTargetButton();
+
+        Region spacer = new Region();
+
+        GridPane gp = new GridPane();
+        gp.setHgap(5);
+        gp.setVgap(5);
+        root.getChildren().setAll(gp);
+
+        //x , y
+        gp.add(typeL, 0, 0);
+        gp.add(meaning, 1, 0);
+
+        gp.add(spacer, 1, 1);
+
+        gp.add(targetL, 0, 2);
+        gp.add(targetB, 1, 2);
+
+        spacer.setPrefSize(FIELD_WIDTH, ROW_HIGHT);
+        meaning.setPrefSize(FIELD_WIDTH, ROW_HIGHT);
+        targetB.setPrefSize(FIELD_WIDTH, ROW_HIGHT);
+
+    }
+
+    private void buildValueGraphic() {
+        root.setPadding(new Insets(8, 8, 8, 8));
+
+        ToggleGroup deciSepGroup = new ToggleGroup();
+        Label deciSeperator = new Label("Decimal Seperator:");
+        final RadioButton comma = new RadioButton("Comma");
+        comma.setId("commaRadio");
+        final RadioButton dot = new RadioButton("Dot");
+        dot.setId("dotRadio");
+        Label targetL = new Label("Target:");
+
+        dot.setToggleGroup(deciSepGroup);
+        comma.setToggleGroup(deciSepGroup);
+
+        deciSepGroup.selectToggle(dot);
+        _decimalSeparator = '.';
+        symbols.setDecimalSeparator(_decimalSeparator);
+
+        deciSepGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
 
             @Override
             public void changed(ObservableValue<? extends Toggle> ov, Toggle t, Toggle t1) {
-                if (group.getSelectedToggle().equals(date)) {
-                    timeZoneL.setDisable(false);
-                    timeZone.setDisable(false);
+                System.out.println("Seperator changed: " + t1);
+                if (t1.equals(comma)) {
+                    System.out.println("sep is now ,");
+                    _decimalSeparator = ',';
 
-                    formate.setText("yyyy-MM-dd HH:mm:ss");
-                } else if (group.getSelectedToggle().equals(value)) {
-                    timeZoneL.setDisable(true);
-                    timeZone.setDisable(true);
-                    formate.setText("#.#");
+                } else if (t1.equals(dot)) {
+                    System.out.println("sep is now .");
+                    _decimalSeparator = '.';
                 }
+                symbols.setDecimalSeparator(_decimalSeparator);
+                formteAllRows();
+
             }
         });
 
-        HBox boxType = new HBox(10);
-        boxType.getChildren().setAll(value, date);
+        HBox spebox = new HBox(10);
+        spebox.setAlignment(Pos.CENTER_LEFT);
+
+        spebox.getChildren().setAll(deciSeperator, dot, comma);
+
+        Button targetB = buildTargetButton();
+
+        GridPane gp = new GridPane();
+        gp.setHgap(5);
+        gp.setVgap(5);
+        root.getChildren().setAll(gp);
+
+        //x , y
+        gp.add(typeL, 0, 0);
+        gp.add(meaning, 1, 0);
+
+//        gp.add(deciSeperator, 0, 1);
+        gp.add(spebox, 0, 1, 2, 1);
+
+        gp.add(targetL, 0, 2);
+        gp.add(targetB, 1, 2);
+
+        GridPane.setHgrow(spebox, Priority.ALWAYS);
+        GridPane.setHgrow(targetB, Priority.ALWAYS);
+        GridPane.setHgrow(meaning, Priority.ALWAYS);
+
+        //preite ,hoehe
+        meaning.setPrefSize(FIELD_WIDTH, ROW_HIGHT);
+        targetB.setPrefSize(FIELD_WIDTH, ROW_HIGHT);
+        spebox.setPrefHeight(ROW_HIGHT);
+    }
+
+    private void buildDateTime(Meaning mode) {
+        root.setPadding(new Insets(8, 8, 8, 8));
+
+        final ComboBox<String> timeZone;
+        ComboBox<String> timeLocale;
+        final TextField formate = new TextField();
+        Label timeZoneL = new Label("TimeZone:");
+        Label targetL = new Label("Target:");
+        Label vaueLocaleL = new Label("Locale:");
+
+        formate.setPromptText("Formate");
+
+        ObservableList<String> timeZoneOpt = FXCollections.observableArrayList();
+        String[] allTimeZones = TimeZone.getAvailableIDs();
+
+        timeZoneOpt = FXCollections.observableArrayList(allTimeZones);
+        timeZone = new ComboBox<String>(timeZoneOpt);
+//        timeZone.getSelectionModel().select("UTC");
+        timeZone.getSelectionModel().select(TimeZone.getDefault().getID());
+        timeZone.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent t) {
+                System.out.println("new Timezone: ");
+
+                _selectedTimeZone = TimeZone.getTimeZone(timeZone.getSelectionModel().getSelectedItem());
+            }
+        });
+
+        switch (mode) {
+            case DateTime:
+                formate.setText("yyyy-MM-dd HH:mm:ss");
+                _dateFormater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                break;
+            case Date:
+                _dateFormater = new SimpleDateFormat("yyyy-MM-dd");
+                formate.setText("yyyy-MM-dd");
+                break;
+            case Time:
+                _dateFormater = new SimpleDateFormat("HH:mm:ss");
+                formate.setText("HH:mm:ss");
+                break;
+        }
+
+        formate.textProperty().addListener(new ChangeListener<String>() {
+
+            @Override
+            public void changed(ObservableValue<? extends String> ov, String t, String t1) {
+                _currentFormate = formate.getText();
+                _dateFormater = new SimpleDateFormat(_currentFormate);
+                formteAllRows();
+            }
+        });
+
         HBox boxFormate = new HBox(5);
         ImageView help = JEConfig.getImage("1404161580_help_blue.png", 22, 22);
         boxFormate.getChildren().setAll(formate, help);
@@ -470,37 +603,19 @@ public class CSVColumnHeader {
         });
 
         //Damn workaround for fu***** layouts
-        typeL.setPrefWidth(110);
-        boxFormate.setPrefWidth(230);
-        boxType.setPrefWidth(boxFormate.getPrefWidth());
-        meaning.setPrefWidth(boxFormate.getPrefWidth());
-        timeZone.setPrefWidth(boxFormate.getPrefWidth());
-        targetButton.setPrefWidth(boxFormate.getPrefWidth());
-        targetButton.setOnAction(new EventHandler<ActionEvent>() {
+        typeL.setPrefWidth(100);
+        meaning.setPrefWidth(FIELD_WIDTH);
+        timeZone.setPrefWidth(FIELD_WIDTH);
+        formate.setPrefWidth(FIELD_WIDTH);
 
-            @Override
-            public void handle(ActionEvent t) {
-                SelectTargetDialog dia = new SelectTargetDialog();
-                if (dia.show(JEConfig.getStage(), _table.getDataSource()) == SelectTargetDialog.Response.OK) {
-                    System.out.println("OK");
-                    for (UserSelection selection : dia.getUserSelection()) {
-                        targetButton.setText(selection.getSelectedAttribute().getObject().getName() + "." + selection.getSelectedAttribute().getName());
-                        _target = selection.getSelectedAttribute();
-                    }
-                }
-            }
-        });
-
-        //because ingore is default
-        formate.setDisable(true);
-        formateL.setDisable(true);
-        targetButton.setDisable(true);
-        targetL.setDisable(true);
+        boxFormate.setPrefSize(FIELD_WIDTH, ROW_HIGHT);
+        meaning.setPrefSize(FIELD_WIDTH, ROW_HIGHT);
+        timeZone.setPrefSize(FIELD_WIDTH, ROW_HIGHT);
 
         GridPane gp = new GridPane();
         gp.setHgap(5);
         gp.setVgap(5);
-        root.getChildren().add(gp);
+        root.getChildren().setAll(gp);
 
         //x , y
         gp.add(typeL, 0, 0);
@@ -511,10 +626,40 @@ public class CSVColumnHeader {
 
         gp.add(timeZoneL, 0, 2);
         gp.add(timeZone, 1, 2);
+    }
 
-        gp.add(targetL, 0, 3);
-        gp.add(targetButton, 1, 3);
+    private void buildIgnoreGraphic() {
+//        root.getChildren().removeAll();
+        root.setPadding(new Insets(8, 8, 8, 8));
 
+        GridPane gp = new GridPane();
+        gp.setHgap(5);
+        gp.setVgap(5);
+        root.getChildren().setAll(gp);
+
+        //x , y
+        gp.add(typeL, 0, 0);
+        gp.add(meaning, 1, 0);
+
+    }
+
+    private Button buildTargetButton() {
+        final Button button = new Button("Select Import Target..");//, JEConfig.getImage("1404843819_node-tree.png", 15, 15));
+        button.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent t) {
+                SelectTargetDialog dia = new SelectTargetDialog();
+                if (dia.show(JEConfig.getStage(), _table.getDataSource()) == SelectTargetDialog.Response.OK) {
+                    System.out.println("OK");
+                    for (UserSelection selection : dia.getUserSelection()) {
+                        button.setText(selection.getSelectedAttribute().getObject().getName() + "." + selection.getSelectedAttribute().getName());
+                        _target = selection.getSelectedAttribute();
+                    }
+                }
+            }
+        });
+        return button;
     }
 
     public Node getGraphic() {

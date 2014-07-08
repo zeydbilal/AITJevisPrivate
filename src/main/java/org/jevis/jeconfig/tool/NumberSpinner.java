@@ -5,6 +5,8 @@ import java.text.NumberFormat;
 import javafx.beans.binding.NumberBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -193,4 +195,5 @@ public class NumberSpinner extends HBox {
         System.out.println("binding=" + buttonHeight.toString());
         System.out.println("spacing=" + spacing.toString());
     }
+
 }

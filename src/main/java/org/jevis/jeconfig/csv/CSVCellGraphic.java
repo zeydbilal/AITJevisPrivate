@@ -24,6 +24,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -44,12 +45,19 @@ public class CSVCellGraphic {
     //TODO maybe load an icon only once
     ImageView iconValid = JEConfig.getImage(ICON_VALID, 20, 20);
     ImageView iconInVlaid = JEConfig.getImage(ICON_INVALID, 20, 20);
+    Tooltip tooltip = new Tooltip();
 
     public CSVCellGraphic(String text) {
         root.setPadding(new Insets(3));
         root.setAlignment(Pos.CENTER_RIGHT);
         setText(text);
+        textLabel.setTooltip(tooltip);
+        setToolTipText(text);
         root.getChildren().setAll(textLabel, iconInVlaid);
+    }
+
+    public void setToolTipText(final String text) {
+        tooltip.setText(text);
     }
 
     public void setText(final String text) {
@@ -78,7 +86,15 @@ public class CSVCellGraphic {
 //        } else {
 //            root.getChildren().set(1, iconInVlaid);
 //        }
+    }
 
+    public void setIgnore() {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                root.getChildren().set(1, new Region());
+            }
+        });
     }
 
     public Node getGraphic() {

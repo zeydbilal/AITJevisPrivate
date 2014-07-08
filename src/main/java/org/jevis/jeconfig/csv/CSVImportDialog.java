@@ -84,6 +84,8 @@ public class CSVImportDialog {
     private String _encloser = "";
     private String _seperator = "";
 
+    private double LEFT_PADDING = 30;
+
     final Button ok = new Button("Import");
     final Button automatic = new Button("Detect");//, JEConfig.getImage("1403018303_Refresh.png", 15, 15));
     final Button fileButton = new Button("Choose..");
@@ -205,9 +207,9 @@ public class CSVImportDialog {
         VBox content = new VBox(10);
 
         content.getChildren().setAll(
-                filePane,
-                buildTitle("Seperator options"), seperatorPane,
-                buildTitle("Preview"), tablePane);
+                buildTitle("File Options"), filePane,
+                buildTitle("Seperator Options"), seperatorPane,
+                buildTitle("Field Options"), tablePane);
 
         Separator sep = new Separator(Orientation.HORIZONTAL);
         sep.setMinHeight(10);
@@ -282,7 +284,7 @@ public class CSVImportDialog {
 
     private Node buildTabelPane() {
 
-        tableRootPane.setPadding(new Insets(10, 10, 5, 10));
+        tableRootPane.setPadding(new Insets(10, 10, 5, LEFT_PADDING));
 
         TableView placeholderTree = new TableView();
         TableColumn firstNameCol = new TableColumn("First Column");
@@ -325,7 +327,8 @@ public class CSVImportDialog {
 
     private Node buildSeperatorPane() {
         GridPane gp = new GridPane();
-        gp.setPadding(new Insets(10));
+        gp.setPadding(new Insets(5, 10, 5, LEFT_PADDING));
+
         gp.setHgap(10);
         gp.setVgap(5);
 
@@ -413,7 +416,7 @@ public class CSVImportDialog {
         VBox columnB = new VBox(5);
         VBox textB = new VBox(5);
 
-        root.setPadding(new Insets(10));
+        root.setPadding(new Insets(5, 10, 5, LEFT_PADDING));
 //        FlowPane cSep = new FlowPane(Orientation.VERTICAL, 10, 5);
 //        FlowPane tSep = new FlowPane(Orientation.VERTICAL, 10, 5);
         VBox cSep = new VBox(5);
@@ -432,7 +435,7 @@ public class CSVImportDialog {
 
         root.getChildren().setAll(columnB, textB, spacer);
         root.setAlignment(Pos.TOP_LEFT);
-        root.setPadding(new Insets(0, 0, 0, 10));
+//        root.setPadding(new Insets(0, 0, 0, 10));
         HBox.setHgrow(columnB, Priority.NEVER);
         HBox.setHgrow(textB, Priority.NEVER);
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -442,12 +445,13 @@ public class CSVImportDialog {
     }
 
     private Node buildTitle(String name) {
-        HBox titelBox = new HBox(10);
+        HBox titelBox = new HBox(2);
+        titelBox.setPadding(new Insets(8));
         Separator titelSep = new Separator(Orientation.HORIZONTAL);
         titelSep.setMaxWidth(Double.MAX_VALUE);
         Label title = new Label(name);
-        titelBox.getChildren().setAll(titelSep);
-//        titelBox.getChildren().setAll(title, titelSep);
+//        titelBox.getChildren().setAll(titelSep);
+        titelBox.getChildren().setAll(title, titelSep);
         HBox.setHgrow(titelSep, Priority.NEVER);
         HBox.setHgrow(titelSep, Priority.ALWAYS);
         titelBox.setAlignment(Pos.CENTER_LEFT);
@@ -584,7 +588,8 @@ public class CSVImportDialog {
 
     private Node buildFileOptions() {
         GridPane gp = new GridPane();
-        gp.setPadding(new Insets(10));
+        gp.setPadding(new Insets(0, 10, 10, LEFT_PADDING));
+//        gp.setPadding(new Insets(10));
         gp.setHgap(10);
         gp.setVgap(5);
 
@@ -618,6 +623,14 @@ public class CSVImportDialog {
         fomates.setMaxWidth(1000);
 
         count.setMinHeight(22);
+        count.numberProperty().addListener(new ChangeListener<BigDecimal>() {
+
+            @Override
+            public void changed(ObservableValue<? extends BigDecimal> ov, BigDecimal t, BigDecimal t1) {
+                System.out.println("Spinner changed");
+                updateTree();
+            }
+        });
 
         automatic.setDisable(true);
         automatic.setOnAction(new EventHandler<ActionEvent>() {
