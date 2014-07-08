@@ -61,7 +61,7 @@ public class JEConfig extends Application {
 
     JEVisDataSource ds = null;
 
-    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.0 2014-07-03");
+    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.2 2014-07-08");
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static String _lastpath = "";
 
