@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -61,10 +63,18 @@ import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javax.measure.quantity.Energy;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
+import javax.measure.unit.UnitFormat;
 import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisException;
 import org.jevis.application.dialog.SelectTargetDialog;
 import org.jevis.application.object.tree.UserSelection;
 import org.jevis.application.resource.ResourceLoader;
+import org.jevis.application.unit.UnitChooserDialog;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -80,7 +90,7 @@ public class CSVColumnHeader {
 
     Label typeL = new Label("Meaning:");
     Label formateL = new Label("Formate:");
-    JEVisAttribute _target = null;
+    private JEVisAttribute _target = null;
     private ComboBox<String> meaning;
     private HashMap<Integer, CSVLine> _lines = new HashMap<Integer, CSVLine>();
     private HashMap<Integer, SimpleObjectProperty<Node>> _valuePropertys = new HashMap<Integer, SimpleObjectProperty<Node>>();
@@ -92,6 +102,7 @@ public class CSVColumnHeader {
     private static double FIELD_WIDTH = 210;
     private static double ROW_HIGHT = 25;
 
+    final Button unitButton = new Button("Choose Unit..");
     private CSVTable _table;
     private String _currentFormate;
 
@@ -166,7 +177,7 @@ public class CSVColumnHeader {
     }
 
     public String getFormatedValue(String value) {
-        System.out.println("get formatedt value: " + value);
+//        System.out.println("get formatedt value: " + value);
         try {
 
             switch (currentMeaning) {
@@ -181,9 +192,16 @@ public class CSVColumnHeader {
                     return getDateFormater().format(time);
                 case Value:
                     //hmm lokks some kinde if strage i bet there is a better ways
-                    DecimalFormat df = new DecimalFormat("###,###,###,###,###,###,###,###,###,###.00###################################");
-                    return df.format(getValueAsDouble(value));
-//                    return getValueAsDouble(value) + "";
+                    DecimalFormat df = new DecimalFormat("###,###,###,###,###,###,###,###,###,##0.00###################################");
+//                    String unit = "";
+//
+//                    if (getTarget() != null && getTarget().getUnit() != null) {
+//                        unit = " " + UnitFormat.getInstance().format(getTarget().getUnit());
+//                    }
+//                    System.out.println("unit.formate: " + unit);
+
+//                    return df.format(getValueAsDouble(value)) + unit;
+                    return getValueAsDouble(value) + "";
                 case Index:
                     break;
                 case Ignore:
@@ -249,14 +267,17 @@ public class CSVColumnHeader {
      * @throws ParseException
      */
     public DateTime getValueAsDate(String value) throws ParseException {
+        System.out.println("getValueAsDate: " + value);
         if (getMeaning() == Meaning.Date || getMeaning() == Meaning.DateTime || getMeaning() == Meaning.Time) {
             Date datetime = getDateFormater().parse(value);
             datetime.getTime();
-            DateTimeZone.setDefault(DateTimeZone.forTimeZone(getTimeZone()));
-            return DateTimeFormat.forPattern(getCurrentFormate()).parseDateTime(value);
+            return new DateTime(datetime);
 
+//            DateTimeZone.setDefault(DateTimeZone.forTimeZone(getTimeZone()));            
+//            return DateTimeFormat.forPattern(getCurrentFormate()).parseDateTime(value);
         } else {
             throw new ParseException(value, coloumNr);
+
         }
     }
 
@@ -354,14 +375,13 @@ public class CSVColumnHeader {
 
         }
 
-        _table.setLastScrollPosition();
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                _table.setLastScrollPosition();
-            }
-        });
-
+//        _table.setLastScrollPosition();
+//        Platform.runLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                _table.setLastScrollPosition();
+//            }
+//        });
     }
 
     public TimeZone getTimeZone() {
@@ -463,12 +483,32 @@ public class CSVColumnHeader {
         root.setPadding(new Insets(8, 8, 8, 8));
 
         ToggleGroup deciSepGroup = new ToggleGroup();
-        Label deciSeperator = new Label("Decimal Seperator:");
+        Label deciSeperator = new Label("Decimal Separator:");
         final RadioButton comma = new RadioButton("Comma");
         comma.setId("commaRadio");
         final RadioButton dot = new RadioButton("Dot");
         dot.setId("dotRadio");
         Label targetL = new Label("Target:");
+        Label unitLabel = new Label("Unit:");
+        final Button unitButton = new Button("Choose Unit..");
+        unitButton.setDisable(true);
+        unitButton.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent t) {
+
+                try {
+                    if (_target != null) {
+
+                        UnitChooserDialog dia = new UnitChooserDialog();
+                        dia.show(JEConfig.getStage(), _target);
+                    }
+
+                } catch (JEVisException ex) {
+                    Logger.getLogger(CSVColumnHeader.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
 
         dot.setToggleGroup(deciSepGroup);
         comma.setToggleGroup(deciSepGroup);
@@ -481,13 +521,13 @@ public class CSVColumnHeader {
 
             @Override
             public void changed(ObservableValue<? extends Toggle> ov, Toggle t, Toggle t1) {
-                System.out.println("Seperator changed: " + t1);
+//                System.out.println("Seperator changed: " + t1);
                 if (t1.equals(comma)) {
-                    System.out.println("sep is now ,");
+//                    System.out.println("sep is now ,");
                     _decimalSeparator = ',';
 
                 } else if (t1.equals(dot)) {
-                    System.out.println("sep is now .");
+//                    System.out.println("sep is now .");
                     _decimalSeparator = '.';
                 }
                 symbols.setDecimalSeparator(_decimalSeparator);
@@ -518,6 +558,9 @@ public class CSVColumnHeader {
         gp.add(targetL, 0, 2);
         gp.add(targetB, 1, 2);
 
+        gp.add(unitLabel, 0, 3);
+        gp.add(unitButton, 1, 3);
+
         GridPane.setHgrow(spebox, Priority.ALWAYS);
         GridPane.setHgrow(targetB, Priority.ALWAYS);
         GridPane.setHgrow(meaning, Priority.ALWAYS);
@@ -526,6 +569,7 @@ public class CSVColumnHeader {
         meaning.setPrefSize(FIELD_WIDTH, ROW_HIGHT);
         targetB.setPrefSize(FIELD_WIDTH, ROW_HIGHT);
         spebox.setPrefHeight(ROW_HIGHT);
+        unitButton.setPrefSize(FIELD_WIDTH, ROW_HIGHT);
     }
 
     private void buildDateTime(Meaning mode) {
@@ -655,10 +699,26 @@ public class CSVColumnHeader {
                     for (UserSelection selection : dia.getUserSelection()) {
                         button.setText(selection.getSelectedAttribute().getObject().getName() + "." + selection.getSelectedAttribute().getName());
                         _target = selection.getSelectedAttribute();
+                        try {
+                            System.out.println("Unit: " + _target.getUnit());
+                            unitButton.setText(UnitFormat.getInstance().format(_target.getUnit()));
+                        } catch (JEVisException ex) {
+                            Logger.getLogger(CSVColumnHeader.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        formteAllRows();
+//                        try {
+//                            Unit kwh = SI.KILO(SI.WATT.times(NonSI.HOUR));
+//                            _target.setUnit(kwh);
+//                            _target.getObject().commit();
+//                            
+//                        } catch (JEVisException ex) {
+//                            Logger.getLogger(CSVColumnHeader.class.getName()).log(Level.SEVERE, null, ex);
+//                        }
                     }
                 }
             }
         });
+
         return button;
     }
 

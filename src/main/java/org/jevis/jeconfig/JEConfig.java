@@ -22,6 +22,8 @@ package org.jevis.jeconfig;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.ParseException;
+import java.text.ParsePosition;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -40,13 +42,21 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
+import javax.measure.unit.UnitFormat;
+import org.apache.log4j.spi.NOPLoggerRepository;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.application.application.JavaVersionCheck;
 import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.application.dialog.LoginDialog;
 import org.jevis.application.statusbar.Statusbar;
 import org.jevis.commons.application.ApplicationInfo;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.tool.WelcomePage;
 
 /**
@@ -61,7 +71,7 @@ public class JEConfig extends Application {
 
     JEVisDataSource ds = null;
 
-    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.2 2014-07-08");
+    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.3 2014-07-11");
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static String _lastpath = "";
 
@@ -154,9 +164,6 @@ public class JEConfig extends Application {
             }
         });
 
-        //test
-//        CSVImportDialog impDia = new CSVImportDialog();
-//        impDia.show(JEConfig._primaryStage, ds);
     }
 
     /**

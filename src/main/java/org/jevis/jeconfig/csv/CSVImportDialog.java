@@ -135,7 +135,7 @@ public class CSVImportDialog {
         _ds = ds;
 
         stage.setTitle("CSV Import");
-        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initModality(Modality.NONE);
         stage.initOwner(owner);
 
 //        BorderPane root = new BorderPane();
@@ -208,7 +208,7 @@ public class CSVImportDialog {
 
         content.getChildren().setAll(
                 buildTitle("File Options"), filePane,
-                buildTitle("Seperator Options"), seperatorPane,
+                buildTitle("Separator Options"), seperatorPane,
                 buildTitle("Field Options"), tablePane);
 
         Separator sep = new Separator(Orientation.HORIZONTAL);
@@ -250,7 +250,7 @@ public class CSVImportDialog {
     }
 
     private void updateTree() {
-        System.out.println("UpdateTree");
+//        System.out.println("UpdateTree");
         final CSVParser parser = parseCSV();
         tree = new CSVTable(_ds, parser);
         tableRootPane.getChildren().setAll(tree);
@@ -318,8 +318,8 @@ public class CSVImportDialog {
     }
 
     private CSVParser parseCSV() {
-        System.out.println("_encloser: " + getEncloser());
-        System.out.println("_seperator: " + getSeperator());
+//        System.out.println("_encloser: " + getEncloser());
+//        System.out.println("_seperator: " + getSeperator());
         CSVParser parser = new CSVParser(_csvFile, getEncloser(), getSeperator(), getStartLine());
 //        CSVParser parser = new CSVParser(_csvFile, _encloser, _seperator, getStartLine());
         return parser;
@@ -683,8 +683,7 @@ public class CSVImportDialog {
                     automatic.setDisable(false);
                     updateTree();
 
-                    System.out.println("size.dfs: " + otherColumnF.getHeight());
-
+//                    System.out.println("size.dfs: " + otherColumnF.getHeight());
                 }
             }
         });

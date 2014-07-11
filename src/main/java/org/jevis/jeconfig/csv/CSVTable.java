@@ -68,16 +68,16 @@ public class CSVTable extends TableView<CSVLine> {
 
         for (int i = 0; i < _parser.getColumnCount(); i++) {
             String columnName = "Column " + i;
-            try {
-                if (_parser.getRows().size() - 1 > 1) {
-                    CSVLine testLIne = _parser.getRows().get(_parser.getRows().size() - 1);
-                    System.out.println("guess for: " + testLIne.getColumn(i));
-                    columnName += "\n" + CSVValueGuesser.guessType(testLIne.getColumn(i));
-
-                }
-            } catch (Exception ex) {
-                System.out.println("error while guessing values");
-            }
+//            try {
+//                if (_parser.getRows().size() - 1 > 1) {
+//                    CSVLine testLIne = _parser.getRows().get(_parser.getRows().size() - 1);
+//                    System.out.println("guess for: " + testLIne.getColumn(i));
+//                    columnName += "\n" + CSVValueGuesser.guessType(testLIne.getColumn(i));
+//
+//                }
+//            } catch (Exception ex) {
+//                System.out.println("error while guessing values");
+//            }
             columnName = "";
 
             TableColumn<CSVLine, String> column = new TableColumn(columnName);
