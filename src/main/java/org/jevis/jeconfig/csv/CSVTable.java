@@ -83,7 +83,7 @@ public class CSVTable extends TableView<CSVLine> {
             TableColumn<CSVLine, String> column = new TableColumn(columnName);
             final CSVColumnHeader header = new CSVColumnHeader(this, i);
             _header.add(header);
-
+            column.setSortable(false);//layout problem
             column.setPrefWidth(310);
 
 //            column.prefWidthProperty().bind(widthProperty().divide(_parser.getColumnCount()));

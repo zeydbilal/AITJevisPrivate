@@ -22,8 +22,6 @@ package org.jevis.jeconfig;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.text.ParseException;
-import java.text.ParsePosition;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -42,21 +40,15 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
-import javax.measure.unit.UnitFormat;
-import org.apache.log4j.spi.NOPLoggerRepository;
-import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisType;
 import org.jevis.application.application.JavaVersionCheck;
 import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.application.dialog.LoginDialog;
 import org.jevis.application.statusbar.Statusbar;
 import org.jevis.commons.application.ApplicationInfo;
-import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.tool.WelcomePage;
 
 /**
@@ -71,7 +63,7 @@ public class JEConfig extends Application {
 
     JEVisDataSource ds = null;
 
-    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.3 2014-07-11");
+    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.4 2014-07-11");
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static String _lastpath = "";
 
@@ -91,6 +83,84 @@ public class JEConfig extends Application {
 
     private void buildGUI(Stage primaryStage) {
 
+//        System.out.println("u1: " + UnitFormat.getInstance().format(NonSI.TON_UK));
+//        System.out.println("u2: " + NonSI.TON_US.getDimension());
+//        System.out.println("u3: " + SI.WATT.times(NonSI.HOUR));
+//        Unit kwh = SI.KILO(SI.WATT).times(NonSI.HOUR);
+//        System.out.println("kwh.tostring: " + kwh);
+//        System.out.println("D1: " + SI.KILO(SI.WATT.times(NonSI.HOUR)));
+//        Unit parsedUnit = Unit.valueOf("(W·s)");
+//        System.out.println("pu: " + parsedUnit);
+//        System.out.println("pu1: " + parsedUnit.getDimension());
+//        System.out.println("hash: " + parsedUnit.hashCode());
+//        System.out.println("Yaher: " + NonSI.YEAR);
+//        System.out.println("kw=: " + ProductUnit.valueOf(SI.KILO(SI.WATT).toString()));
+////        System.out.println("hash1: " + SI.KILO(SI.WATT.times(SI.SECOND)).hashCode());
+//
+//        Unit komplex = SI.WATT.times(NonSI.HOUR).divide(SI.KILOGRAM).times(SI.HERTZ);
+//        System.out.println("komplex: " + komplex);
+//        System.out.println("komplex.equal: " + komplex.equals(ProductUnit.valueOf(komplex.toString())));
+//        System.out.println("Pars kwh: " + kwh.equals(ProductUnit.valueOf(kwh.toString())));
+//        System.out.println("kwh.standart: " + kwh.getStandardUnit());
+//        Measurable kwh100 = Measure.valueOf(100, kwh);
+//        System.out.println("in mega: " + kwh100.doubleValue(SI.MEGA(SI.WATT).times(NonSI.HOUR)));
+//        System.out.println("dim1: " + kwh.pow(10));
+//        System.out.println("dim2: " + kwh.root(10));
+//        System.out.println("hmmm: " + kwh.divide(kwh.getStandardUnit()));
+//        System.out.println("hmmm: " + kwh.divide(kwh.getStandardUnit()).getDimension());
+//
+//        System.out.println("asdasdasdasd: " + kwh100.doubleValue(SI.MEGA(kwh.getStandardUnit())));
+//
+//        Unit proU = ProductUnit.valueOf(SI.KILO((SI.WATT.times(NonSI.HOUR))).toString());
+////(w-s)*3600
+//        System.out.println("??: " + ProductUnit.valueOf((SI.WATT.times(NonSI.HOUR)).toString()));
+//
+//        Unit newU = SI.GRAM.divide(SI.MILLI(NonSI.LITER));
+//        System.out.println("ml = " + newU);
+//        System.out.println("gollom: " + kwh.divide(1000));
+//
+//        System.out.println(" eq: " + newU.equals(ProductUnit.valueOf(newU.toString())));
+//        System.out.println("iiii: " + kwh.getDimension());
+//
+//        Unit gmol = SI.GRAM.divide(SI.MOLE);
+//        gmol.getDimension();
+//        gmol.getStandardUnit();
+//
+//        System.out.println("s-unit: " + gmol.isStandardUnit());
+//        Unit algmol = gmol.alternate("CO2");
+//
+//        System.out.println("CO2: " + algmol);
+//
+//        Unit co2kwh = gmol.divide(kwh);
+//        System.out.println("co2/mol= " + co2kwh);
+//
+//        Unit km100 = SI.KILOMETER.times(100);
+//        System.out.println("kWh100: " + km100);
+//
+//        UnitFormat uf = UnitFormat.getInstance();
+//        uf.label(km100, "100km");
+//
+////        Unit prettykm100 = km100.alternate("100km");
+//        System.out.println("alt: " + uf.format(km100));
+//        System.out.println("liter/100km: " + NonSI.LITER.divide(km100));
+//
+//        Unit cars = Unit.ONE.alternate("Car");
+//        System.out.println("km: " + SI.KILOMETER);
+//
+//        Unit carKennzahl = kwh.divide(cars);
+//        System.out.println("Kennzahl: " + carKennzahl);
+//
+////        UnitFormat uf = UnitFormat.getUCUMInstance();
+////        System.out.println("hashUnitP: " + Unit.valueOf("1148846282"));
+//        System.out.println("equal: " + SI.KILO(SI.WATT.times(NonSI.HOUR)).equals(proU));
+//        Unit sileU = Unit.valueOf((SI.WATT.times(NonSI.HOUR)).toString());
+//        System.out.println("equal2: " + SI.WATT.times(NonSI.HOUR).equals(sileU));
+//        Measurable<Power> watt = Measure.valueOf(100, SI.WATT); // Ok.
+//
+//        watt.doubleValue(SI.WATT.times(SI.SECOND));
+//
+//        UnitConverter uc = SI.KILO(SI.WATT.times(NonSI.HOUR)).getConverterTo(SI.WATT);
+//        System.out.println("convert: " + uc.convert(100));
         try {
 
             LoginDialog loginD = new LoginDialog();
@@ -143,7 +213,9 @@ public class JEConfig extends Application {
         primaryStage.show();
 
         try {
-            WelcomePage welcome = new WelcomePage(primaryStage, new URI("http://openjevis.org/projects/openjevis/wiki/JEConfig3#JEConfig-Version-3"));
+            //WelcomePage welcome = new WelcomePage(primaryStage, new URI("http://openjevis.org/projects/openjevis/wiki/JEConfig3#JEConfig-Version-3"));
+            WelcomePage welcome = new WelcomePage(primaryStage, new URI("http://coffee-project.eu/"));
+
         } catch (URISyntaxException ex) {
             Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -163,6 +235,39 @@ public class JEConfig extends Application {
                 }
             }
         });
+
+        try {
+            doTest();
+        } catch (Exception ex) {
+            Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    private void doTest() throws Exception {
+        JEVisClass food = _mainDS.getJEVisClass("Food");
+        System.out.println("Class: " + food.getName());
+
+        for (JEVisType types : food.getTypes()) {
+            System.out.println("Type: " + types.getName());
+        }
+        for (JEVisClass vclass : food.getValidParents()) {
+            System.out.println("ValidParent: " + vclass.getName());
+        }
+
+        System.out.println("");
+
+        for (JEVisClass heir : food.getHeirs()) {
+            System.out.println("-Heir: " + heir.getName());
+
+            for (JEVisType types : heir.getTypes()) {
+                System.out.println("-type: " + types.getName());
+            }
+            for (JEVisClass vclass : food.getValidParents()) {
+                System.out.println("-ValidParent: " + vclass.getName());
+            }
+            System.out.println("");
+        }
 
     }
 

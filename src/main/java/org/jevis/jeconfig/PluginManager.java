@@ -69,8 +69,8 @@ public class PluginManager {
     public void addPluginsByUserSetting(JEVisObject user) {
         //TODO
         _plugins.add(new ObjectPlugin(_ds, "Resources"));
-//        _plugins.add(new ClassPlugin(_ds, "Classes"));
         _plugins.add(new org.jevis.jeconfig.plugin.classes.ClassPlugin(_ds, "Classes"));
+        _plugins.add(new org.jevis.jeconfig.plugin.unit.UnitPlugin(_ds, "Units"));
     }
 
     public void setWatermark(boolean water) {

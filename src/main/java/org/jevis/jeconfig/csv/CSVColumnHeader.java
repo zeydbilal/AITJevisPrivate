@@ -19,6 +19,8 @@
  */
 package org.jevis.jeconfig.csv;
 
+import java.io.IOException;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
@@ -50,6 +52,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.ImageView;
+import static javafx.scene.input.DataFormat.URL;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -63,7 +66,6 @@ import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javax.measure.quantity.Energy;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
@@ -74,11 +76,8 @@ import org.jevis.application.dialog.SelectTargetDialog;
 import org.jevis.application.object.tree.UserSelection;
 import org.jevis.application.resource.ResourceLoader;
 import org.jevis.application.unit.UnitChooserDialog;
-import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
 
 /**
  *
@@ -491,7 +490,7 @@ public class CSVColumnHeader {
         Label targetL = new Label("Target:");
         Label unitLabel = new Label("Unit:");
         final Button unitButton = new Button("Choose Unit..");
-        unitButton.setDisable(true);
+//        unitButton.setDisable(true);
         unitButton.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -502,6 +501,10 @@ public class CSVColumnHeader {
 
                         UnitChooserDialog dia = new UnitChooserDialog();
                         dia.show(JEConfig.getStage(), _target);
+                    } else {
+                        Unit kwh = SI.KILO(SI.WATT.times(NonSI.HOUR));
+                        UnitChooserDialog dia = new UnitChooserDialog();
+                        dia.showSelector(JEConfig.getStage(), kwh, "");
                     }
 
                 } catch (JEVisException ex) {
@@ -738,7 +741,7 @@ public class CSVColumnHeader {
 
         Scene scene = new Scene(root);
         stage.setScene(scene);
-        stage.setWidth(620);
+        stage.setWidth(750);
         stage.setHeight(620);
         stage.initStyle(StageStyle.UTILITY);
 
@@ -765,11 +768,17 @@ public class CSVColumnHeader {
 
         header.setRight(vboxRight);
 
+        HBox webBox = new HBox();
+        webBox.setPadding(new Insets(10));
         WebView helpView = new WebView();
-        helpView.getEngine().loadContent(getFormateHelpText());
+//        helpView.getEngine().loadContent(getFormateHelpText());
+//        URL urlHello = getClass().getResource("/html/help_dateformate.html");
+        helpView.getEngine().load(getClass().getResource("/html/help_dateformate.html").toExternalForm());
+
+        webBox.getChildren().setAll(helpView);
+
 //        TextArea helpText = new TextArea();
 //        helpText.setText(ICON_QUESTION);
-
         HBox buttonbox = new HBox();
         buttonbox.setAlignment(Pos.BOTTOM_RIGHT);
 
@@ -786,7 +795,7 @@ public class CSVColumnHeader {
         buttonbox.getChildren().setAll(close);
         buttonbox.setPadding(new Insets(10));
 
-        root.getChildren().setAll(header, helpView, buttonbox);
+        root.getChildren().setAll(header, webBox, buttonbox);
 
         stage.show();
     }

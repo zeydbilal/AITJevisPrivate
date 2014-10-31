@@ -57,7 +57,7 @@ import javafx.stage.StageStyle;
 public class WelcomePage {
 
     private Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.Welcome");
-    CheckBox remember = new CheckBox("Dont show this again");
+    CheckBox remember = new CheckBox("Don't show this again");
     private boolean isLoading = true;
 
     public WelcomePage(Stage owner, URI welcomepage) {
@@ -96,7 +96,6 @@ public class WelcomePage {
                 new ChangeListener<State>() {
                     public void changed(ObservableValue ov, State oldState, State newState) {
                         if (newState == State.SUCCEEDED) {
-                            System.out.println("loadet");
                             Platform.runLater(new Runnable() {
                                 @Override
                                 public void run() {

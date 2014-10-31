@@ -40,12 +40,14 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.dialog.ConfirmDialog;
 import org.jevis.application.dialog.ExceptionDialog;
+import org.jevis.application.type.GUIConstants;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
 import org.jevis.jeconfig.plugin.object.attribute.AttributeEditor;
 import org.jevis.jeconfig.plugin.object.attribute.BooleanValueEditor;
 import org.jevis.jeconfig.plugin.object.attribute.FileValueEditor;
+import org.jevis.jeconfig.plugin.object.attribute.NumberWithUnit;
 import org.jevis.jeconfig.plugin.object.attribute.StringValueEditor;
 
 /**
@@ -147,7 +149,15 @@ public class ObjectEditor {
                                 editor = new BooleanValueEditor(att);
                                 break;
                             case PrimitiveType.FILE:
-                                editor = new FileValueEditor(att);
+                                if (att.getType().getGUIDisplayType().equals(GUIConstants.NUMBER_WITH_UNIT.getId())) {
+                                    editor = new FileValueEditor(att);
+                                } else {
+                                    editor = new StringValueEditor(att);
+                                }
+
+                                break;
+                            case PrimitiveType.DOUBLE:
+                                editor = new NumberWithUnit(att);
                                 break;
                             default:
                                 editor = new StringValueEditor(att);

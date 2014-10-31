@@ -556,13 +556,11 @@ public class CSVImportDialog {
     }
 
     private void setSeperator(String sep) {
-        System.out.println("set sep to: " + sep);
         _seperator = sep;
         RadioButton toSelect = semicolon;
 
         switch (sep) {
             case ";":
-                System.out.println("is semicolon");
                 toSelect = semicolon;
                 break;
             case ",":
@@ -672,10 +670,10 @@ public class CSVImportDialog {
                 final File file = fileChooser.showOpenDialog(JEConfig.getStage());
                 if (file != null) {
                     JEConfig.setLastPath(file);
-                    System.out.println("file: " + file);
+//                    System.out.println("file: " + file);
                     try {
                         //                    fileButton.setText(file.getName());
-                        fileNameL.setText(file.getCanonicalPath() + System.getProperty("file.separator") + file.getName());
+                        fileNameL.setText(file.getCanonicalPath());// + System.getProperty("file.separator") + file.getName());
                     } catch (IOException ex) {
                         Logger.getLogger(CSVImportDialog.class.getName()).log(Level.SEVERE, null, ex);
                     }

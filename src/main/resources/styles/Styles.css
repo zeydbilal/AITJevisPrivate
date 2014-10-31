@@ -179,7 +179,9 @@
 #watermark{
     -fx-background-color: null;
     /*-fx-background-image: url("/org/jevis/jeconfig/image/logo_JEVis_OPEN_Ohne_Schatten_long_v0_10.png");*/
-    -fx-background-image: url("/icons/logo_JEVis_OPEN_Ohne_Schatten_long_v0_10.png");
+    /*-fx-background-image: url("/icons/logo_JEVis_OPEN_Ohne_Schatten_long_v0_10.png");*/
+    -fx-background-image: url("/icons/logo_coffee_klein.png");
+
     -fx-background-position: right bottom, center;
     -fx-background-repeat: no-repeat;
     -fx-background-size: 220 66;

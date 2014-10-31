@@ -25,6 +25,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -39,8 +41,11 @@ import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.application.dialog.ExceptionDialog;
+import org.jevis.application.unit.UnitChooser;
+import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
+import org.jevis.jeconfig.plugin.unit.SimpleUnitChooser;
 import org.jevis.jeconfig.sample.SampleTable;
 import org.joda.time.DateTime;
 
@@ -48,7 +53,7 @@ import org.joda.time.DateTime;
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class StringValueEditor implements AttributeEditor {
+public class NumberWithUnit implements AttributeEditor {
 
     HBox box = new HBox();
     public JEVisAttribute _attribute;
@@ -58,7 +63,7 @@ public class StringValueEditor implements AttributeEditor {
     private JEVisSample _lastSample;
     private boolean _hasChanged = false;
 
-    public StringValueEditor(JEVisAttribute att) {
+    public NumberWithUnit(JEVisAttribute att) {
         _attribute = att;
     }
 
@@ -95,11 +100,77 @@ public class StringValueEditor implements AttributeEditor {
 
     private void buildTextFild() throws JEVisException {
         if (_field == null) {
-            _field = new TextField();
+            _field = new TextField() {
+                @Override
+                public void replaceText(int start, int end, String text) {
+                    System.out.println("replaceText: s: " + start + " e:" + end + " text:" + text);
+                    if (text.matches("[0-9]") && isVaildNumber(start, end, text)) {
+                        System.out.println("is valid: " + text);
+                        super.replaceText(start, end, text);
+                    } else if (text.equals(",") && isVaildNumber(start, end, text)) {
+                        System.out.println("is valid: " + text);
+                        super.replaceText(start, end, ".");
+                    } else if (text.equals(".") && isVaildNumber(start, end, text)) {
+                        System.out.println("is valid: " + text);
+                        super.replaceText(start, end, ".");
+                    }
+//                    super.replaceText(start, end, "");
+                }
+
+                private boolean isVaildNumber(int start, int end, String text) {
+                    try {
+
+                        String beginning = "";
+                        String endstring = "";
+                        if (start > 0) {
+                            beginning = _field.getText().substring(0, start);
+                        }
+                        if (end < _field.getText().length()) {
+                            endstring = _field.getText().substring(end, _field.getText().length());
+                        }
+                        String substring = _field.getText().substring(start, end);
+
+                        double number = Double.valueOf(beginning + text + endstring);
+                        return true;
+                    } catch (NumberFormatException nex) {
+                        System.out.println("is not an number: " + nex);
+                        return false;
+                    }
+                }
+
+                private boolean isVaildNumber() {
+                    try {
+
+                        double number = Double.valueOf(_field.getText());
+                        return true;
+                    } catch (NumberFormatException nex) {
+                        System.out.println("nits not an number: " + nex);
+                        return false;
+                    }
+                }
+
+                @Override
+                public void replaceSelection(String text) {
+                    System.out.println("replace text");
+                    if (text.matches("[0-9]*") && isVaildNumber()) {
+                        super.replaceSelection(text);
+                    } else if (text.equals(",") && isVaildNumber()) {
+                        super.replaceSelection(".");
+                    } else if (text.equals(".") && isVaildNumber()) {
+                        super.replaceSelection(".");
+                    }
+//                    super.replaceSelection("");
+                }
+            };
+//            _field.setRestrict("[0-9]");
+//            _field.setRestrict("^[0-9](.[0-9])*$");
             _field.setPrefWidth(500);//TODO: remove this workaround 
 
+            System.out.println(_attribute.getName() + " has samples: " + _attribute.hasSample());
             if (_attribute.hasSample()) {
-                _field.setText(_attribute.getLatestSample().getValueAsString());
+                System.out.println("ls: " + _attribute.getLatestSample());
+                System.out.println("Last sample: " + _attribute.getLatestSample().getValueAsDouble());
+                _field.setText(_attribute.getLatestSample().getValueAsDouble() + "");
 
                 _lastSample = _attribute.getLatestSample();
             }
@@ -109,7 +180,6 @@ public class StringValueEditor implements AttributeEditor {
                 public void changed(ObservableValue<? extends Boolean> arg0, Boolean oldPropertyValue, Boolean newPropertyValue) {
                     try {
                         if (newPropertyValue) {
-//                        System.out.println("Textfield on focus");
                         } else {
                             if (_lastSample != null) {
                                 if (!_lastSample.getValueAsString().equals(_field.getText())) {
@@ -127,7 +197,7 @@ public class StringValueEditor implements AttributeEditor {
                                 try {
                                     _newSample = _attribute.buildSample(new DateTime(), _field.getText());
                                 } catch (JEVisException ex) {
-                                    Logger.getLogger(StringValueEditor.class.getName()).log(Level.SEVERE, null, ex);
+                                    Logger.getLogger(NumberWithUnit.class.getName()).log(Level.SEVERE, null, ex);
 
                                     ExceptionDialog dia = new ExceptionDialog();
                                     dia.show(JEConfig.getStage(), "Error", "Could commit changes to Server", ex, PROGRAMM_INFO);
@@ -140,19 +210,9 @@ public class StringValueEditor implements AttributeEditor {
 
                 }
             });
-
-//            _field.addEventFilter(KeyEvent.KEY_RELEASED, new EventHandler<KeyEvent>() {
-//                @Override
-//                public void handle(KeyEvent event) {
-//                    //changed
-//                    event.consume();
-//
-//
-//
-//                }
-//            });
             _field.setPrefWidth(500);
             _field.setId("attributelabel");
+            _field.setAlignment(Pos.CENTER_RIGHT);
 
             Tooltip tooltip = new Tooltip();
             try {
@@ -160,15 +220,46 @@ public class StringValueEditor implements AttributeEditor {
                 tooltip.setGraphic(JEConfig.getImage("1393862576_info_blue.png", 30, 30));
                 _field.setTooltip(tooltip);
             } catch (JEVisException ex) {
-                Logger.getLogger(StringValueEditor.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(NumberWithUnit.class.getName()).log(Level.SEVERE, null, ex);
             }
 
-            box.getChildren().add(_field);
-            HBox.setHgrow(_field, Priority.ALWAYS);
+            UnitChooser uc = new UnitChooser(_attribute.getType().getUnit(), 1);
+            TextField tf = new TextField("kWh");
+            tf.setDisable(true);
+            tf.setPrefWidth(50);
 
+            System.out.println("formtetd unit: " + UnitManager.getInstance().formate(_attribute.getUnit()));
+            final Button unitb = new Button(UnitManager.getInstance().formate(_attribute.getType().getUnit()));
+            unitb.setPrefWidth(60);
+            unitb.setPrefHeight(22);
+            unitb.setStyle("-fx-background-radius: 0 10 10 0; -fx-base: rgba(75, 106, 139, 0.89);");
+            unitb.setAlignment(Pos.BOTTOM_LEFT);
+            _field.setStyle("-fx-background-radius: 3 0 0 3;");
+
+            unitb.setOnAction(new EventHandler<ActionEvent>() {
+
+                @Override
+                public void handle(ActionEvent t) {
+
+                    final Point2D nodeCoord = unitb.localToScene(0.0, 0.0);
+                    SimpleUnitChooser suc = new SimpleUnitChooser();
+                    try {
+                        if (suc.show(nodeCoord, "Select Unit", _attribute) == SimpleUnitChooser.Response.YES) {
+                            unitb.setText(suc.getPrefix() + UnitManager.getInstance().formate(suc.getUnit()));
+                            _attribute.setUnit(suc.getUnit());
+                        }
+                    } catch (JEVisException ex) {
+                        Logger.getLogger(NumberWithUnit.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    System.out.println("ubutton: " + unitb.getHeight());
+                }
+            });
+
+            HBox.setHgrow(_field, Priority.ALWAYS);
+            Button chartView = new Button();
             try {
                 if (_attribute.getType().getValidity() == JEVisConstants.Validity.AT_DATE) {
-                    Button chartView = new Button();
+                    chartView = new Button();
                     chartView.setGraphic(JEConfig.getImage("1394566386_Graph.png", 20, 20));
                     chartView.setStyle("-fx-padding: 0 2 0 2;-fx-background-insets: 0;-fx-background-radius: 0;-fx-background-color: transparent;");
 
@@ -197,8 +288,9 @@ public class StringValueEditor implements AttributeEditor {
 
                 }
             } catch (Exception ex) {
-                Logger.getLogger(StringValueEditor.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(NumberWithUnit.class.getName()).log(Level.SEVERE, null, ex);
             }
+            box.getChildren().setAll(chartView, _field, unitb);
 
         }
     }

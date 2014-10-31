@@ -50,7 +50,6 @@ import org.jevis.api.JEVisException;
 import org.jevis.application.dialog.ConfirmDialog;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.classes.editor.ClassEditor;
-import org.jevis.jeconfig.plugin.object.ObjectTree;
 import org.jevis.jeconfig.tool.NewClassDialog;
 
 /**
@@ -183,7 +182,7 @@ public class ClassTree extends TreeView<JEVisClass> {
                 list.add(newItem);
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(ObjectTree.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
         }
 //        sortList(list);
 
@@ -240,7 +239,7 @@ public class ClassTree extends TreeView<JEVisClass> {
                 list.add(newItem);
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(ObjectTree.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
         }
 //        sortList(list);
         _itemChildren.put(item, list);

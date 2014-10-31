@@ -55,6 +55,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javax.measure.unit.Unit;
+import javax.measure.unit.UnitFormat;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
@@ -62,13 +63,13 @@ import org.jevis.api.JEVisType;
 import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.application.type.DisplayType;
 import org.jevis.application.type.GUIConstants;
-import org.jevis.application.unit.UnitChooserDialog;
 import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
 import org.jevis.jeconfig.plugin.classes.ClassHelper;
 import org.jevis.jeconfig.plugin.classes.ClassTree;
 import org.jevis.jeconfig.plugin.classes.relationship.VaildParentEditor;
+import org.jevis.jeconfig.plugin.unit.UnitSelectDialog;
 import org.jevis.jeconfig.tool.ImageConverter;
 
 /**
@@ -307,12 +308,17 @@ public class ClassEditor {
 //                lName.setEditable(false);
 
                 //test
-                ChoiceBox guiType = new ChoiceBox();
+                final ChoiceBox guiType = new ChoiceBox();
+                guiType.setMaxWidth(500);
+                guiType.setPrefWidth(160);
+
 //                guiType.setItems(FXCollections.observableArrayList(
 //                        "String,", "IP-Address", "Number", "File Selector", "Check Box", "PASSWORD Field"));
-
                 List<String> gTypes = new ArrayList<>();
-                for (DisplayType id : GUIConstants.ALL) {
+//                for (DisplayType id : GUIConstants.ALL) {
+//                    gTypes.add(id.getId());
+//                }
+                for (DisplayType id : GUIConstants.getALL(type.getPrimitiveType())) {
                     gTypes.add(id.getId());
                 }
 
@@ -341,32 +347,43 @@ public class ClassEditor {
                         @Override
                         public void handle(ActionEvent t) {
                             try {
-                                UnitChooserDialog dia = new UnitChooserDialog();
-                                if (dia.show(JEConfig.getStage(), type) == UnitChooserDialog.Response.OK) {
-                                    System.out.println("User whants: " + dia.getUnit());
-                                    if (!dia.getAlternativSysmbol().isEmpty()) {
-                                        unitSelector.setText(dia.getAlternativSysmbol());
-                                    } else {
-                                        unitSelector.setText(dia.getUnit().toString());
-                                    }
-
-                                    if (!type.getUnit().equals(dia.getUnit())) {
-                                        type.setUnit(dia.getUnit());
-                                    }
-                                    System.out.println("1: " + type.getAlternativSymbol());
-                                    System.out.println("2: " + dia.getAlternativSysmbol());
-                                    if (!type.getAlternativSymbol().equals(dia.getAlternativSysmbol())) {
-                                        type.setAlternativSymbol(dia.getAlternativSysmbol());
+                                UnitSelectDialog usd = new UnitSelectDialog();
+                                if (usd.show(JEConfig.getStage(), "Select Unit", _class.getDataSource()) == UnitSelectDialog.Response.YES) {
+                                    System.out.println("OK");
+                                    unitSelector.setText(usd.getUnit().toString());
+                                    if (type.getUnit() != null && !type.getUnit().equals(usd.getUnit())) {
+                                        type.setUnit(usd.getUnit());
                                     }
 
                                 }
-
-                                setUnitButton(unitSelector, type);
+//
+//                                UnitChooserDialog dia = new UnitChooserDialog();
+//                                if (dia.show(JEConfig.getStage(), type) == UnitChooserDialog.Response.OK) {
+//                                    System.out.println("User whants: " + dia.getUnit());
+//                                    if (!dia.getAlternativSysmbol().isEmpty()) {
+//                                        unitSelector.setText(dia.getAlternativSysmbol());
+//                                    } else {
+//                                        unitSelector.setText(dia.getUnit().toString());
+//                                    }
+//
+//                                    if (!type.getUnit().equals(dia.getUnit())) {
+//                                        type.setUnit(dia.getUnit());
+//                                    }
+//                                    System.out.println("1: " + type.getAlternativSymbol());
+//                                    System.out.println("2: " + dia.getAlternativSysmbol());
+//                                    if (!type.getAlternativSymbol().equals(dia.getAlternativSysmbol())) {
+//                                        type.setAlternativSymbol(dia.getAlternativSysmbol());
+//                                    }
+//
+//                                }
+//
+//                                setUnitButton(unitSelector, type);
                             } catch (Exception ex) {
                                 Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         }
-                    });
+                    }
+                    );
                 } catch (Exception ex) {
                     Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -401,6 +418,15 @@ public class ClassEditor {
                         System.out.println("Select GUI Tpye: " + newValue);
                         try {
                             type.setPrimitiveType(ClassHelper.getIDforPrimitiveType(newValue));
+
+                            List<String> gTypes = new ArrayList<>();
+                            for (DisplayType id : GUIConstants.getALL(type.getPrimitiveType())) {
+                                gTypes.add(id.getId());
+                            }
+
+                            ObservableList<String> items = FXCollections.observableList(gTypes);
+                            guiType.setItems(items);
+                            guiType.getSelectionModel().selectFirst();
 
                         } catch (JEVisException ex) {
                             Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
@@ -546,9 +572,12 @@ public class ClassEditor {
 
     private void setUnitButton(Button button, JEVisType type) throws JEVisException {
         if (type.getUnit() != null) {
+            System.out.println("editor.Unit: " + type.getUnit());
             if (type.getUnit().equals(Unit.ONE)) {
                 button.setText("None");
             } else {
+//                System.out.println(UnitManager.getInstance().formate(type.getUnit()));
+//                button.setText(type.getUnit().toString());
                 button.setText(UnitManager.getInstance().formate(type.getUnit()));
             }
 
