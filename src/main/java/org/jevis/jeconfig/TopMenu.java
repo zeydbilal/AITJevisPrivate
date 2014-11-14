@@ -19,8 +19,10 @@
  */
 package org.jevis.jeconfig;
 
+import java.util.prefs.Preferences;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -29,6 +31,9 @@ import org.jevis.application.dialog.AboutDialog;
 import org.jevis.jeconfig.csv.CSVImportDialog;
 
 /**
+ * This class build the top menu bar for JEConfig.
+ *
+ *
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
@@ -53,12 +58,14 @@ public class TopMenu extends MenuBar {
         importXML.setDisable(true);
 
         exit.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
             public void handle(ActionEvent t) {
                 System.exit(0);
             }
         });
 
         importCSV.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
             public void handle(ActionEvent t) {
                 CSVImportDialog impDia = new CSVImportDialog();
                 impDia.show(JEConfig.getStage(), JEConfig.getDataSource());
@@ -67,7 +74,7 @@ public class TopMenu extends MenuBar {
 
         // --- Menu Edit
         Menu menuEdit = new Menu("Edit");
-        MenuItem copie = new MenuItem("Copie");
+        MenuItem copie = new MenuItem("Copy");
         MenuItem delete = new MenuItem("Delete");
         MenuItem rename = new MenuItem("Rename");
         rename.setOnAction(new EventHandler<ActionEvent>() {
@@ -81,7 +88,20 @@ public class TopMenu extends MenuBar {
         // --- Menu View
         Menu menuView = new Menu("View");
 
+        Menu options = new Menu("Options");
+        final Preferences pref = Preferences.userRoot().node("JEVis.JEConfig.Welcome");
+        CheckMenuItem welcome = new CheckMenuItem("Welcome screen");
+        welcome.setSelected(pref.getBoolean("show", true));
+        welcome.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+                pref.putBoolean("show", !pref.getBoolean("show", true));
+            }
+        });
+        options.getItems().add(welcome);
+
         Menu help = new Menu("Help");
+
         MenuItem about = new MenuItem("About");
         help.getItems().add(about);
         about.setOnAction(new EventHandler<ActionEvent>() {
@@ -94,6 +114,6 @@ public class TopMenu extends MenuBar {
             }
         });
 
-        getMenus().addAll(menuFile, menuEdit, menuView, help);
+        getMenus().addAll(menuFile, menuEdit, menuView, options, help);
     }
 }

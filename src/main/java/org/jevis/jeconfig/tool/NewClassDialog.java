@@ -126,7 +126,6 @@ public class NewClassDialog {
         heritB.setPromptText("Iherit class name");
         heritB.setDisable(true);
 
-        System.out.println("ff");
         warning.setMaxWidth(50);
         warning.setVisible(false);
 
@@ -141,38 +140,31 @@ public class NewClassDialog {
                 Logger.getLogger(NewClassDialog.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else {
-            System.out.println("g");
             heritB.setText("");
             heritB.setDisable(true);
             iherit.setSelected(false);
             inherit = null;
-            System.out.println("bb");
         }
 
-        System.out.println("23213");
         GridPane gp = new GridPane();
         gp.setPadding(new Insets(10));
         gp.setHgap(10);
         gp.setVgap(5);
         int x = 0;
-        System.out.println("safsef");
         gp.add(nameL, 0, x);
         gp.add(nameF, 1, x);
         gp.add(warning, 2, x);
         gp.add(iherit, 0, ++x, 1, 1);
         gp.add(heritB, 1, x, 1, 1);
-        System.out.println("lskdfj");
 
         Separator sep = new Separator(Orientation.HORIZONTAL);
         sep.setMinHeight(10);
         Node header = buildHeader("New Class");
-        System.out.println("okjf");
 
         root.getChildren().addAll(header, new Separator(Orientation.HORIZONTAL), gp, buttonPanel);
         VBox.setVgrow(buttonPanel, Priority.NEVER);
         VBox.setVgrow(header, Priority.NEVER);
 
-        System.out.println("iadg");
         ok.setDisable(true);
         ok.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -229,7 +221,6 @@ public class NewClassDialog {
             }
         });
 
-        System.out.println("asfsidf");
         iherit.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -247,8 +238,8 @@ public class NewClassDialog {
             }
         });
 
+        nameF.requestFocus();
         stage.showAndWait();
-        System.out.println("after show");
 //        if (isOK.getValue() == true) {
 //            response = Response.YES;
 //        }

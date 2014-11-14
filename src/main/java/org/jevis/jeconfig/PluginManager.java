@@ -115,6 +115,7 @@ public class PluginManager {
             VBox waterBox = new VBox();
             //TODO better load the watermark from an JEVis Object and not from css
             waterBox.setId("watermark");
+            waterBox.setStyle(null);
             waterBox.setDisable(true);
             box.getChildren().addAll(tabPane, waterBox);
         } else {

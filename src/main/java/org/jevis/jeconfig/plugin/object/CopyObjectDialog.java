@@ -257,12 +257,12 @@ public class CopyObjectDialog {
         });
 
         try {
-            System.out.println("Object: " + object.getJEVisClass());
+            System.out.println("-> Object: " + object.getJEVisClass());
             System.out.println("newParent: " + newParent.getJEVisClass());
             System.out.println("Is allowed under target: " + object.isAllowedUnder(newParent));
             System.out.println("");
 
-            if (newParent.getJEVisClass().getName().equals("Views Directory") || newParent.getJEVisClass().getName().equals(CommonClasses.LINK.NAME)) {
+            if (newParent.getJEVisClass().getName().equals("View Directory") || newParent.getJEVisClass().getName().equals(CommonClasses.LINK.NAME)) {
                 link.setDisable(false);
             } else {
                 link.setDisable(true);

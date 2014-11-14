@@ -67,7 +67,7 @@ public class UnitTree extends TreeView<UnitObject> {
             _itemCache = new HashMap<>();
             _graphicCache = new HashMap<>();
             _itemChildren = new HashMap<>();
-            setStyle("-fx-background-color: white;");
+//            setStyle("-fx-background-color: white;");
             setMaxHeight(2014);
 
             UnitObject uo = new UnitObject(UnitObject.Type.FakeRoot, Unit.ONE, "Unit");

@@ -48,6 +48,7 @@ import org.jevis.jeconfig.plugin.object.attribute.AttributeEditor;
 import org.jevis.jeconfig.plugin.object.attribute.BooleanValueEditor;
 import org.jevis.jeconfig.plugin.object.attribute.FileValueEditor;
 import org.jevis.jeconfig.plugin.object.attribute.NumberWithUnit;
+import org.jevis.jeconfig.plugin.object.attribute.PasswordEditor;
 import org.jevis.jeconfig.plugin.object.attribute.StringValueEditor;
 
 /**
@@ -98,6 +99,8 @@ public class ObjectEditor {
                 }
             }
             if (!_saved) {
+                //workaround for fast saving without requesting
+//                commitAll();
 
                 ConfirmDialog dia = new ConfirmDialog();
                 ConfirmDialog.Response re = dia.show(JEConfig.getStage(), "Save", "Save Attribute Changes", "Changes will be lost if not saved, do you want to save now?");
@@ -106,7 +109,6 @@ public class ObjectEditor {
                 } else {
                     _saved = true;
                 }
-
             }
 
         }
@@ -158,6 +160,9 @@ public class ObjectEditor {
                                 break;
                             case PrimitiveType.DOUBLE:
                                 editor = new NumberWithUnit(att);
+                                break;
+                            case PrimitiveType.PASSWORD_PBKDF2:
+                                editor = new PasswordEditor(att);
                                 break;
                             default:
                                 editor = new StringValueEditor(att);

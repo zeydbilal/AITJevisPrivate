@@ -29,6 +29,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisSample;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 /**
  *
@@ -36,7 +38,9 @@ import org.jevis.api.JEVisSample;
  */
 public class SampleTable extends TableView {
 
-    public SampleTable(JEVisAttribute att) {
+    static final DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss Z");
+
+    public SampleTable(List<JEVisSample> samples) {
         super();
 
         TableColumn tsColum = new TableColumn("Timestamp");
@@ -54,7 +58,7 @@ public class SampleTable extends TableView {
         getColumns().addAll(tsColum, valueColum, noteColum);
 
         List<TableSample> tjc = new LinkedList<>();
-        for (JEVisSample sample : att.getAllSamples()) {
+        for (JEVisSample sample : samples) {
             tjc.add(new TableSample(sample));
         }
 
@@ -76,7 +80,7 @@ public class SampleTable extends TableView {
          */
         public TableSample(JEVisSample sample) {
             try {
-                this.date = new SimpleStringProperty(sample.getTimestamp().toString());
+                this.date = new SimpleStringProperty(fmtDate.print(sample.getTimestamp()));
                 this.value = new SimpleStringProperty(sample.getValueAsString());
                 this.note = new SimpleStringProperty(sample.getNote());
             } catch (Exception ex) {

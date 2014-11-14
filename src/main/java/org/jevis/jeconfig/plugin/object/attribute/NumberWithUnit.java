@@ -28,16 +28,13 @@ import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 //import javafx.scene.control.Dialogs;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.stage.Stage;
 import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.application.dialog.ExceptionDialog;
@@ -46,10 +43,12 @@ import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
 import org.jevis.jeconfig.plugin.unit.SimpleUnitChooser;
-import org.jevis.jeconfig.sample.SampleTable;
+import org.jevis.jeconfig.sample.SampleEditor;
 import org.joda.time.DateTime;
 
 /**
+ * This editor can edit and render values from the type number.
+ *
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
@@ -168,8 +167,8 @@ public class NumberWithUnit implements AttributeEditor {
 
             System.out.println(_attribute.getName() + " has samples: " + _attribute.hasSample());
             if (_attribute.hasSample()) {
-                System.out.println("ls: " + _attribute.getLatestSample());
-                System.out.println("Last sample: " + _attribute.getLatestSample().getValueAsDouble());
+//                System.out.println("ls: " + _attribute.getLatestSample());
+//                System.out.println("Last sample: " + _attribute.getLatestSample().getValueAsDouble());
                 _field.setText(_attribute.getLatestSample().getValueAsDouble() + "");
 
                 _lastSample = _attribute.getLatestSample();
@@ -214,21 +213,22 @@ public class NumberWithUnit implements AttributeEditor {
             _field.setId("attributelabel");
             _field.setAlignment(Pos.CENTER_RIGHT);
 
-            Tooltip tooltip = new Tooltip();
-            try {
-                tooltip.setText(_attribute.getType().getDescription());
-                tooltip.setGraphic(JEConfig.getImage("1393862576_info_blue.png", 30, 30));
-                _field.setTooltip(tooltip);
-            } catch (JEVisException ex) {
-                Logger.getLogger(NumberWithUnit.class.getName()).log(Level.SEVERE, null, ex);
+            if (_attribute.getType().getDescription() != null && !_attribute.getType().getDescription().isEmpty()) {
+                Tooltip tooltip = new Tooltip();
+                try {
+                    tooltip.setText(_attribute.getType().getDescription());
+                    tooltip.setGraphic(JEConfig.getImage("1393862576_info_blue.png", 30, 30));
+                    _field.setTooltip(tooltip);
+                } catch (JEVisException ex) {
+                    Logger.getLogger(NumberWithUnit.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
-
             UnitChooser uc = new UnitChooser(_attribute.getType().getUnit(), 1);
             TextField tf = new TextField("kWh");
             tf.setDisable(true);
             tf.setPrefWidth(50);
 
-            System.out.println("formtetd unit: " + UnitManager.getInstance().formate(_attribute.getUnit()));
+//            System.out.println("formtetd unit: " + UnitManager.getInstance().formate(_attribute.getUnit()));
             final Button unitb = new Button(UnitManager.getInstance().formate(_attribute.getType().getUnit()));
             unitb.setPrefWidth(60);
             unitb.setPrefHeight(22);
@@ -251,42 +251,47 @@ public class NumberWithUnit implements AttributeEditor {
                     } catch (JEVisException ex) {
                         Logger.getLogger(NumberWithUnit.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    System.out.println("ubutton: " + unitb.getHeight());
                 }
             });
 
             HBox.setHgrow(_field, Priority.ALWAYS);
             Button chartView = new Button();
             try {
-                if (_attribute.getType().getValidity() == JEVisConstants.Validity.AT_DATE) {
-                    chartView = new Button();
-                    chartView.setGraphic(JEConfig.getImage("1394566386_Graph.png", 20, 20));
-                    chartView.setStyle("-fx-padding: 0 2 0 2;-fx-background-insets: 0;-fx-background-radius: 0;-fx-background-color: transparent;");
+//                if (_attribute.getType().getValidity() == JEVisConstants.Validity.AT_DATE) {
+                chartView = new Button();
+                chartView.setGraphic(JEConfig.getImage("1394566386_Graph.png", 20, 20));
+                chartView.setStyle("-fx-padding: 0 2 0 2;-fx-background-insets: 0;-fx-background-radius: 0;-fx-background-color: transparent;");
 
-                    chartView.setMaxHeight(_field.getHeight());
-                    chartView.setMaxWidth(20);
+                chartView.setMaxHeight(_field.getHeight());
+                chartView.setMaxWidth(20);
 
-                    box.getChildren().add(chartView);
-                    HBox.setHgrow(chartView, Priority.NEVER);
+                box.getChildren().add(chartView);
+                HBox.setHgrow(chartView, Priority.NEVER);
 
-                    chartView.setOnAction(new EventHandler<ActionEvent>() {
-                        @Override
-                        public void handle(ActionEvent t) {
-                            Stage dialogStage = new Stage();
-                            dialogStage.setTitle("Sample Editor");
-                            HBox root = new HBox();
+                chartView.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent t) {
+                        SampleEditor se = new SampleEditor();
+                        se.show(JEConfig.getStage(), _attribute);
+//                        
+//                        Stage dialogStage = new Stage();
+//                        dialogStage.setTitle("Sample Editor");
+//                        HBox root = new HBox();
+//
+//                        SampleTable table = new SampleTable(_attribute);
+//                        root.getChildren().add(table);
+//                        HBox.setHgrow(table, Priority.ALWAYS);
+//
+//                        
+//                        Scene scene = new Scene(root);
+//                        scene.getStylesheets().add("/styles/Styles.css");
+//                        dialogStage.setScene(scene);
+//                        dialogStage.show();
 
-                            root.getChildren().add(new SampleTable(_attribute));
+                    }
+                });
 
-                            Scene scene = new Scene(root);
-                            scene.getStylesheets().add("/styles/Styles.css");
-                            dialogStage.setScene(scene);
-                            dialogStage.show();
-
-                        }
-                    });
-
-                }
+//                }
             } catch (Exception ex) {
                 Logger.getLogger(NumberWithUnit.class.getName()).log(Level.SEVERE, null, ex);
             }

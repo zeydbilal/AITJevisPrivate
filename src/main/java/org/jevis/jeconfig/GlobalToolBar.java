@@ -65,7 +65,7 @@ public class GlobalToolBar {
         changeBackgroundOnHoverUsingBinding(reload);
         addEventHandler(reload, Constants.Plugin.Command.RELOAD);
 
-        toolBar.getItems().addAll(save, newB, delete, sep1, reload);
+        toolBar.getItems().addAll(save, newB, delete, sep1);
 
         //test
         return toolBar;

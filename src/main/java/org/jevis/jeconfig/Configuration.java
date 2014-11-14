@@ -33,15 +33,15 @@ import javafx.application.Application;
  */
 public class Configuration {
 
-    private String _loginIcon = "/icons/kaust.jpg";
+    private String _loginIcon = "/icons/openjevislogo_simple2.png";
     private String _welcomeURL = "http://openjevis.org/projects/openjevis/wiki/JEConfig3#JEConfig-Version-3";
     private String _watermark = "/icons/logo_JEVis_OPEN_Ohne_Schatten_long_v0_10.png";
     private boolean _ssl = false;
     private boolean _showServer = true;
-    private String _defaultServerURL = "user:password@server:port/jevis";
+    private String _defaultServerURL = "user:password@server:3306/jevis";
 
     /**
-     * Returns id the Sever URL should be visible in the LoginDialog
+     * Returns if the Sever URL should be visible in the LoginDialog
      *
      * @return
      */

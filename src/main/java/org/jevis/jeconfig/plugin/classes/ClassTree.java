@@ -21,6 +21,7 @@ package org.jevis.jeconfig.plugin.classes;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
@@ -48,6 +49,7 @@ import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.application.dialog.ConfirmDialog;
+import org.jevis.commons.relationship.RelationshipFactory;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.classes.editor.ClassEditor;
 import org.jevis.jeconfig.tool.NewClassDialog;
@@ -84,7 +86,7 @@ public class ClassTree extends TreeView<JEVisClass> {
             JEVisClass root = new JEVisRootClass(ds);
             TreeItem<JEVisClass> rootItem = buildItem(root);
 
-            setShowRoot(true);
+            setShowRoot(false);
             rootItem.setExpanded(true);
 
             getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
@@ -269,22 +271,21 @@ public class ClassTree extends TreeView<JEVisClass> {
     }
 
     public void fireSaveAttributes(boolean ask) throws JEVisException {
-        TreeItem<JEVisClass> selectedItem = getSelectionModel().getSelectedItem();
+//        TreeItem<JEVisClass> selectedItem = getSelectionModel().getSelectedItem();
 
-        getSelectionModel().getSelectedItem().getParent().setExpanded(false);
-
+//        getSelectionModel().getSelectedItem().getParent().setExpanded(false);
         if (ask) {
             _editor.checkIfSaved(null);
         } else {
             _editor.commitAll();
 
             //TODO: replace this dump way of refeshing
-            getSelectionModel().getSelectedItem().setExpanded(true);
+//            
         }
+//        getSelectionModel().getSelectedItem().setExpanded(true);
 
-        getSelectionModel().getSelectedItem().getParent().setExpanded(true);
-        getSelectionModel().select(selectedItem);
-
+//        getSelectionModel().getSelectedItem().getParent().setExpanded(true);
+//        getSelectionModel().select(selectedItem);
     }
 
     public void fireDelete(JEVisClass jclass) {
@@ -308,14 +309,21 @@ public class ClassTree extends TreeView<JEVisClass> {
                             }
                         }
 
-                        TreeItem<JEVisClass> item = getObjectTreeItem(jclass);
-                        TreeItem<JEVisClass> parentItem = item.getParent();
+                        final TreeItem<JEVisClass> item = getObjectTreeItem(jclass);
+                        final TreeItem<JEVisClass> parentItem = item.getParent();
 
                         jclass.delete();
+                        deteleItemFromTree(item);
 
-                        parentItem.getChildren().remove(item);
-                        getSelectionModel().select(parentItem);
-
+//                        Platform.runLater(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                parentItem.getChildren().remove(item);
+//                                getSelectionModel().select(parentItem);
+//                                parentItem.setExpanded(false);
+//
+//                            }
+//                        });
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
@@ -325,6 +333,41 @@ public class ClassTree extends TreeView<JEVisClass> {
             }
         }
 
+    }
+
+    private void deteleItemFromTree(final TreeItem<JEVisClass> item) {
+        try {
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        String className = item.getValue().getName();
+
+                        _itemCache.remove(className);
+
+                        for (Map.Entry<TreeItem<JEVisClass>, ObservableList<TreeItem<JEVisClass>>> entry : _itemChildren.entrySet()) {
+
+                            if (entry.getValue().contains(item)) {
+                                entry.getValue().remove(item);
+                            }
+                        }
+
+                        getSelectionModel().select(item.getParent());
+
+                        if (_graphicCache.containsKey(className)) {
+                            _graphicCache.remove(className);
+                        }
+
+//                    parentItem.setExpanded(false);
+                    } catch (JEVisException ex) {
+                        Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
+                }
+            });
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     public void fireEventNew(TreeItem<JEVisClass> item) {
@@ -355,6 +398,9 @@ public class ClassTree extends TreeView<JEVisClass> {
                 final TreeItem<JEVisClass> treeItem = buildItem(newClass);
 
                 if (dia.getInheritance() != null) {
+                    System.out.println("Class in inherit of: " + dia.getInheritance());
+                    JEVisClassRelationship cr = RelationshipFactory.buildInheritance(dia.getInheritance(), newClass);
+                    System.out.println("new relationship: " + cr);
                     getChildrenList(getObjectTreeItem(dia.getInheritance())).add(getObjectTreeItem(newClass));
                 } else {
                     getChildrenList(getObjectTreeItem(getRoot().getValue())).add(getObjectTreeItem(newClass));

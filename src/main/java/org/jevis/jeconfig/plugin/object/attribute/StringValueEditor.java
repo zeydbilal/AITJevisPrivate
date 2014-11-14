@@ -154,13 +154,15 @@ public class StringValueEditor implements AttributeEditor {
             _field.setPrefWidth(500);
             _field.setId("attributelabel");
 
-            Tooltip tooltip = new Tooltip();
-            try {
-                tooltip.setText(_attribute.getType().getDescription());
-                tooltip.setGraphic(JEConfig.getImage("1393862576_info_blue.png", 30, 30));
-                _field.setTooltip(tooltip);
-            } catch (JEVisException ex) {
-                Logger.getLogger(StringValueEditor.class.getName()).log(Level.SEVERE, null, ex);
+            if (_attribute.getType().getDescription() != null && !_attribute.getType().getDescription().isEmpty()) {
+                Tooltip tooltip = new Tooltip();
+                try {
+                    tooltip.setText(_attribute.getType().getDescription());
+                    tooltip.setGraphic(JEConfig.getImage("1393862576_info_blue.png", 30, 30));
+                    _field.setTooltip(tooltip);
+                } catch (JEVisException ex) {
+                    Logger.getLogger(StringValueEditor.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
 
             box.getChildren().add(_field);
@@ -178,23 +180,22 @@ public class StringValueEditor implements AttributeEditor {
                     box.getChildren().add(chartView);
                     HBox.setHgrow(chartView, Priority.NEVER);
 
-                    chartView.setOnAction(new EventHandler<ActionEvent>() {
-                        @Override
-                        public void handle(ActionEvent t) {
-                            Stage dialogStage = new Stage();
-                            dialogStage.setTitle("Sample Editor");
-                            HBox root = new HBox();
-
-                            root.getChildren().add(new SampleTable(_attribute));
-
-                            Scene scene = new Scene(root);
-                            scene.getStylesheets().add("/styles/Styles.css");
-                            dialogStage.setScene(scene);
-                            dialogStage.show();
-
-                        }
-                    });
-
+//                    chartView.setOnAction(new EventHandler<ActionEvent>() {
+//                        @Override
+//                        public void handle(ActionEvent t) {
+//                            Stage dialogStage = new Stage();
+//                            dialogStage.setTitle("Sample Editor");
+//                            HBox root = new HBox();
+//
+//                            root.getChildren().add(new SampleTable(_attribute));
+//
+//                            Scene scene = new Scene(root);
+//                            scene.getStylesheets().add("/styles/Styles.css");
+//                            dialogStage.setScene(scene);
+//                            dialogStage.show();
+//
+//                        }
+//                    });
                 }
             } catch (Exception ex) {
                 Logger.getLogger(StringValueEditor.class.getName()).log(Level.SEVERE, null, ex);

@@ -115,7 +115,7 @@ public class ObjectTree extends TreeView<JEVisObject> {
                 }
             });
 
-            final KeyCombination copyID = new KeyCodeCombination(KeyCode.I, KeyCombination.CONTROL_DOWN);
+            final KeyCombination copyID = new KeyCodeCombination(KeyCode.F1);
             final KeyCombination copyObj = new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN);
             final KeyCombination add = new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN);
             final KeyCombination rename = new KeyCodeCombination(KeyCode.F2);
@@ -135,6 +135,7 @@ public class ObjectTree extends TreeView<JEVisObject> {
                             ClipboardContent content = new ClipboardContent();
 
                             content.putString(getSelectionModel().getSelectedItem().getValue().getID().toString());
+                            System.out.println("CopyID: " + getSelectionModel().getSelectedItem().getValue().getID().toString());
                             clip.setContent(content);
                             t.consume();
                         } else if (rename.match(t)) {
@@ -609,7 +610,7 @@ public class ObjectTree extends TreeView<JEVisObject> {
 
                     @Override
                     public void handle(MouseEvent e) {
-                        System.out.println("Drag Source: " + obj.getName());
+//                        System.out.println("Drag Source: " + obj.getName());
                         ClipboardContent content = new ClipboardContent();
 //                        content.putString(obj.getName());
                         Dragboard dragBoard = startDragAndDrop(TransferMode.ANY);
@@ -624,7 +625,7 @@ public class ObjectTree extends TreeView<JEVisObject> {
                 setOnDragDone(new EventHandler<DragEvent>() {
                     @Override
                     public void handle(DragEvent dragEvent) {
-                        System.out.println("Drag done on " + obj.getName());
+//                        System.out.println("Drag done on " + obj.getName());
                         dragEvent.consume();
                     }
                 });
@@ -633,14 +634,14 @@ public class ObjectTree extends TreeView<JEVisObject> {
                 setOnDragOver(new EventHandler<DragEvent>() {
                     @Override
                     public void handle(DragEvent dragEvent) {
-                        System.out.println("Drag Over: " + obj.getName());
+//                        System.out.println("Drag Over: " + obj.getName());
 
                         try {
                             if (getDragItem().isAllowedUnder(obj)) {
                                 dragEvent.acceptTransferModes(TransferMode.ANY);
                             }
 
-                            if (obj.getJEVisClass().getName().equals("Views Directory") || obj.getJEVisClass().getName().equals(CommonClasses.LINK.NAME)) {
+                            if (obj.getJEVisClass().getName().equals("View Directory") || obj.getJEVisClass().getName().equals(CommonClasses.LINK.NAME)) {
                                 dragEvent.acceptTransferModes(TransferMode.ANY);
                             }
 
@@ -665,7 +666,7 @@ public class ObjectTree extends TreeView<JEVisObject> {
                             public void run() {
                                 if (dragEvent.isAccepted()) {
 //                                    JEConfig.getStage().getScene().setCursor(Cursor.DEFAULT);
-                                    showMoveDialog(_dragObj, obj);
+                                    showMoveDialog(getDragItem(), obj);
                                 }
 
                             }

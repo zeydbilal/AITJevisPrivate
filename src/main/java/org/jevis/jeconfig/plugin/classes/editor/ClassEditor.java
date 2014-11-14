@@ -186,6 +186,7 @@ public class ClassEditor {
 //                            fInherit.setText("Choose...");
                         }
 
+                        fDescript.setWrapText(true);
                         fDescript.setText(jclass.getDescription());
                         fUnique.setSelected(jclass.isUnique());
                     }
@@ -304,7 +305,8 @@ public class ClassEditor {
             }
             for (final JEVisType type : _class.getTypes()) {
                 type.getPrimitiveType();
-                final TextField lName = new TextField(type.getName());
+                final Label lName = new Label(type.getName());
+//                final TextField lName = new TextField(type.getName());
 //                lName.setEditable(false);
 
                 //test
@@ -388,26 +390,26 @@ public class ClassEditor {
                     Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
-                lName.setOnAction(new EventHandler<ActionEvent>() {
-
-                    @Override
-                    public void handle(ActionEvent t) {
-                        try {
-                            System.out.println("event name");
-                            if (!lName.getText().isEmpty()) {
-                                System.out.println("name not null");
-                                if (_class.getType(lName.getText()) == null) {
-                                    System.out.println("name is the free");
-                                    type.setName(lName.getText());
-                                }
-                            }
-
-                        } catch (JEVisException ex) {
-                            Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
-                });
-
+                //TODO: reimplement changing name
+//                lName.setOnAction(new EventHandler<ActionEvent>() {
+//
+//                    @Override
+//                    public void handle(ActionEvent t) {
+//                        try {
+//                            System.out.println("event name");
+//                            if (!lName.getText().isEmpty()) {
+//                                System.out.println("name not null");
+//                                if (_class.getType(lName.getText()) == null) {
+//                                    System.out.println("name is the free");
+//                                    type.setName(lName.getText());
+//                                }
+//                            }
+//
+//                        } catch (JEVisException ex) {
+//                            Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
+//                        }
+//                    }
+//                });
                 ChoiceBox primType = new ChoiceBox();
                 primType.setItems(ClassHelper.getAllPrimitiveTypes());
                 primType.getSelectionModel().select(ClassHelper.getNameforPrimitiveType(type));
@@ -572,9 +574,9 @@ public class ClassEditor {
 
     private void setUnitButton(Button button, JEVisType type) throws JEVisException {
         if (type.getUnit() != null) {
-            System.out.println("editor.Unit: " + type.getUnit());
+//            System.out.println("editor.Unit: " + type.getUnit());
             if (type.getUnit().equals(Unit.ONE)) {
-                button.setText("None");
+//                button.setText("None");
             } else {
 //                System.out.println(UnitManager.getInstance().formate(type.getUnit()));
 //                button.setText(type.getUnit().toString());
@@ -687,7 +689,7 @@ public class ClassEditor {
 
     private ImageView getIcon(JEVisClass jclass) {
         try {
-            System.out.println("getIcon for :" + jclass);
+//            System.out.println("getIcon for :" + jclass);
             if (jclass.getIcon() == null) {
                 return JEConfig.getImage("1393615831_unknown2.png", 30, 30);
             }
