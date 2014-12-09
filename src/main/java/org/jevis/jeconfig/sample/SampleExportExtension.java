@@ -40,6 +40,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
@@ -50,6 +51,7 @@ import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -58,6 +60,8 @@ import javafx.stage.FileChooser;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.application.dialog.ExceptionDialog;
+import org.jevis.application.dialog.InfoDialog;
 import org.jevis.jeconfig.JEConfig;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -68,9 +72,13 @@ import org.joda.time.format.DateTimeFormatter;
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class CSVExport {
+public class SampleExportExtension implements SampleEditorExtension {
 
     public static String ICON = "1415654364_stock_export.png";
+
+    private final static String TITEL = "Export";
+    private final BorderPane _view = new BorderPane();
+    private JEVisAttribute _att;
 
     public static enum Response {
 
@@ -124,6 +132,49 @@ public class CSVExport {
     TableColumn dateColum = new TableColumn("Date");
     TableColumn valueColum = new TableColumn("Value");
     TableColumn timeColum = new TableColumn("Time");
+    private boolean _isBuild = false;
+
+    public SampleExportExtension(JEVisAttribute att) {
+        _att = att;
+
+    }
+
+    @Override
+    public boolean isForAttribute(JEVisAttribute obj) {
+        return true;
+    }
+
+    @Override
+    public Node getView() {
+        return _view;
+    }
+
+    @Override
+    public String getTitel() {
+        return TITEL;
+    }
+
+    @Override
+    public void update() {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                if (!_isBuild) {
+                    buildGUI(_att, _samples);
+                } else {
+//                    _samples = samples;
+//                    updateOderField();
+                    updatePreview();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void setSamples(final JEVisAttribute att, final List<JEVisSample> samples) {
+        _samples = samples;
+        _att = att;
+    }
 
     public boolean doExport() throws FileNotFoundException, UnsupportedEncodingException {
 
@@ -138,8 +189,33 @@ public class CSVExport {
 
     }
 
-    public Node buildGUI(final JEVisAttribute attribute, final List<JEVisSample> samples) {
+    @Override
+    public boolean sendOKAction() {
+        System.out.println("sendOk to Export");
+        try {
+            InfoDialog info = new InfoDialog();
+            if (doExport()) {
+                info.show(JEConfig.getStage(), "Success", "Export was successful", "Export was successful");
+                return true;
+            } else {
+                info.show(JEConfig.getStage(), "Info", "Missing parameters", "Soem parameters are not configured");
+                return false;
+            }
 
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(SampleEditor.class.getName()).log(Level.SEVERE, null, ex);
+            ExceptionDialog errDia = new ExceptionDialog();
+            errDia.show(JEConfig.getStage(), "Error", "Error while exporting", "Could not write to file", ex, JEConfig.PROGRAMM_INFO);
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(SampleEditor.class.getName()).log(Level.SEVERE, null, ex);
+            ExceptionDialog errDia = new ExceptionDialog();
+            errDia.show(JEConfig.getStage(), "Error", "Error while exporting", "Unsupported encoding", ex, JEConfig.PROGRAMM_INFO);
+        }
+        return false;
+    }
+
+    public void buildGUI(final JEVisAttribute attribute, final List<JEVisSample> samples) {
+        _isBuild = true;
         TabPane tabPane = new TabPane();
         tabPane.setMaxWidth(2000);
 
@@ -152,7 +228,7 @@ public class CSVExport {
                         + " - " + dtfDateTime.print(samples.get(samples.size() - 1).getTimestamp())
                         + " " + timezone.print(samples.get(0).getTimestamp());
             } catch (JEVisException ex) {
-                Logger.getLogger(CSVExport.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(SampleExportExtension.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
 
@@ -353,8 +429,13 @@ public class CSVExport {
         updateOderField();
         updatePreview();
 
-        return gp;
-
+        ScrollPane scroll = new ScrollPane();
+        scroll.setStyle("-fx-background-color: transparent");
+        scroll.setMaxSize(10000, 10000);
+        scroll.setContent(gp);
+//        _view.getChildren().setAll(scroll);
+        _view.setCenter(scroll);
+//        return gp;
     }
 
     private void updateOderField() {
@@ -480,7 +561,7 @@ public class CSVExport {
                 sb.append(System.getProperty("line.separator"));
 
             } catch (JEVisException ex) {
-                Logger.getLogger(CSVExport.class
+                Logger.getLogger(SampleExportExtension.class
                         .getName()).log(Level.SEVERE, null, ex);
             }
 

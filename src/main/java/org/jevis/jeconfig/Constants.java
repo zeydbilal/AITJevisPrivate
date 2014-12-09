@@ -51,4 +51,15 @@ public interface Constants {
         public static String LIGHT_GREY = "#efefef";
         public static String LIGHT_GREY2 = "#E2E2E2";
     }
+
+    public interface JEVisClass {
+
+        public static String GROUP = "Group";
+        public static String GROUP_DIRECTORY = "Group Directory";
+        public static String USER = "Users";
+        public static String ORGANIZATION = "Organization";
+        public static String SYSTEM = "System";
+        public static String ADMINISTRATION_DIRECTROY = "Administration Directory";
+
+    }
 }

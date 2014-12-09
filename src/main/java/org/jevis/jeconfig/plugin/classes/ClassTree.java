@@ -179,9 +179,29 @@ public class ClassTree extends TreeView<JEVisClass> {
     public void addChildrenList(TreeItem<JEVisClass> item, ObservableList<TreeItem<JEVisClass>> list) {
         _itemChildren.put(item, list);
         try {
+//            System.out.println("\nchildren for: " + item.getValue().getName());
             for (JEVisClass child : item.getValue().getHeirs()) {
-                TreeItem<JEVisClass> newItem = buildItem(child);
-                list.add(newItem);
+//                System.out.println("        posible heir: " + child.getName());
+                if (item.getValue().getName().equals("Classes")) {
+                    TreeItem<JEVisClass> newItem = buildItem(child);
+                    list.add(newItem);
+//                    } else if (child.getInheritance() != null && item.getValue().getName().equals(child.getInheritance().getName()))
+                } else if (child.getInheritance() != null && item.getValue().equals(child.getInheritance())) {// && child.getInheritance().equals(item.getValue())) {
+
+//                    System.out.println("        is direct heir: " + child.getInheritance());
+                    TreeItem<JEVisClass> newItem = buildItem(child);
+                    list.add(newItem);
+
+                }
+
+//                for (JEVisClassRelationship rel : child.getRelationships(JEVisConstants.ClassRelationship.INHERIT, JEVisConstants.Direction.FORWARD)) {
+//                    System.out.println("rel: " + rel);
+//                    if (rel.getOtherClass(item.getValue().getInheritance())) {
+//                        System.out.println("from: " +);
+//                    } else {
+//                        System.out.println("to");
+//                    }
+//                }
             }
         } catch (JEVisException ex) {
             Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
@@ -496,16 +516,19 @@ public class ClassTree extends TreeView<JEVisClass> {
                     }
                 });
 
-                //TODO: ceh if its ok to move the Object here
+                //TODO: check if its ok to move the Object here
                 setOnDragOver(new EventHandler<DragEvent>() {
                     @Override
                     public void handle(DragEvent dragEvent) {
                         try {
                             if (obj != null) {
-                                System.out.println("Drag Over: " + obj.getName());
-                                dragEvent.acceptTransferModes(TransferMode.MOVE);
+                                if (!obj.equals(getDragItem()) && !getDragItem().getHeirs().contains(obj)) {
+                                    System.out.println("Drag Over: " + obj.getName());
+                                    dragEvent.acceptTransferModes(TransferMode.MOVE);
+                                }
+
                             } else {
-                                System.out.println("Drag Over NULL!!");
+//                                System.out.println("Drag Over NULL!!");
                             }
 
                             dragEvent.consume();

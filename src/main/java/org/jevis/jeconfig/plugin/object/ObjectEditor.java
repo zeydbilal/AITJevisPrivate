@@ -19,37 +19,26 @@
  */
 package org.jevis.jeconfig.plugin.object;
 
+import org.jevis.jeconfig.plugin.object.extension.GenericAttributeExtension;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Objects;
 import javafx.application.Platform;
-import javafx.geometry.HPos;
-import javafx.geometry.Insets;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.control.Accordion;
 //import javafx.scene.control.Dialogs;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
-import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisConstants.PrimitiveType;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.dialog.ConfirmDialog;
-import org.jevis.application.dialog.ExceptionDialog;
-import org.jevis.application.type.GUIConstants;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
-import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
-import org.jevis.jeconfig.plugin.object.attribute.AttributeEditor;
-import org.jevis.jeconfig.plugin.object.attribute.BooleanValueEditor;
-import org.jevis.jeconfig.plugin.object.attribute.FileValueEditor;
-import org.jevis.jeconfig.plugin.object.attribute.NumberWithUnit;
-import org.jevis.jeconfig.plugin.object.attribute.PasswordEditor;
-import org.jevis.jeconfig.plugin.object.attribute.StringValueEditor;
+import org.jevis.jeconfig.plugin.object.extension.MemberExtension;
+import org.jevis.jeconfig.plugin.object.extension.RootExtension;
+import org.jevis.jeconfig.plugin.object.extension.ShareExtension;
 
 /**
  *
@@ -58,8 +47,9 @@ import org.jevis.jeconfig.plugin.object.attribute.StringValueEditor;
 public class ObjectEditor {
 
     private JEVisObject _currentObject = null;
-    private List<AttributeEditor> _editors = new LinkedList<>();
+    private List<ObjectEditorExtension> extensions = new LinkedList<>();
     private boolean _saved = true;
+    private String _lastOpenEditor = "";
 
 //    private AnchorPane _view;
 //    private LoadPane _view;
@@ -76,29 +66,26 @@ public class ObjectEditor {
     }
 
     public void commitAll() {
-        try {
-            for (AttributeEditor editor : _editors) {
-                editor.commit();
-                _saved = true;
+        for (ObjectEditorExtension extension : extensions) {
+            if (extension.needSave()) {
+                extension.save();
             }
-        } catch (JEVisException ex) {
-            Logger.getLogger(ObjectEditor.class.getName()).log(Level.SEVERE, null, ex);
-
-            ExceptionDialog dia = new ExceptionDialog();
-            dia.show(JEConfig.getStage(), "Error", "Could not commit to Server", ex, PROGRAMM_INFO);
         }
     }
 
     public void checkIfSaved(JEVisObject obj) {
-        if (!_saved && _currentObject != null && obj.getID() != _currentObject.getID()) {
+        if (!_saved && _currentObject != null && !Objects.equals(obj.getID(), _currentObject.getID())) {
+
+            List<ObjectEditorExtension> needSave = new ArrayList<>();
+
             _saved = true;
-            for (AttributeEditor editor : _editors) {
-                if (editor.hasChanged()) {
-                    _saved = false;
-                    System.out.println("has changed: ");
+            for (ObjectEditorExtension extension : extensions) {
+                if (extension.needSave()) {
+                    needSave.add(extension);
                 }
             }
-            if (!_saved) {
+
+            if (!needSave.isEmpty()) {
                 //workaround for fast saving without requesting
 //                commitAll();
 
@@ -120,106 +107,80 @@ public class ObjectEditor {
 
     public void setObject(final JEVisObject obj) {
         checkIfSaved(obj);
+        _currentObject = obj;
         Platform.runLater(new Runnable() {
 
             @Override
             public void run() {
 
-                AnchorPane root = new AnchorPane();
-                final Accordion accordion = new Accordion();
+                Accordion accordion = new Accordion();
 
-                _saved = false;
-                _editors = new LinkedList<>();
-                _currentObject = obj;
+                List<TitledPane> taps = new ArrayList<>();
+                extensions = new ArrayList<>();
+                extensions.add(new GenericAttributeExtension(obj));
+                extensions.add(new MemberExtension(obj));
+                extensions.add(new ShareExtension(obj));
+                extensions.add(new RootExtension(obj));
 
-                GridPane gridPane = new GridPane();
-//        gridPane.setPadding(new Insets(20, 0, 20, 20));
-                gridPane.setPadding(new Insets(5, 0, 20, 20));
-                gridPane.setHgap(7);
-                gridPane.setVgap(7);
+                for (final ObjectEditorExtension ex : extensions) {
+                    if (ex.isForObject(obj)) {
+//                        System.out.println("Extension " + ex.getTitel() + " is for Object: " + obj.getName());
+                        TitledPane newTab = new TitledPane(ex.getTitel(), ex.getView());
+                        newTab.setAnimated(false);
+                        taps.add(newTab);
 
-                try {
-                    int coloum = 0;
-                    for (JEVisAttribute att : obj.getAttributes()) {
-                        AttributeEditor editor = null;
+                        newTab.expandedProperty().addListener(new ChangeListener<Boolean>() {
 
-                        switch (att.getPrimitiveType()) {
-                            case PrimitiveType.STRING:
-                                editor = new StringValueEditor(att);
-                                break;
-                            case PrimitiveType.BOOLEAN:
-                                editor = new BooleanValueEditor(att);
-                                break;
-                            case PrimitiveType.FILE:
-                                if (att.getType().getGUIDisplayType().equals(GUIConstants.NUMBER_WITH_UNIT.getId())) {
-                                    editor = new FileValueEditor(att);
-                                } else {
-                                    editor = new StringValueEditor(att);
+                            @Override
+                            public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
+                                if (t1) {
+                                    try {
+                                        JEConfig.loadNotification(true);
+//                                        System.out.println("Expansion is visible: " + ex.getTitel());
+                                        ex.setVisible();
+                                        _lastOpenEditor = ex.getTitel();
+                                        JEConfig.loadNotification(false);
+                                    } catch (Exception ex) {
+                                        ex.printStackTrace();
+                                    }
                                 }
+                            }
+                        });
 
-                                break;
-                            case PrimitiveType.DOUBLE:
-                                editor = new NumberWithUnit(att);
-                                break;
-                            case PrimitiveType.PASSWORD_PBKDF2:
-                                editor = new PasswordEditor(att);
-                                break;
-                            default:
-                                editor = new StringValueEditor(att);
-                                break;
-
-                        }
-
-                        _editors.add(editor);
-
-                        Label name = new Label("*Missing_Name*");
-
-                        name.setId("attributelabel");
-
-                        GridPane.setHalignment(name, HPos.LEFT);
-                        gridPane.add(name, 0, coloum);
-                        gridPane.add(editor.getEditor(), 1, coloum);
-
-                        name.setText(att.getName() + ":");
-
-//                if (att.hasSample()) {
-//                    value.setText(att.getLatestSample().getValueAsString());
-//                }
-                        coloum++;
                     }
-                } catch (JEVisException ex) {
-                    Logger.getLogger(ObjectEditor.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
-                root.getChildren().add(gridPane);
-                AnchorPane.setTopAnchor(gridPane, 0.0);
-                AnchorPane.setRightAnchor(gridPane, 0.0);
-                AnchorPane.setLeftAnchor(gridPane, 0.0);
-                AnchorPane.setBottomAnchor(gridPane, 0.0);
-
-                ScrollPane sp = new ScrollPane();
-                sp.setContent(root);
-                final TitledPane t1 = new TitledPane("Attributes", sp);
-                accordion.getPanes().addAll(t1);
-
-                sp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
-
-                t1.setAnimated(false);
+                accordion.getPanes().addAll(taps);
 
                 AnchorPane.setTopAnchor(accordion, 0.0);
                 AnchorPane.setRightAnchor(accordion, 0.0);
                 AnchorPane.setLeftAnchor(accordion, 0.0);
                 AnchorPane.setBottomAnchor(accordion, 0.0);
-                accordion.setExpandedPane(t1);
 
-//                System.out.println("animation interrupt");
-//        Platform.runLater(new Runnable() {
-//
-//            @Override
-//            public void run() {
-//                animation.interrupt();
+                //load the last Extensions for the new object
+                boolean foundTab = false;
+                if (!taps.isEmpty()) {
+
+                    for (ObjectEditorExtension ex : extensions) {
+                        if (ex.getTitel().equals(_lastOpenEditor)) {
+                            ex.setVisible();
+                        }
+                    }
+                    for (TitledPane tap : taps) {
+                        if (tap.getText().equals(_lastOpenEditor)) {
+                            accordion.setExpandedPane(tap);
+                            foundTab = true;
+                        }
+                    }
+
+                }
+                if (!foundTab) {
+                    extensions.get(0).setVisible();
+                    accordion.setExpandedPane(taps.get(0));
+                    _lastOpenEditor = extensions.get(0).getTitel();
+                }
+
                 _view.getChildren().setAll(accordion);
-                //            }
             }
         });
 

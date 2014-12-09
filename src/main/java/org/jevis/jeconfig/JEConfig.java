@@ -27,10 +27,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -73,14 +75,13 @@ public class JEConfig extends Application {
     /**
      * Defines the version information in the about dialog
      */
-    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.4 2014-11-14");
+    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.5 2014-12-09");
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static String _lastpath = "";
 
     @Override
     public void init() throws Exception {
         super.init(); //To change body of generated methods, choose Tools | Templates.
-        System.out.println("init()");
 //        System.out.println("Codebase: " + getHostServices().getCodeBase());
 //        System.out.println("getDocumentBase: " + getHostServices().getDocumentBase());
         Parameters parameters = getParameters();
@@ -91,11 +92,10 @@ public class JEConfig extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        System.out.println("Start");
+
 //        System.out.println("edbug");
 //        InfoDialog debug = new InfoDialog();
 //        debug.show(primaryStage, "Debug", "Debug Info", _config.getLoginIcon() + " \n"); //        System.out.println("Java version: " + System.getProperty("java.version"));
-
         //does this even work on an JAVA FX Application?
         JavaVersionCheck checkVersion = new JavaVersionCheck();
         if (!checkVersion.isVersionOK()) {
@@ -121,7 +121,9 @@ public class JEConfig extends Application {
 
             LoginDialog loginD = new LoginDialog();
 //            ds = loginD.showSQL(primaryStage, _config.getLoginIcon());
-            ds = loginD.showSQL(primaryStage, _config.getLoginIcon(), _config.getEnabledSSL(), _config.getShowServer(), _config.getDefaultServer());
+
+            ds = loginD.showSQL(primaryStage);
+//            ds = loginD.showSQL(primaryStage, _config.getLoginIcon(), _config.getEnabledSSL(), _config.getShowServer(), _config.getDefaultServer());
 
             if (ds == null) {
                 System.exit(0);
@@ -135,6 +137,16 @@ public class JEConfig extends Application {
             dia.show(primaryStage, "Error", "Could not connect to Server", ex, PROGRAMM_INFO);
 
         }
+
+//        try {
+//            JEVisClassPackageManager cpm = new JEVisClassPackageManager("/tmp/SystemExport.jar", ds);
+//            cpm.setContent(ds.getJEVisClasses());
+//            cpm.importIntoJEVis(ds);
+////            cpm.addJEVisClass(ds.getJEVisClass("Data"));
+//        } catch (Exception ex) {
+//            System.out.println("error while testing class export:");
+//            ex.printStackTrace();
+//        }
         _mainDS = ds;
 
         JEConfig.PROGRAMM_INFO.setJEVisAPI(ds.getInfo());
@@ -352,7 +364,17 @@ public class JEConfig extends Application {
         if (_lastpath.equals("")) {
             _lastpath = pref.get("lastPath", System.getProperty("user.home"));
         }
-        return new File(_lastpath);
+        File file = new File(_lastpath);
+        if (file.exists()) {
+            if (file.isDirectory()) {
+                return file;
+            } else {
+                return file.getParentFile();
+            }
+
+        } else {
+            return new File(pref.get("lastPath", System.getProperty("user.home")));
+        }
     }
 
     /**
@@ -391,7 +413,7 @@ public class JEConfig extends Application {
     public static String getResource(String file) {
         //        scene.getStylesheets().addAll(this.getClass().getResource("/org/jevis/jeconfig/css/main.css").toExternalForm());
 
-        System.out.println("get Resouce: " + file);
+//        System.out.println("get Resouce: " + file);
         return JEConfig.class.getResource("/styles/" + file).toExternalForm();
 //        return JEConfig.class.getResource("/org/jevis/jeconfig/css/" + file).toExternalForm();
 
@@ -436,6 +458,25 @@ public class JEConfig extends Application {
         } catch (ConfigurationException ex) {
             Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    /**
+     * Inform the user the some precess is working
+     *
+     * @param working
+     */
+    public static void loadNotification(final boolean working) {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                if (working) {
+                    getStage().getScene().setCursor(Cursor.WAIT);
+                } else {
+                    getStage().getScene().setCursor(Cursor.DEFAULT);
+                }
+            }
+        });
+
     }
 
 }

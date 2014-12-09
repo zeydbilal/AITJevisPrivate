@@ -19,11 +19,11 @@
  */
 package org.jevis.jeconfig.sample;
 
-import java.io.FileNotFoundException;
-import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Locale;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -31,15 +31,10 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.GridPane;
@@ -51,14 +46,12 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.jevis.application.dialog.DialogHeader;
-import org.jevis.application.dialog.ExceptionDialog;
-import org.jevis.application.dialog.InfoDialog;
 import org.jevis.jeconfig.JEConfig;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import org.jevis.jeconfig.tool.datepicker.DatePicker;
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
 
 /**
  *
@@ -67,11 +60,16 @@ import org.joda.time.format.DateTimeFormatter;
 public class SampleEditor {
 
     public static String ICON = "1415314386_Graph.png";
+    private boolean _dataChanged = false;
+    private SampleEditorExtension _visibleExtension = null;
+    private DateTime _from = null;
+    private DateTime _until = null;
 
     public static enum Response {
 
         YES, CANCEL
     };
+    List<JEVisSample> samples = new ArrayList<>();
 
     private Response response = Response.CANCEL;
 
@@ -90,8 +88,6 @@ public class SampleEditor {
     public Response show(Stage owner, final JEVisAttribute attribute) {
         final Stage stage = new Stage();
 
-        final List<JEVisSample> samples = attribute.getAllSamples();
-
         stage.setTitle("Sample Editor");
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initOwner(owner);
@@ -101,8 +97,8 @@ public class SampleEditor {
 
         final Scene scene = new Scene(root);
         stage.setScene(scene);
-        stage.setWidth(750);
-        stage.setHeight(660);
+        stage.setWidth(740);
+        stage.setHeight(690);
         stage.setMaxWidth(2000);
         stage.initStyle(StageStyle.UTILITY);
         stage.setResizable(false);
@@ -112,13 +108,51 @@ public class SampleEditor {
         ok.setDefaultButton(true);
 
 //        Button export = new Button("Export");
-        Button cancel = new Button("Cancel");
+        Button cancel = new Button("Close");
         cancel.setCancelButton(true);
 
         Region spacer = new Region();
         spacer.setMaxWidth(2000);
 
-        buttonPanel.getChildren().addAll(spacer, ok, cancel);
+        Label startLabel = new Label("From:");
+        DatePicker startdate = new DatePicker();
+
+        startdate.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
+//        startdate.getCalendarView().todayButtonTextProperty().set("Today");
+        startdate.getCalendarView().setShowWeeks(false);
+        startdate.getStylesheets().add(JEConfig.getResource("DatePicker.css"));
+
+        Label endLabel = new Label("Until:");
+        DatePicker enddate = new DatePicker();
+
+        enddate.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
+        enddate.getCalendarView().todayButtonTextProperty().set("Today");
+        enddate.getCalendarView().setShowWeeks(true);
+        enddate.getStylesheets().add(JEConfig.getResource("DatePicker.css"));
+
+        SampleTabelExtension tabelExtension = new SampleTabelExtension(attribute);//Default plugin
+
+//        final List<JEVisSample> samples = attribute.getAllSamples();
+        if (attribute.hasSample()) {
+            _from = attribute.getTimestampFromLastSample().minus(Duration.standardDays(1));
+            _until = attribute.getTimestampFromLastSample();
+
+            startdate = new DatePicker(Locale.getDefault(), _from.toDate());
+            startdate.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
+            startdate.setSelectedDate(_from.toDate());
+            startdate.getCalendarView().setShowWeeks(false);
+            startdate.getStylesheets().add(JEConfig.getResource("DatePicker.css"));
+
+//            enddate.setSelectedDate(_until.toDate());
+            enddate.selectedDateProperty().setValue(_until.toDate());
+            enddate.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
+            enddate.setSelectedDate(_from.toDate());
+            enddate.getCalendarView().setShowWeeks(true);
+            enddate.getStylesheets().add(JEConfig.getResource("DatePicker.css"));
+
+        }
+
+        buttonPanel.getChildren().addAll(startLabel, startdate, endLabel, enddate, spacer, ok, cancel);
         buttonPanel.setAlignment(Pos.CENTER_RIGHT);
         buttonPanel.setPadding(new Insets(10, 10, 10, 10));
         buttonPanel.setSpacing(10);//10
@@ -128,42 +162,50 @@ public class SampleEditor {
         HBox.setHgrow(ok, Priority.NEVER);
         HBox.setHgrow(cancel, Priority.NEVER);
 
+        final List<SampleEditorExtension> extensions = new ArrayList<>();
+
+        extensions.add(tabelExtension);
+        extensions.add(new SampleGraphExtension(attribute));
+        extensions.add(new SampleExportExtension(attribute));
+
+        final List<Tab> tabs = new ArrayList<>();
+
+//        boolean fistEx = true;
+        for (SampleEditorExtension ex : extensions) {
+//            _dataChanged
+//            if (fistEx) {
+//                System.out.println("is first");
+//                ex.setSamples(attribute, samples);
+//                ex.update();
+//                fistEx = false;
+//            }
+
+            Tab tabEditor = new Tab();
+            tabEditor.setText(ex.getTitel());
+            tabEditor.setContent(ex.getView());
+            tabs.add(tabEditor);
+
+        }
+        _visibleExtension = extensions.get(0);
+        updateSamples(attribute, _from, _until, extensions);
+
         final TabPane tabPane = new TabPane();
-        tabPane.setMaxWidth(2000);
+//        tabPane.setMaxWidth(2000);
+//        tabPane.setMaxHeight(2000);
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-//        tabPane.getStylesheets().add(JEConfig.getResource("tabEmty.css"));
 
-//        tabPane.lookup(".tab-pane .tab-header-area .tab-header-background").setStyle("-fx-background-color: white;");
-        Tab tabEditor = new Tab();
-        tabEditor.setText("Editor");
-        final Tab tabGraph = new Tab();
-        tabGraph.setText("Graph");
+        tabPane.getTabs().addAll(tabs);
 
-        SampleTable table = new SampleTable(samples);
-        table.setPrefSize(1000, 1000);
-
-        final Tab tabCSVExport = new Tab();
-        tabCSVExport.setText("CSV Export");
-        final CSVExport csvExport = new CSVExport();
-        tabCSVExport.setContent(csvExport.buildGUI(attribute, samples));
-
-        tabEditor.setContent(table);
-
-        tabPane.getTabs().addAll(tabEditor, tabGraph, tabCSVExport);
-
+//        tabPane.setPrefSize(200, 200);
+//        tabPane.getSelectionModel().selectFirst();
         GridPane gp = new GridPane();
         gp.setStyle("-fx-background-color: white;");
-//        gp.setPadding(new Insets(10));
+
         gp.setHgap(0);
         gp.setVgap(0);
         int y = 0;
         gp.add(tabPane, 0, y);
-//        gp.add(pass, 1, y);
-//        gp.add(confirmL, 0, ++y);
-//        gp.add(comfirm, 1, y);
 
-//        Separator sep = new Separator(Orientation.HORIZONTAL);
-//        sep.setMinHeight(10);
         Node header = DialogHeader.getDialogHeader(ICON, "Sample Editor");//new Separator(Orientation.HORIZONTAL),
 
         root.getChildren().addAll(header, gp, buttonPanel);
@@ -174,87 +216,49 @@ public class SampleEditor {
         ok.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-//                stage.close();
-//                response = Response.YES;
-                System.out.println("tab: ");
-                if (tabPane.getSelectionModel().selectedItemProperty().getValue().equals(tabCSVExport)) {
-                    System.out.println("exports");
-                    try {
-                        InfoDialog info = new InfoDialog();
-                        if (csvExport.doExport()) {
-                            info.show(JEConfig.getStage(), "Success", "Export was successful", "Export was successful");
-                        } else {
-                            info.show(JEConfig.getStage(), "Info", "Missing parameters", "Soem parameters are not configured");
-                        }
+                System.out.println("OK action to: " + _visibleExtension.getTitel());
+                _visibleExtension.sendOKAction();
+            }
+        });
 
-                    } catch (FileNotFoundException ex) {
-                        Logger.getLogger(SampleEditor.class.getName()).log(Level.SEVERE, null, ex);
-                        ExceptionDialog errDia = new ExceptionDialog();
-                        errDia.show(JEConfig.getStage(), "Error", "Error while exporting", "Could not write to file", ex, JEConfig.PROGRAMM_INFO);
-                    } catch (UnsupportedEncodingException ex) {
-                        Logger.getLogger(SampleEditor.class.getName()).log(Level.SEVERE, null, ex);
-                        ExceptionDialog errDia = new ExceptionDialog();
-                        errDia.show(JEConfig.getStage(), "Error", "Error while exporting", "Unsupported encoding", ex, JEConfig.PROGRAMM_INFO);
+        tabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
+
+            @Override
+            public void changed(ObservableValue<? extends Tab> ov, Tab t, Tab t1) {
+//                System.out.println("tabPane.getSelectionModel(): " + t1.getText());
+
+                for (SampleEditorExtension ex : extensions) {
+                    if (ex.getTitel().equals(t1.getText())) {
+                        ex.update();
+                        _visibleExtension = ex;
                     }
                 }
-
+//                }
             }
         });
 
-        final boolean isloaded = false;
-        tabPane.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+        startdate.selectedDateProperty().addListener(new ChangeListener<Date>() {
+
             @Override
-            public void changed(ObservableValue<? extends Number> ov, Number oldValue, Number newValue) {
-//                System.out.println("Tab changed: " + tabGraph.getContent());
-                if (newValue.equals(1) && tabGraph.getContent() == null) {
-                    JEConfig.getStage().getScene().setCursor(Cursor.WAIT);
-                    scene.setCursor(Cursor.WAIT);
-
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            LineChart<String, Number> chart = buildChart(samples);
-                            final ScrollPane scroll = new ScrollPane();
-                            scroll.setVisible(false);
-                            scroll.setMaxWidth(2000);
-                            scroll.setPrefWidth(2000);
-                            tabGraph.setContent(scroll);
-                            scroll.setContent(chart);
-                            tabGraph.setContent(scroll);
-                            scroll.setVisible(true);
-                            JEConfig.getStage().getScene().setCursor(Cursor.DEFAULT);
-                            scene.setCursor(Cursor.DEFAULT);
-                        }
-                    });
-
-//                    LineChart<String, Number> chart = buildChart(attribute);
-//
-//                    final ScrollPane scroll = new ScrollPane();
-//                    scroll.setMaxWidth(2000);
-//                    scroll.setPrefWidth(2000);
-//                    tabGraph.setContent(scroll);
-//                    scroll.setContent(chart);
-//                    tabGraph.setContent(scroll);
-//                    JEConfig.getStage().getScene().setCursor(Cursor.DEFAULT);
-                }
+            public void changed(ObservableValue<? extends Date> ov, Date t, Date t1) {
+                DateTime from = new DateTime(t1.getTime());
+                _from = from;
+//                _visibleExtension.setSamples(attribute, attribute.getSamples(_from, _until));
+                updateSamples(attribute, _from, _until, extensions);
             }
         });
 
-//        pass.setOnKeyReleased(new EventHandler<KeyEvent>() {
-//
-//            @Override
-//            public void handle(KeyEvent t) {
-//                checkPW();
-//            }
-//        });
-//
-//        comfirm.setOnKeyReleased(new EventHandler<KeyEvent>() {
-//
-//            @Override
-//            public void handle(KeyEvent t) {
-//                checkPW();
-//            }
-//        });
+        enddate.selectedDateProperty().addListener(new ChangeListener<Date>() {
+
+            @Override
+            public void changed(ObservableValue<? extends Date> ov, Date t, Date t1) {
+                DateTime until = new DateTime(t1.getTime());
+                _until = until;
+//                _visibleExtension.setSamples(attribute, attribute.getSamples(_from, _until));
+                updateSamples(attribute, _from, _until, extensions);
+            }
+        });
+
         cancel.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
@@ -264,76 +268,38 @@ public class SampleEditor {
             }
         });
 
-//        pass.requestFocus();
+        //TODO: replace Workaround.., without it the first tab will be emty 
+//        tabPane.getSelectionModel().selectLast();
+//        tabPane.getSelectionModel().selectFirst();
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                tabPane.getSelectionModel().selectLast();
+                tabPane.getSelectionModel().selectFirst();
+            }
+        });
+
         stage.showAndWait();
-        System.out.println("return " + response);
 
         return response;
     }
 
-//    public String getPassword() {
-//        return pass.getText();
-//    }
-//
-//    private void checkPW() {
-//        if (!pass.getText().isEmpty() && !comfirm.getText().isEmpty()) {
-//            if (pass.getText().equals(comfirm.getText())) {
-//                ok.setDisable(false);
-//            }
-//        }
-//
-//    }
-    private LineChart<String, Number> buildChart(List<JEVisSample> samples) {
-
-        final CategoryAxis xAxis = new CategoryAxis();
-        final NumberAxis yAxis = new NumberAxis();
-//        xAxis.setLabel("Month");
-        final LineChart<String, Number> lineChart
-                = new LineChart<String, Number>(xAxis, yAxis);
-
-        String titel = String.format("");
-
-        lineChart.setTitle(titel);
-//        lineChart.setAnimated(true);
-        lineChart.setLegendVisible(false);
-//        lineChart.setCache(true);
-
-        XYChart.Series series1 = new XYChart.Series();
-//        series1.setName(att.getName());
-        DateTimeFormatter fmtDate = DateTimeFormat.forPattern("yyyy-MM-dd    HH:mm:ss");
-        DateTimeFormatter fmttime = DateTimeFormat.forPattern("E HH:mm:ss");
-        DateTimeFormatter fmttime2 = DateTimeFormat.forPattern("E HH:mm:ss");
-
-        boolean isFirst = true;
-        boolean isFirstMo = false;
-
-        for (JEVisSample sample : samples) {
-            try {
-                String datelabel = fmtDate.print(sample.getTimestamp());
-//                if (isFirst) {
-//                    datelabel = fmtDate.print(sample.getTimestamp());
-//                    isFirst = false;
-//                } else {
-//                    if (sample.getTimestamp().getDayOfWeek() == 1 && isFirstMo) {
-//                        System.out.println("is monday: " + sample.getTimestamp());
-//                        datelabel = fmtDate.print(sample.getTimestamp());
-//                        isFirstMo = false;
-//                    } else {
-//                        datelabel = fmttime.print(sample.getTimestamp());
-//                        isFirstMo = true;
-//                    }
-//
-//                }
-                series1.getData().add(new XYChart.Data(datelabel, sample.getValueAsDouble()));
-            } catch (JEVisException ex) {
-                Logger.getLogger(SampleEditor.class.getName()).log(Level.SEVERE, null, ex);
-            }
+    /**
+     *
+     * @param att
+     * @param from
+     * @param until
+     * @param extensions
+     */
+    private void updateSamples(final JEVisAttribute att, final DateTime from, final DateTime until, List<SampleEditorExtension> extensions) {
+        samples.clear();
+        samples.addAll(att.getSamples(from, until));
+        for (SampleEditorExtension ex : extensions) {
+            ex.setSamples(att, samples);
         }
+        _dataChanged = true;
+        _visibleExtension.update();
 
-        int size = 22 * samples.size();
-        lineChart.setPrefWidth(size);
-        lineChart.getData().addAll(series1);
-
-        return lineChart;
     }
+
 }

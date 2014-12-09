@@ -659,9 +659,13 @@ public class CSVImportDialog {
 
             @Override
             public void handle(ActionEvent t) {
+
                 FileChooser fileChooser = new FileChooser();
                 if (JEConfig.getLastPath() != null) {
-                    fileChooser.setInitialDirectory(JEConfig.getLastPath().getParentFile());
+//                    System.out.println("Last Path: " + JEConfig.getLastPath().getParentFile());
+                    File file = JEConfig.getLastPath();
+                    fileChooser.setInitialDirectory(file);
+
                 }
 
                 FileChooser.ExtensionFilter csvFilter = new FileChooser.ExtensionFilter("CSV files (*.csv)", "*.csv");
