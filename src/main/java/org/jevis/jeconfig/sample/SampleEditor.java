@@ -30,11 +30,13 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.GridPane;
@@ -166,6 +168,7 @@ public class SampleEditor {
 
         extensions.add(tabelExtension);
         extensions.add(new SampleGraphExtension(attribute));
+        extensions.add(new AttributeStatesExtension(attribute));
         extensions.add(new SampleExportExtension(attribute));
 
         final List<Tab> tabs = new ArrayList<>();
@@ -208,7 +211,7 @@ public class SampleEditor {
 
         Node header = DialogHeader.getDialogHeader(ICON, "Sample Editor");//new Separator(Orientation.HORIZONTAL),
 
-        root.getChildren().addAll(header, gp, buttonPanel);
+        root.getChildren().addAll(header, gp, new Separator(Orientation.HORIZONTAL), buttonPanel);
         VBox.setVgrow(buttonPanel, Priority.NEVER);
         VBox.setVgrow(header, Priority.NEVER);
 

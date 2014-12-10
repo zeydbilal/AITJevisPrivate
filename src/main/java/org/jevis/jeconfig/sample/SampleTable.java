@@ -21,13 +21,15 @@ package org.jevis.jeconfig.sample;
 
 import java.util.LinkedList;
 import java.util.List;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Label;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisSample;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -42,12 +44,14 @@ public class SampleTable extends TableView {
 
     public SampleTable(List<JEVisSample> samples) {
         super();
+        getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        setPlaceholder(new Label("No Data"));
 
         TableColumn tsColum = new TableColumn("Timestamp");
         tsColum.setCellValueFactory(new PropertyValueFactory<TableSample, String>("Date"));
 
         TableColumn valueColum = new TableColumn("Value");
-        valueColum.setCellValueFactory(new PropertyValueFactory<TableSample, String>("Value"));
+        valueColum.setCellValueFactory(new PropertyValueFactory<TableSample, Double>("Value"));
 
         TableColumn noteColum = new TableColumn("Note");
         noteColum.setCellValueFactory(new PropertyValueFactory<TableSample, String>("Note"));
@@ -70,8 +74,10 @@ public class SampleTable extends TableView {
     public class TableSample {
 
         private SimpleStringProperty date = new SimpleStringProperty("Error");
-        private SimpleStringProperty value = new SimpleStringProperty("Error");
+        private SimpleDoubleProperty value = new SimpleDoubleProperty(0d);
         private SimpleStringProperty note = new SimpleStringProperty("Error");
+
+        private JEVisSample _sample = null;
 
         /**
          *
@@ -81,10 +87,15 @@ public class SampleTable extends TableView {
         public TableSample(JEVisSample sample) {
             try {
                 this.date = new SimpleStringProperty(fmtDate.print(sample.getTimestamp()));
-                this.value = new SimpleStringProperty(sample.getValueAsString());
+                this.value = new SimpleDoubleProperty(sample.getValueAsDouble());
                 this.note = new SimpleStringProperty(sample.getNote());
+                _sample = sample;
             } catch (Exception ex) {
             }
+        }
+
+        public JEVisSample getSample() {
+            return _sample;
         }
 
         public String getDate() {
@@ -103,11 +114,11 @@ public class SampleTable extends TableView {
             note.set(noteString);
         }
 
-        public String getValue() {
+        public Double getValue() {
             return value.get();
         }
 
-        public void setValue(String fName) {
+        public void setValue(Double fName) {
             value.set(fName);
         }
     }

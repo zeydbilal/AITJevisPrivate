@@ -20,11 +20,25 @@
 package org.jevis.jeconfig.sample;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
+import org.jevis.application.dialog.ConfirmDialog;
+import org.jevis.jeconfig.JEConfig;
+import org.joda.time.DateTime;
 
 /**
  *
@@ -42,18 +56,100 @@ public class SampleTabelExtension implements SampleEditorExtension {
         _att = att;
     }
 
-    private void buildGui(JEVisAttribute obj, List<JEVisSample> samples) {
+    private void buildGui(final JEVisAttribute att, final List<JEVisSample> samples) {
+        HBox box = new HBox(10);
+        box.setAlignment(Pos.CENTER);
 
-        SampleTable table = new SampleTable(samples);
+        final SampleTable table = new SampleTable(samples);
         table.setPrefSize(1000, 1000);
 
-//        ScrollPane scroll = new ScrollPane();
-//        scroll.setStyle("-fx-background-color: transparent");
-//        scroll.setMaxSize(10000, 10000);
-//        scroll.setContent(gridPane);
-//        _view.getChildren().setAll(scroll);
-        _view.setCenter(table);
-//        System.out.println("build table for: " + samples.size());
+        Button deleteAll = new Button("Delete All Samples");
+        deleteAll.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent t) {
+                try {
+                    if (!samples.isEmpty()) {
+                        ConfirmDialog dia = new ConfirmDialog();
+                        if (dia.show(JEConfig.getStage(), "Delte", "Delete Samples", "Do you really want to delete all existing samples?") == ConfirmDialog.Response.YES) {
+                            att.deleteAllSample();
+                            setSamples(att, att.getAllSamples());
+                            update();
+                        }
+                    }
+                } catch (Exception ex) {
+                    //TODO: do something...
+                    ex.printStackTrace();
+                }
+            }
+        }
+        );
+
+        Button deleteSelected = new Button("Delete Selected");
+
+        deleteSelected.setOnAction(
+                new EventHandler<ActionEvent>() {
+
+                    @Override
+                    public void handle(ActionEvent t
+                    ) {
+                        try {
+                            if (!samples.isEmpty()) {
+                                DateTime startDate = samples.get(0).getTimestamp();
+                                DateTime endDate = samples.get(samples.size() - 1).getTimestamp();
+                                ConfirmDialog dia = new ConfirmDialog();
+                                if (dia.show(JEConfig.getStage(), "Delte", "Delete Samples", "Do you really want to delete all selected samples?") == ConfirmDialog.Response.YES) {
+                                    ObservableList<SampleTable.TableSample> list = table.getSelectionModel().getSelectedItems();
+                                    for (SampleTable.TableSample tsample : list) {
+                                        try {
+                                            //TODO: the JEAPI cound use to have an delte funtion for an list of samples
+                                            att.deleteSamplesBetween(tsample.getSample().getTimestamp(), tsample.getSample().getTimestamp());
+                                        } catch (JEVisException ex) {
+                                            Logger.getLogger(SampleTabelExtension.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+
+                                    }
+                                    setSamples(att, att.getSamples(startDate, endDate));
+                                    update();
+                                    System.out.println("-------");
+                                }
+                            }
+
+                        } catch (Exception ex) {
+                            //TODO: do something...
+                            ex.printStackTrace();
+                        }
+
+                    }
+                }
+        );
+
+        box.getChildren()
+                .setAll(deleteAll, deleteSelected);
+
+        GridPane gp = new GridPane();
+
+        gp.setStyle(
+                "-fx-background-color: transparent;");
+//        gp.setStyle("-fx-background-color: #E2E2E2;");
+        gp.setPadding(
+                new Insets(0, 0, 10, 0));
+        gp.setHgap(
+                7);
+        gp.setVgap(
+                7);
+
+        int y = 0;
+
+        gp.add(table,
+                0, y);
+        gp.add(box,
+                0, ++y);
+
+//        box.getChildren().setAll(table, deleteAll);
+        _view.setCenter(gp);
+//        _view.setCenter(box);
+//        _view.setCenter(table);
     }
 
     @Override
