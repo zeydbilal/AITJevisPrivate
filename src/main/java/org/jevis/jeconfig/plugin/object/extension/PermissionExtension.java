@@ -23,11 +23,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -52,32 +52,41 @@ import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisRelationship;
+import org.jevis.api.sql.RelationsManagment;
 import org.jevis.application.dialog.ConfirmDialog;
+import org.jevis.application.dialog.InfoDialog;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.classes.editor.ClassEditor;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
-import org.jevis.jeconfig.plugin.object.RemoveSharePermissonsDialog;
+import org.jevis.jeconfig.plugin.object.permission.AddSharePermissonsDialog;
+import org.jevis.jeconfig.plugin.object.permission.RemoveSharePermissonsDialog;
 import org.jevis.jeconfig.tool.ImageConverter;
 
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class ShareExtension implements ObjectEditorExtension {
+public class PermissionExtension implements ObjectEditorExtension {
 
-    private static final String TITEL = "Shares";
+    private static final String TITEL = "Permissions";
     private JEVisObject _obj;
 
     private BorderPane _view = new BorderPane();
+    private final BooleanProperty _changed = new SimpleBooleanProperty(false);
 
-    public ShareExtension(JEVisObject obj) {
+    public PermissionExtension(JEVisObject obj) {
         this._obj = obj;
     }
 
     @Override
     public boolean isForObject(JEVisObject obj) {
         return true;
+    }
+
+    @Override
+    public BooleanProperty getValueChangedProperty() {
+        return _changed;
     }
 
     @Override
@@ -122,11 +131,11 @@ public class ShareExtension implements ObjectEditorExtension {
 
         try {
             for (JEVisRelationship rel : obj.getRelationships(JEVisConstants.ObjectRelationship.OWNER, JEVisConstants.Direction.FORWARD)) {
-                System.out.println("owner: " + rel.getOtherObject(obj));
+//                System.out.println("owner: " + rel.getOtherObject(obj));
                 ownerRel.add(rel);
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(ShareExtension.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PermissionExtension.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         GridPane gridPane = new GridPane();
@@ -143,13 +152,6 @@ public class ShareExtension implements ObjectEditorExtension {
 
         int yAxis = 0;
 
-        //Header
-//        gridPane.add(userHeader, 0, yAxis);
-//        gridPane.add(removeHeader, 1, yAxis);
-//
-//        yAxis++;
-//
-//        gridPane.add(new Separator(Orientation.HORIZONTAL), 0, yAxis, 2, 1);
         for (final JEVisRelationship rel : ownerRel) {
             try {
                 HBox groupBox = new HBox(2);
@@ -184,7 +186,7 @@ public class ShareExtension implements ObjectEditorExtension {
                             }
 
                         } catch (JEVisException ex) {
-                            Logger.getLogger(ShareExtension.class.getName()).log(Level.SEVERE, null, ex);
+                            Logger.getLogger(PermissionExtension.class.getName()).log(Level.SEVERE, null, ex);
                         }
 
                         Platform.runLater(new Runnable() {
@@ -218,11 +220,26 @@ public class ShareExtension implements ObjectEditorExtension {
                             }
 
                         } catch (JEVisException ex) {
-                            Logger.getLogger(ShareExtension.class.getName()).log(Level.SEVERE, null, ex);
+                            Logger.getLogger(PermissionExtension.class.getName()).log(Level.SEVERE, null, ex);
                         }
 
                     }
                 });
+
+                remove.setDisable(true);
+                forAllChildren.setDisable(true);
+                try {
+//                    RelationsManagment.canDeleteRelationship(obj.getDataSource().getCurrentUser(), rel);
+
+                    if (RelationsManagment.canDeleteOwnership(rel)) {
+                        System.out.println("---------------------------------------");
+                        remove.setDisable(false);
+                        forAllChildren.setDisable(false);
+                    }
+
+                } catch (Exception ex) {
+                    System.out.println("permissions errot: " + ex);
+                }
 
                 HBox contols = new HBox(5);
                 contols.getChildren().addAll(forAllChildren, remove);
@@ -235,7 +252,9 @@ public class ShareExtension implements ObjectEditorExtension {
                 gridPane.add(contols, 1, yAxis);
 
             } catch (JEVisException ex) {
-                Logger.getLogger(ShareExtension.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(PermissionExtension.class.getName()).log(Level.SEVERE, null, ex);
+                InfoDialog infoDia = new InfoDialog();
+                infoDia.show(JEConfig.getStage(), "Waring", "Could not delete permission", ex.getMessage());
             }
         }
         yAxis++;
@@ -245,7 +264,7 @@ public class ShareExtension implements ObjectEditorExtension {
         try {
             gridPane.add(buildNewBox(obj, ownerObj), 0, yAxis, 2, 1);
         } catch (JEVisException ex) {
-            Logger.getLogger(ShareExtension.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PermissionExtension.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         ScrollPane scroll = new ScrollPane();
@@ -265,12 +284,16 @@ public class ShareExtension implements ObjectEditorExtension {
     private void addTooAllChildren(JEVisObject obj, JEVisObject group) {
         try {
             for (JEVisObject children : obj.getChildren()) {
-                JEVisRelationship newRel = children.buildRelationship(group, JEVisConstants.ObjectRelationship.OWNER, JEVisConstants.Direction.FORWARD);
-                System.out.println("new relationship: " + newRel);
-                addTooAllChildren(children, group);
+                try {
+                    JEVisRelationship newRel = children.buildRelationship(group, JEVisConstants.ObjectRelationship.OWNER, JEVisConstants.Direction.FORWARD);
+                    System.out.println("new relationship: " + newRel);
+                    addTooAllChildren(children, group);
+                } catch (JEVisException ex) {
+                    Logger.getLogger(PermissionExtension.class.getName()).log(Level.WARNING, "Error while creating userright", ex);
+                }
             }
-        } catch (JEVisException ex) {
-            Logger.getLogger(ShareExtension.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            Logger.getLogger(PermissionExtension.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -279,14 +302,18 @@ public class ShareExtension implements ObjectEditorExtension {
             for (JEVisObject children : obj.getChildren()) {
                 for (JEVisRelationship rel : children.getRelationships(JEVisConstants.ObjectRelationship.OWNER, JEVisConstants.Direction.FORWARD)) {
                     if (rel.getEndObject().equals(group)) {
-                        System.out.println("delete this relationship: " + rel);
-                        rel.getStartObject().deleteRelationship(rel);
+                        try {
+                            System.out.println("delete this relationship: " + rel);
+                            rel.getStartObject().deleteRelationship(rel);
+                        } catch (JEVisException ex) {
+                            Logger.getLogger(PermissionExtension.class.getName()).log(Level.WARNING, "Error while deleting userright", ex);
+                        }
                     }
                 }
                 removeFromAllChildren(children, group);
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(ShareExtension.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PermissionExtension.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -347,7 +374,7 @@ public class ShareExtension implements ObjectEditorExtension {
 //            System.out.println("is null");
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(ShareExtension.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PermissionExtension.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         dName += obj.getName();
@@ -399,7 +426,7 @@ public class ShareExtension implements ObjectEditorExtension {
                             setText(item.getName());
                             setText(getDisplayName(item));
                         } else {
-                            setText("*Error*");
+                            setText("*There is no unused group*");
                         }
                     }
                 };
@@ -437,11 +464,20 @@ public class ShareExtension implements ObjectEditorExtension {
             public void handle(ActionEvent t) {
                 try {
                     JEVisObject groupObj = groupsCBox.getSelectionModel().getSelectedItem();
-                    System.out.println("create relationship for user: " + groupObj.getName());
+//                    System.out.println("create relationship for user: " + groupObj.getName());
 
                     if (groupObj.getJEVisClass().getName().equals(Constants.JEVisClass.GROUP)) {
-                        JEVisRelationship newRel = obj.buildRelationship(groupObj, JEVisConstants.ObjectRelationship.OWNER, JEVisConstants.Direction.FORWARD);
-                        System.out.println("new Owner: " + newRel);
+                        //TODo: here
+                        AddSharePermissonsDialog dia = new AddSharePermissonsDialog();
+                        AddSharePermissonsDialog.Response re = dia.show(JEConfig.getStage(), "Permisson", "Add Permisson", "Do you want to give " + groupObj.getName() + " permisson for this object?");
+                        if (re == AddSharePermissonsDialog.Response.YES || re == AddSharePermissonsDialog.Response.YES_ALL) {
+                            JEVisRelationship newRel = obj.buildRelationship(groupObj, JEVisConstants.ObjectRelationship.OWNER, JEVisConstants.Direction.FORWARD);
+//                            System.out.println("new Owner: " + newRel);
+                            if (re == AddSharePermissonsDialog.Response.YES_ALL) {
+//                                System.out.println("add also to all children");
+                                addTooAllChildren(obj, newRel.getOtherObject(obj));
+                            }
+                        }
 
                         Platform.runLater(new Runnable() {
                             @Override

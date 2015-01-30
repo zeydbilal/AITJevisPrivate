@@ -61,14 +61,13 @@ public class WelcomePage {
     private boolean isLoading = true;
 
     public WelcomePage(Stage owner, URI welcomepage) {
-        System.out.println("start Welcome Screen");
+
         final Stage stage = new Stage();
 
         //TODO show it again if we habe a new version of the Config
         if (!pref.getBoolean("show", true)) {
             System.out.println("Dont show welcome screen");
             return;
-
         }
 
         stage.setTitle("Welcome");

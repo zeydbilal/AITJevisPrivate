@@ -18,7 +18,7 @@
  * JEApplication is part of the OpenJEVis project, further project information
  * are published at <http://www.OpenJEVis.org/>.
  */
-package org.jevis.jeconfig.plugin.object;
+package org.jevis.jeconfig.plugin.object.permission;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -29,12 +29,14 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -47,7 +49,7 @@ import org.jevis.application.resource.ResourceLoader;
  *
  * @author fs
  */
-public class RemoveSharePermissonsDialog {
+public class AddSharePermissonsDialog {
 
     //https://www.iconfinder.com/icons/68795/blue_question_icon#size=64
     public static String ICON_QUESTION = "1400874302_question_blue.png";
@@ -103,15 +105,21 @@ public class RemoveSharePermissonsDialog {
 
         HBox buttonPanel = new HBox();
 
-        Button ok = new Button("Delte");
+        Button ok = new Button("Add");
         ok.setDefaultButton(true);
 
-        Button okAll = new Button("Delte also for all Children");
+        final CheckBox includeChildren = new CheckBox("For all children");
+        includeChildren.setSelected(true);
+//        Button okAll = new Button("Delte also for all Children");
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox.setHgrow(includeChildren, Priority.NEVER);
+        HBox.setHgrow(ok, Priority.NEVER);
 
         Button cancel = new Button("Cancel");
         cancel.setCancelButton(true);
 
-        buttonPanel.getChildren().addAll(ok, okAll, cancel);
+        buttonPanel.getChildren().addAll(includeChildren, spacer, ok, cancel);
         buttonPanel.setAlignment(Pos.CENTER_RIGHT);
         buttonPanel.setPadding(new Insets(10, 10, 10, 10));
         buttonPanel.setSpacing(10);
@@ -139,22 +147,25 @@ public class RemoveSharePermissonsDialog {
 //                System.out.println("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
                 stage.close();
 //                isOK.setValue(true);
-                response = Response.YES;
+                if (includeChildren.isSelected()) {
+                    response = Response.YES_ALL;
+                } else {
+                    response = Response.YES;
+                }
 
             }
         });
 
-        okAll.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-//                System.out.println("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
-                stage.close();
-//                isOK.setValue(true);
-                response = Response.YES_ALL;
-
-            }
-        });
-
+//        okAll.setOnAction(new EventHandler<ActionEvent>() {
+//            @Override
+//            public void handle(ActionEvent t) {
+////                System.out.println("Size: h:" + stage.getHeight() + " w:" + stage.getWidth());
+//                stage.close();
+////                isOK.setValue(true);
+//                response = Response.YES_ALL;
+//
+//            }
+//        });
         cancel.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
@@ -165,12 +176,6 @@ public class RemoveSharePermissonsDialog {
         });
 
         stage.showAndWait();
-        System.out.println("after show");
-//        if (isOK.getValue() == true) {
-//            response = Response.YES;
-//        }
-
-        System.out.println("return " + response);
 
         return response;
     }

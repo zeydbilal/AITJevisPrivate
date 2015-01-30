@@ -502,9 +502,10 @@ public class CSVColumnHeader {
                         UnitChooserDialog dia = new UnitChooserDialog();
                         dia.show(JEConfig.getStage(), _target);
                     } else {
-                        Unit kwh = SI.KILO(SI.WATT.times(NonSI.HOUR));
-                        UnitChooserDialog dia = new UnitChooserDialog();
-                        dia.showSelector(JEConfig.getStage(), kwh, "");
+                        //TODO reimplement unit
+//                        Unit kwh = SI.KILO(SI.WATT.times(NonSI.HOUR));
+//                        UnitChooserDialog dia = new UnitChooserDialog();
+//                        dia.showSelector(JEConfig.getStage(), kwh, "");
                     }
 
                 } catch (JEVisException ex) {
@@ -703,8 +704,8 @@ public class CSVColumnHeader {
                         button.setText(selection.getSelectedAttribute().getObject().getName() + "." + selection.getSelectedAttribute().getName());
                         _target = selection.getSelectedAttribute();
                         try {
-                            System.out.println("Unit: " + _target.getUnit());
-                            unitButton.setText(UnitFormat.getInstance().format(_target.getUnit()));
+                            System.out.println("Unit: " + _target.getDisplayUnit());
+                            unitButton.setText(UnitFormat.getInstance().format(_target.getDisplayUnit()));
                         } catch (JEVisException ex) {
                             Logger.getLogger(CSVColumnHeader.class.getName()).log(Level.SEVERE, null, ex);
                         }

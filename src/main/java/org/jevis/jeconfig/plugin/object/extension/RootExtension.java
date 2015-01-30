@@ -20,14 +20,12 @@
 package org.jevis.jeconfig.plugin.object.extension;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -35,30 +33,22 @@ import javafx.geometry.Orientation;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
-import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.util.Callback;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisRelationship;
-import org.jevis.application.dialog.ConfirmDialog;
-import org.jevis.application.dialog.SelectTargetDialog;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.classes.editor.ClassEditor;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
-import org.jevis.jeconfig.plugin.object.RemoveSharePermissonsDialog;
 import org.jevis.jeconfig.plugin.object.selectiontree.SelectObjectDialog;
 import org.jevis.jeconfig.plugin.object.selectiontree.UserSelection;
 import org.jevis.jeconfig.tool.ImageConverter;
@@ -69,10 +59,11 @@ import org.jevis.jeconfig.tool.ImageConverter;
  */
 public class RootExtension implements ObjectEditorExtension {
 
-    private static final String TITEL = "Root Objects";
+    private static final String TITEL = "Entry Points";
     private JEVisObject _obj;
 
     private BorderPane _view = new BorderPane();
+    private final BooleanProperty _changed = new SimpleBooleanProperty(false);
 
     public RootExtension(JEVisObject obj) {
         this._obj = obj;
@@ -86,6 +77,11 @@ public class RootExtension implements ObjectEditorExtension {
             Logger.getLogger(RootExtension.class.getName()).log(Level.SEVERE, null, ex);
         }
         return false;
+    }
+
+    @Override
+    public BooleanProperty getValueChangedProperty() {
+        return _changed;
     }
 
     @Override
@@ -242,7 +238,7 @@ public class RootExtension implements ObjectEditorExtension {
         JEVisClass groupClass = obj.getDataSource().getJEVisClass(Constants.JEVisClass.GROUP);
         List<JEVisObject> allGroups = obj.getDataSource().getObjects(groupClass, true);
 
-        Label newOwnerlabel = new Label("Add an additinal root: ");
+        Label newOwnerlabel = new Label("Add an additinal enty point: ");
         newOwnerlabel.setPrefHeight(21);
         GridPane.setValignment(newOwnerlabel, VPos.CENTER);
         HBox addNewBox = new HBox(5);

@@ -154,7 +154,8 @@ public class SampleGraphExtension implements SampleEditorExtension {
                     //TODO: replace this DIRTY workaround. For this i will come in the DevHell
                     //NOTE: the axis is % based, java 1.8 has an dateAxe use this if we migrate to it
                     if (!samples.isEmpty()) {
-                        int index = samples.size() / 100 * t.intValue();
+                        Double round = samples.size() / 100.0 * t.doubleValue();
+                        int index = round.intValue();
                         return fmtDate.print(samples.get(index).getTimestamp());
                     }
                     return "";

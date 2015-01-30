@@ -4,7 +4,7 @@
 
     <groupId>org.jevis.jeconfig</groupId>
     <artifactId>JEConfig</artifactId>
-    <version>3.0.5</version>
+    <version>3.0.6</version>
     <packaging>jar</packaging>
 
     <name>JEConfig</name>
@@ -224,6 +224,12 @@
             <version>1.8</version>
             <type>jar</type>
         </dependency>
+        <dependency>  
+            <groupId>org.jgrapht</groupId>  
+            <artifactId>jgrapht-jdk1.5</artifactId>  
+            <version>0.7.3</version>  
+        </dependency>   
+        
         <!--
         <dependency>
             <groupId>commons-lang</groupId>

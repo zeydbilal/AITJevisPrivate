@@ -270,10 +270,6 @@ public class JsonExportDialog {
         });
 
         stage.showAndWait();
-        System.out.println("after show");
-//        if (isOK.getValue() == true) {
-//            response = Response.YES;
-//        }
     }
 
 }

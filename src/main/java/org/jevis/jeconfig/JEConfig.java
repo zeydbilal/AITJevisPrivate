@@ -19,6 +19,9 @@
  */
 package org.jevis.jeconfig;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -31,6 +34,7 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
+import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
@@ -42,17 +46,28 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import javax.measure.quantity.Dimensionless;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisRelationship;
 import org.jevis.api.JEVisType;
+import org.jevis.api.JEVisUnit;
 import org.jevis.application.application.JavaVersionCheck;
 import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.application.dialog.LoginDialog;
 import org.jevis.application.statusbar.Statusbar;
 import org.jevis.commons.application.ApplicationInfo;
+import org.jevis.commons.json.JsonUnit;
+import org.jevis.commons.unit.JEVisUnitImp;
+import org.jevis.jeconfig.plugin.object.attribute.AttributeSettingsDialog;
 import org.jevis.jeconfig.tool.WelcomePage;
 
 /**
@@ -75,7 +90,7 @@ public class JEConfig extends Application {
     /**
      * Defines the version information in the about dialog
      */
-    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.5 2014-12-09");
+    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.7 2015-01-30");
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static String _lastpath = "";
 
@@ -122,7 +137,7 @@ public class JEConfig extends Application {
             LoginDialog loginD = new LoginDialog();
 //            ds = loginD.showSQL(primaryStage, _config.getLoginIcon());
 
-            ds = loginD.showSQL(primaryStage);
+            ds = loginD.showSQL(primaryStage);//Default
 //            ds = loginD.showSQL(primaryStage, _config.getLoginIcon(), _config.getEnabledSSL(), _config.getShowServer(), _config.getDefaultServer());
 
             if (ds == null) {
@@ -208,11 +223,19 @@ public class JEConfig extends Application {
             }
         });
 
-//        try {
-//            doTest();
-//        } catch (Exception ex) {
-//            Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
-//        }
+    }
+
+    private void printTree(JEVisObject obj) {
+
+        try {
+            System.out.println("-Obj: " + obj);
+            for (JEVisRelationship rel : obj.getRelationships()) {
+                System.out.println("----Rel: " + rel);
+            }
+        } catch (JEVisException ex) {
+            Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
 
     /**
@@ -221,6 +244,9 @@ public class JEConfig extends Application {
      * @throws Exception
      */
     private void doTest() throws Exception {
+
+        Unit kwh = SI.KILO(SI.WATT).times(NonSI.HOUR);
+
         //        System.out.println("u1: " + UnitFormat.getInstance().format(NonSI.TON_UK));
 //        System.out.println("u2: " + NonSI.TON_US.getDimension());
 //        System.out.println("u3: " + SI.WATT.times(NonSI.HOUR));
@@ -299,7 +325,6 @@ public class JEConfig extends Application {
 //
 //        UnitConverter uc = SI.KILO(SI.WATT.times(NonSI.HOUR)).getConverterTo(SI.WATT);
 //        System.out.println("convert: " + uc.convert(100));
-
         ///-------------------------------------------------
         JEVisClass food = _mainDS.getJEVisClass("Food");
         System.out.println("Class: " + food.getName());

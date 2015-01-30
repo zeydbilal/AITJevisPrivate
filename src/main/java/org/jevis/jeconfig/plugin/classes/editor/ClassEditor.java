@@ -55,7 +55,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javax.measure.unit.Unit;
-import javax.measure.unit.UnitFormat;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
@@ -63,13 +62,11 @@ import org.jevis.api.JEVisType;
 import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.application.type.DisplayType;
 import org.jevis.application.type.GUIConstants;
-import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
 import org.jevis.jeconfig.plugin.classes.ClassHelper;
 import org.jevis.jeconfig.plugin.classes.ClassTree;
 import org.jevis.jeconfig.plugin.classes.relationship.VaildParentEditor;
-import org.jevis.jeconfig.plugin.unit.UnitSelectDialog;
 import org.jevis.jeconfig.tool.ImageConverter;
 
 /**
@@ -243,7 +240,7 @@ public class ClassEditor {
                 VaildParentEditor redit = new VaildParentEditor();
                 redit.setJEVisClass(jclass);
 
-                final TitledPane t3 = new TitledPane("Vaild Parents", redit.getView());
+                final TitledPane t3 = new TitledPane("Valid Parents", redit.getView());
 //                final TitledPane t3 = new TitledPane("Relationships", table.buildTree(jclass));
 
                 t1.setStyle("-fx-background-color: #E2E2E2");
@@ -349,37 +346,17 @@ public class ClassEditor {
                         @Override
                         public void handle(ActionEvent t) {
                             try {
-                                UnitSelectDialog usd = new UnitSelectDialog();
-                                if (usd.show(JEConfig.getStage(), "Select Unit", _class.getDataSource()) == UnitSelectDialog.Response.YES) {
-                                    System.out.println("OK");
-                                    unitSelector.setText(usd.getUnit().toString());
-                                    if (type.getUnit() != null && !type.getUnit().equals(usd.getUnit())) {
-                                        type.setUnit(usd.getUnit());
-                                    }
-
-                                }
-//
-//                                UnitChooserDialog dia = new UnitChooserDialog();
-//                                if (dia.show(JEConfig.getStage(), type) == UnitChooserDialog.Response.OK) {
-//                                    System.out.println("User whants: " + dia.getUnit());
-//                                    if (!dia.getAlternativSysmbol().isEmpty()) {
-//                                        unitSelector.setText(dia.getAlternativSysmbol());
-//                                    } else {
-//                                        unitSelector.setText(dia.getUnit().toString());
-//                                    }
-//
-//                                    if (!type.getUnit().equals(dia.getUnit())) {
-//                                        type.setUnit(dia.getUnit());
-//                                    }
-//                                    System.out.println("1: " + type.getAlternativSymbol());
-//                                    System.out.println("2: " + dia.getAlternativSysmbol());
-//                                    if (!type.getAlternativSymbol().equals(dia.getAlternativSysmbol())) {
-//                                        type.setAlternativSymbol(dia.getAlternativSysmbol());
+//                                UnitSelectDialog usd = new UnitSelectDialog();
+//                                if (usd.show(JEConfig.getStage(), "Select Unit", _class.getDataSource()) == UnitSelectDialog.Response.YES) {
+//                                    System.out.println("OK");
+//                                    unitSelector.setText(usd.getUnit().toString());
+//                                    if (type.getUnit() != null && !type.getUnit().equals(usd.getUnit())) {
+//                                        //TODO reimplement unit
+////                                        type.setUnit(usd.getUnit());
 //                                    }
 //
 //                                }
-//
-//                                setUnitButton(unitSelector, type);
+
                             } catch (Exception ex) {
                                 Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
                             }
@@ -580,7 +557,7 @@ public class ClassEditor {
             } else {
 //                System.out.println(UnitManager.getInstance().formate(type.getUnit()));
 //                button.setText(type.getUnit().toString());
-                button.setText(UnitManager.getInstance().formate(type.getUnit()));
+//                button.setText(UnitManager.getInstance().formate(type.getUnit()));
             }
 
         }

@@ -21,31 +21,23 @@ package org.jevis.jeconfig.plugin.object.attribute;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 //import javafx.scene.control.Dialogs;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.stage.Stage;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
-import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.jeconfig.JEConfig;
-import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
-import org.jevis.jeconfig.sample.SampleTable;
 import org.joda.time.DateTime;
-import org.joda.time.Duration;
-import org.joda.time.Period;
-import org.joda.time.ReadableDuration;
 
 /**
  *
@@ -56,10 +48,9 @@ public class StringValueEditor implements AttributeEditor {
     HBox box = new HBox();
     public JEVisAttribute _attribute;
     private TextField _field;
-    private Node cell;
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
-    private boolean _hasChanged = false;
+    private final BooleanProperty _changed = new SimpleBooleanProperty(false);
 
     public StringValueEditor(JEVisAttribute att) {
         _attribute = att;
@@ -68,7 +59,12 @@ public class StringValueEditor implements AttributeEditor {
     @Override
     public boolean hasChanged() {
 //        System.out.println(_attribute.getName() + " changed: " + _hasChanged);
-        return _hasChanged;
+        return _changed.getValue();
+    }
+
+    @Override
+    public BooleanProperty getValueChangedProperty() {
+        return _changed;
     }
 
 //    @Override
@@ -77,7 +73,7 @@ public class StringValueEditor implements AttributeEditor {
 //    }
     @Override
     public void commit() throws JEVisException {
-        if (_hasChanged && _newSample != null) {
+        if (hasChanged() && _newSample != null) {
 
             //TODO: check if tpye is ok, maybe better at imput time
             _newSample.commit();
@@ -101,56 +97,69 @@ public class StringValueEditor implements AttributeEditor {
             _field = new TextField();
             _field.setPrefWidth(500);//TODO: remove this workaround 
 
-            if (_attribute.hasSample()) {
+            if (_attribute.getLatestSample() != null) {
                 _field.setText(_attribute.getLatestSample().getValueAsString());
-
                 _lastSample = _attribute.getLatestSample();
+            } else {
+                _field.setText("");
             }
 
-            _field.focusedProperty().addListener(new ChangeListener<Boolean>() {
+            _field.setOnKeyReleased(new EventHandler<KeyEvent>() {
+
                 @Override
-                public void changed(ObservableValue<? extends Boolean> arg0, Boolean oldPropertyValue, Boolean newPropertyValue) {
+                public void handle(KeyEvent t) {
                     try {
-                        if (newPropertyValue) {
-//                        System.out.println("Textfield on focus");
-                        } else {
-                            if (_lastSample != null) {
-                                if (!_lastSample.getValueAsString().equals(_field.getText())) {
-                                    _hasChanged = true;
-                                } else {
-                                    _hasChanged = false;
-                                }
-                            } else {
-                                if (!_field.getText().equals("")) {
-                                    _hasChanged = true;
-                                }
-                            }
-
-                            if (_hasChanged) {
-                                try {
-                                    _newSample = _attribute.buildSample(new DateTime(), _field.getText());
-                                } catch (JEVisException ex) {
-                                    Logger.getLogger(StringValueEditor.class.getName()).log(Level.SEVERE, null, ex);
-
-                                    ExceptionDialog dia = new ExceptionDialog();
-                                    dia.show(JEConfig.getStage(), "Error", "Could commit changes to Server", ex, PROGRAMM_INFO);
-                                }
-                            }
+                        if (_lastSample == null) {
+                            System.out.println("new Value");
+//                            _lastSample = _attribute.buildSample(new DateTime(), _field.getText());
+                            _newSample = _attribute.buildSample(new DateTime(), _field.getText());
+                            _changed.setValue(true);
+                        } else if (!_lastSample.getValueAsString().equals(_field.getText())) {
+                            _changed.setValue(true);
+                            _newSample = _attribute.buildSample(new DateTime(), _field.getText());
+                            System.out.println("value changed");
+                        } else if (_lastSample.getValueAsString().equals(_field.getText())) {
+                            _changed.setValue(false);
                         }
-                    } catch (Exception ex) {
-
+                    } catch (JEVisException ex) {
+                        Logger.getLogger(NumberWithUnit.class.getName()).log(Level.SEVERE, null, ex);
                     }
 
                 }
             });
 
-//            _field.addEventFilter(KeyEvent.KEY_RELEASED, new EventHandler<KeyEvent>() {
+//            _field.focusedProperty().addListener(new ChangeListener<Boolean>() {
 //                @Override
-//                public void handle(KeyEvent event) {
-//                    //changed
-//                    event.consume();
+//                public void changed(ObservableValue<? extends Boolean> arg0, Boolean oldPropertyValue, Boolean newPropertyValue) {
+//                    try {
+//                        if (newPropertyValue) {
+//                        } else {
+//                            if (_lastSample != null) {
+//                                if (!_lastSample.getValueAsString().equals(_field.getText())) {
+//                                    _hasChanged = true;
+//                                } else {
+//                                    _hasChanged = false;
+//                                }
+//                            } else {
+//                                if (!_field.getText().equals("")) {
+//                                    _hasChanged = true;
+//                                }
+//                            }
 //
+//                            if (_hasChanged) {
+//                                try {
+//                                    _newSample = _attribute.buildSample(new DateTime(), _field.getText());
+//                                } catch (JEVisException ex) {
+//                                    Logger.getLogger(StringValueEditor.class.getName()).log(Level.SEVERE, null, ex);
 //
+//                                    ExceptionDialog dia = new ExceptionDialog();
+//                                    dia.show(JEConfig.getStage(), "Error", "Could commit changes to Server", ex, PROGRAMM_INFO);
+//                                }
+//                            }
+//                        }
+//                    } catch (Exception ex) {
+//
+//                    }
 //
 //                }
 //            });

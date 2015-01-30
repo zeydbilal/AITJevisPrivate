@@ -24,6 +24,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -58,8 +62,9 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
     private static final String TITEL = "Attributes";
     private final BorderPane _view = new BorderPane();
     private JEVisObject _obj;
-    private boolean _saved = true;
+    private boolean _needSave = false;
     private List<AttributeEditor> _attributesEditor;
+    private final BooleanProperty _changed = new SimpleBooleanProperty(false);
 
     public GenericAttributeExtension(JEVisObject obj) {
         _obj = obj;
@@ -72,6 +77,11 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
         //its for all in the memoment
         //TODO: handel the case that we have an spezial representation an dont whant the generic
         return true;
+    }
+
+    @Override
+    public BooleanProperty getValueChangedProperty() {
+        return _changed;
     }
 
     @Override
@@ -96,12 +106,12 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
     @Override
     public boolean needSave() {
-        return true;//TODO: implement 
+        return _changed.getValue();
+//        return true;//TODO: implement 
     }
 
     @Override
     public boolean save() {
-        System.out.println("save attributes");
         for (AttributeEditor editor : _attributesEditor) {
             try {
                 editor.commit();
@@ -112,7 +122,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
             }
         }
 
-        _saved = true;
+        _needSave = false;
 
         //TODO: save
         return true;
@@ -120,7 +130,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
     private void buildGui(JEVisObject obj) {
 
-        _saved = false;
+        _needSave = false;
 
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(5, 0, 20, 20));
@@ -129,6 +139,12 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
         try {
             int coloum = 0;
+
+            if (obj.getAttributes().isEmpty()) {
+                Label emtyLabel = new Label("This object has no attributes.");
+                gridPane.add(emtyLabel, 0, coloum);
+            }
+
             for (JEVisAttribute att : obj.getAttributes()) {
                 AttributeEditor editor = null;
 
@@ -160,6 +176,17 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                 }
 
                 _attributesEditor.add(editor);
+                editor.getValueChangedProperty().addListener(new ChangeListener<Boolean>() {
+
+                    @Override
+                    public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
+                        System.out.println("GenericAttExtension.value.changed:" + t1);
+                        if (t1) {
+                            _changed.setValue(t1);
+                        }
+                    }
+                });
+
                 Label name = new Label("*Missing_Name*");
 
                 name.setId("attributelabel");

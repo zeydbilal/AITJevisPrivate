@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.object;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.scene.Node;
 import org.jevis.api.JEVisObject;
 
@@ -71,5 +72,13 @@ public interface ObjectEditorExtension {
      * @return
      */
     public boolean save();
+
+    /**
+     * Returns the boolean property the changed status. this will return true if
+     * the user changed something and its needs to be saved.
+     *
+     * @return
+     */
+    public BooleanProperty getValueChangedProperty();
 
 }

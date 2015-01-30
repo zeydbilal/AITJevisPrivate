@@ -85,6 +85,7 @@ public class PluginManager {
 
         for (Plugin plugin : _plugins) {
             Tab pluginTab = new Tab(plugin.getName());
+            pluginTab.setClosable(false);
             pluginTab.setTooltip(new Tooltip(plugin.getUUID()));
 //            pluginTab.setContent(plugin.getView().getNode());
             pluginTab.setContent(plugin.getConntentNode());

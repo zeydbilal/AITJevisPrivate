@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.scene.Node;
 import org.jevis.api.JEVisException;
 
@@ -34,4 +35,6 @@ public interface AttributeEditor {
     void commit() throws JEVisException;
 
     Node getEditor();
+
+    BooleanProperty getValueChangedProperty();
 }

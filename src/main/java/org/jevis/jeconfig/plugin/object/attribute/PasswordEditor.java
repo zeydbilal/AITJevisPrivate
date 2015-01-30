@@ -21,6 +21,8 @@ package org.jevis.jeconfig.plugin.object.attribute;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -43,6 +45,7 @@ public class PasswordEditor implements AttributeEditor {
     public JEVisAttribute _attribute;
     private boolean _hasChanged = false;
     private Button _setPW;
+    private final BooleanProperty _changed = new SimpleBooleanProperty(false);
 
     public PasswordEditor(JEVisAttribute att) {
         _attribute = att;
@@ -52,6 +55,11 @@ public class PasswordEditor implements AttributeEditor {
     public boolean hasChanged() {
 //        System.out.println(_attribute.getName() + " changed: " + _hasChanged);
         return _hasChanged;
+    }
+
+    @Override
+    public BooleanProperty getValueChangedProperty() {
+        return _changed;
     }
 
 //    @Override

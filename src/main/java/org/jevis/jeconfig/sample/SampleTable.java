@@ -21,6 +21,8 @@ package org.jevis.jeconfig.sample;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -30,6 +32,7 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -115,7 +118,13 @@ public class SampleTable extends TableView {
         }
 
         public Double getValue() {
-            return value.get();
+            try {
+                return _sample.getValueAsDouble(_sample.getAttribute().getDisplayUnit());
+//            return value.get();
+            } catch (JEVisException ex) {
+                Logger.getLogger(SampleTable.class.getName()).log(Level.SEVERE, null, ex);
+                return value.get();
+            }
         }
 
         public void setValue(Double fName) {

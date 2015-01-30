@@ -57,6 +57,7 @@ import javafx.util.Callback;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.api.sql.RelationsManagment;
 import org.jevis.application.resource.ResourceLoader;
 import org.jevis.jeconfig.tool.ImageConverter;
 import org.jevis.jeconfig.tool.NumberSpinner;
@@ -138,14 +139,6 @@ public class NewObjectDialog {
         topTitle.setTextFill(Color.web("#0076a3"));
         topTitle.setFont(Font.font("Cambria", 25));
 
-        if (type == Type.NEW) {
-            stage.setTitle("New Object");
-            topTitle.setText("New Object");
-        } else if (type == Type.RENAME) {
-            stage.setTitle("Rename Object");
-            topTitle.setText("Rename Object");
-        }
-
         ImageView imageView = ResourceLoader.getImage(ICON, 50, 50);
 
         stage.getIcons().add(imageView.getImage());
@@ -193,12 +186,19 @@ public class NewObjectDialog {
         Label lClass = new Label("Class:");
 
         ObservableList<JEVisClass> options = FXCollections.observableArrayList();
-        try {
-            options = FXCollections.observableArrayList(
-                    parent.getAllowedChildrenClasses()
-            );
-        } catch (JEVisException ex) {
-            Logger.getLogger(NewObjectDialog.class.getName()).log(Level.SEVERE, null, ex);
+
+        if (type == Type.NEW) {
+            try {
+
+                options = FXCollections.observableArrayList(
+                        parent.getAllowedChildrenClasses()
+                );
+
+            } catch (JEVisException ex) {
+                Logger.getLogger(NewObjectDialog.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else if (type == Type.RENAME) {
+            options.add(jclass);
         }
 
         Callback<ListView<JEVisClass>, ListCell<JEVisClass>> cellFactory = new Callback<ListView<JEVisClass>, ListCell<JEVisClass>>() {
@@ -212,7 +212,7 @@ public class NewObjectDialog {
                     @Override
                     public void updateItem(JEVisClass item, boolean empty) {
                         super.updateItem(item, empty);
-                        if (item != null) {
+                        if (item != null && !empty) {
                             HBox box = new HBox(5);
                             box.setAlignment(Pos.CENTER_LEFT);
                             try {
@@ -244,8 +244,6 @@ public class NewObjectDialog {
 
         comboBox.setMinWidth(250);
         comboBox.setMaxWidth(Integer.MAX_VALUE);//workaround
-
-        comboBox.getSelectionModel().selectFirst();
 
         Label lCount = new Label("Count:");
         //TODo: disable spinner if class is uniq also disable OK button if there is allready one of its kind
@@ -308,14 +306,34 @@ public class NewObjectDialog {
             }
         });
 
+        fName.setDisable(true);
+        comboBox.setDisable(true);
+        ok.setDisable(true);
+        count.setDisable(true);
+
+        try {
+            if (RelationsManagment.canWrite(parent.getDataSource().getCurrentUser(), parent)) {
+                fName.setDisable(false);
+                comboBox.setDisable(false);
+                ok.setDisable(false);
+                count.setDisable(false);
+            }
+        } catch (JEVisException ex) {
+            Logger.getLogger(NewObjectDialog.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        if (type == Type.NEW) {
+            stage.setTitle("New Object");
+            topTitle.setText("New Object");
+            comboBox.getSelectionModel().selectFirst();
+        } else if (type == Type.RENAME) {
+            stage.setTitle("Rename Object");
+            topTitle.setText("Rename Object");
+            count.setDisable(true);
+            comboBox.getSelectionModel().select(jclass);
+        }
+
         stage.showAndWait();
-        System.out.println("after show");
-//        if (isOK.getValue() == true) {
-//            response = Response.YES;
-//        }
-
-        System.out.println("return " + response);
-
         return response;
     }
 

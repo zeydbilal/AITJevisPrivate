@@ -63,7 +63,7 @@ public class SampleTabelExtension implements SampleEditorExtension {
         final SampleTable table = new SampleTable(samples);
         table.setPrefSize(1000, 1000);
 
-        Button deleteAll = new Button("Delete All Samples");
+        Button deleteAll = new Button("Delete All");
         deleteAll.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override

@@ -128,8 +128,8 @@ public class AttributeStatesExtension implements SampleEditorExtension {
 
         name.setText(att.getName());
         type.setText(att.getType().getName());
-        unit.setText(att.getUnit().toString());
-        sampleRate.setText(att.getPeriod().toString());
+        unit.setText(att.getDisplayUnit().toString());
+        sampleRate.setText(att.getInputSampleRate().toString());
         sCount.setText(att.getSampleCount() + "");
 
         if (att.hasSample()) {

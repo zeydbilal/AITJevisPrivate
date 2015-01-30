@@ -52,6 +52,8 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisRelationship;
 import org.jevis.application.dialog.ConfirmDialog;
+import org.jevis.application.dialog.ExceptionDialog;
+import org.jevis.application.dialog.InfoDialog;
 import org.jevis.commons.CommonClasses;
 import org.jevis.commons.CommonObjectTasks;
 import org.jevis.jeconfig.JEConfig;
@@ -387,7 +389,7 @@ public class ObjectTree extends TreeView<JEVisObject> {
 
     public void fireDelete(JEVisObject obj) {
         ConfirmDialog dia = new ConfirmDialog();
-        String question = "Do you want to delete the Class \"" + obj.getName() + "\" ?";
+        String question = "Do you want to delete \"" + obj.getName() + "\" ?";
 
         if (dia.show(JEConfig.getStage(), "Delete Object", "Delete Object?", question) == ConfirmDialog.Response.YES) {
             try {
@@ -447,6 +449,18 @@ public class ObjectTree extends TreeView<JEVisObject> {
                     } catch (JEVisException ex) {
                         //TODO: Cancel all if one faild befor he has to see the exeption dia.getCreateCount() times
                         Logger.getLogger(ObjectTree.class.getName()).log(Level.SEVERE, null, ex);
+                        //TODO: the need an unique way to identify erors
+
+                        if (ex.getMessage().equals("Can not create User with this name. The User has to be unique on the System")) {
+                            InfoDialog info = new InfoDialog();
+                            info.show(JEConfig.getStage(), "Waring", "Could not create user", "Could not create new user because this user exists already.");
+
+                        } else {
+                            ExceptionDialog errorDia = new ExceptionDialog();
+                            errorDia.show(JEConfig.getStage(), "Error", "Could not create user", "Could not create new user.", ex, JEConfig.PROGRAMM_INFO);
+
+                        }
+
                     }
                 }
 

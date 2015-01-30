@@ -367,12 +367,6 @@ public class CopyObjectDialog {
         });
 
         stage.showAndWait();
-        System.out.println("after show");
-//        if (isOK.getValue() == true) {
-//            response = Response.YES;
-//        }
-
-        System.out.println("return " + response);
 
         return response;
     }

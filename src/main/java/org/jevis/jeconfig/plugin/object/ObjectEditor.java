@@ -38,7 +38,7 @@ import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.object.extension.MemberExtension;
 import org.jevis.jeconfig.plugin.object.extension.RootExtension;
-import org.jevis.jeconfig.plugin.object.extension.ShareExtension;
+import org.jevis.jeconfig.plugin.object.extension.PermissionExtension;
 
 /**
  *
@@ -48,7 +48,7 @@ public class ObjectEditor {
 
     private JEVisObject _currentObject = null;
     private List<ObjectEditorExtension> extensions = new LinkedList<>();
-    private boolean _saved = true;
+    private boolean _hasChanged = true;
     private String _lastOpenEditor = "";
 
 //    private AnchorPane _view;
@@ -74,27 +74,30 @@ public class ObjectEditor {
     }
 
     public void checkIfSaved(JEVisObject obj) {
-        if (!_saved && _currentObject != null && !Objects.equals(obj.getID(), _currentObject.getID())) {
+//        System.out.println("checkIfSaved: " + obj);
+        if (_currentObject != null && !Objects.equals(obj.getID(), _currentObject.getID())) {
 
             List<ObjectEditorExtension> needSave = new ArrayList<>();
 
-            _saved = true;
+//            _hasChanged = true;
             for (ObjectEditorExtension extension : extensions) {
                 if (extension.needSave()) {
+//                    System.out.println("extension need save: " + extension.getTitel());
                     needSave.add(extension);
                 }
             }
+//            System.out.println("needSave.size: " + needSave.size());
 
             if (!needSave.isEmpty()) {
                 //workaround for fast saving without requesting
 //                commitAll();
-
+//                System.out.println("need save");
                 ConfirmDialog dia = new ConfirmDialog();
                 ConfirmDialog.Response re = dia.show(JEConfig.getStage(), "Save", "Save Attribute Changes", "Changes will be lost if not saved, do you want to save now?");
                 if (re == ConfirmDialog.Response.YES) {
                     commitAll();
                 } else {
-                    _saved = true;
+                    _hasChanged = true;
                 }
             }
 
@@ -119,7 +122,7 @@ public class ObjectEditor {
                 extensions = new ArrayList<>();
                 extensions.add(new GenericAttributeExtension(obj));
                 extensions.add(new MemberExtension(obj));
-                extensions.add(new ShareExtension(obj));
+                extensions.add(new PermissionExtension(obj));
                 extensions.add(new RootExtension(obj));
 
                 for (final ObjectEditorExtension ex : extensions) {
@@ -128,6 +131,16 @@ public class ObjectEditor {
                         TitledPane newTab = new TitledPane(ex.getTitel(), ex.getView());
                         newTab.setAnimated(false);
                         taps.add(newTab);
+                        ex.getValueChangedProperty().addListener(new ChangeListener<Boolean>() {
+
+                            @Override
+                            public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
+                                if (t1) {
+                                    System.out.println("Valuechanged for: " + ex.getTitel());
+                                    _hasChanged = t1;//TODO: enable/disbale the save button
+                                }
+                            }
+                        });
 
                         newTab.expandedProperty().addListener(new ChangeListener<Boolean>() {
 

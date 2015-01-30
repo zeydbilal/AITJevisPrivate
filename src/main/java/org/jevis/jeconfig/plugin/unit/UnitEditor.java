@@ -20,15 +20,21 @@
 package org.jevis.jeconfig.plugin.unit;
 
 import java.util.Locale;
+import java.util.regex.Pattern;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.web.HTMLEditor;
 import javax.measure.unit.Unit;
 import org.jevis.application.unit.UnitChooser;
+import org.jevis.application.unit.UnitObject;
 import org.jevis.commons.unit.UnitManager;
 
 /**
@@ -52,22 +58,25 @@ public class UnitEditor {
 
                 Label nameL = new Label("Name: ");
                 Label symbolL = new Label("Symbol: ");
-                Label orderLabel = new Label("Dimension: ");
+//                Label orderLabel = new Label("Dimension: ");
+                Label formel = new Label("Formel Editor:");
 
                 TextField nameT = new TextField(UnitManager.getInstance().getUnitName(unit.getUnit(), Locale.ENGLISH));
                 TextField symboleT = new TextField(unit.getUnit().toString());
-                TextField orderT = new TextField(unit.getUnit().getDimension().toString());
-
-                UnitChooser uc = new UnitChooser(Unit.ONE);
+//                TextField orderT = new TextField(unit.getUnit().getDimension().toString());
+                TextArea formelField = new TextArea();
+                formelField.setPrefSize(260, 100);
+                formelField.setWrapText(true);
+                formelField.setText(unit.getUnit().toJSON());
 
                 UnitChooser uc2 = new UnitChooser(Unit.ONE, 0);
 
                 gridPane.add(nameL, 0, 0);
                 gridPane.add(symbolL, 0, 1);
-                gridPane.add(orderLabel, 0, 2);
+//                gridPane.add(formel, 0, 2);
                 gridPane.add(nameT, 1, 0);
                 gridPane.add(symboleT, 1, 1);
-                gridPane.add(orderT, 1, 2);
+                gridPane.add(formelField, 1, 2);
 
                 //gridPane.add(uc.getGraphic(), 0, 3);
                 //gridPane.add(uc2.getGraphic(), 0, 4);
@@ -76,6 +85,23 @@ public class UnitEditor {
             }
         });
 
+    }
+
+    public void hideImageNodesMatching(Node node, Pattern imageNamePattern, int depth) {
+        if (node instanceof ImageView) {
+            ImageView imageView = (ImageView) node;
+            String url = imageView.getImage().impl_getUrl();
+            if (url != null && imageNamePattern.matcher(url).matches()) {
+                Node button = imageView.getParent().getParent();
+                button.setVisible(false);
+                button.setManaged(false);
+            }
+        }
+        if (node instanceof Parent) {
+            for (Node child : ((Parent) node).getChildrenUnmodifiable()) {
+                hideImageNodesMatching(child, imageNamePattern, depth + 1);
+            }
+        }
     }
 
     public Node getView() {

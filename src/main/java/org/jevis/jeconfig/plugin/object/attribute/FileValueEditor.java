@@ -20,6 +20,8 @@
 package org.jevis.jeconfig.plugin.object.attribute;
 
 import java.io.File;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -43,6 +45,7 @@ public class FileValueEditor implements AttributeEditor {
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
     private boolean _hasChanged = false;
+    private final BooleanProperty _changed = new SimpleBooleanProperty(false);
 
     public FileValueEditor(JEVisAttribute att) {
         _attribute = att;
@@ -52,6 +55,11 @@ public class FileValueEditor implements AttributeEditor {
     public boolean hasChanged() {
 //        System.out.println(_attribute.getName() + " changed: " + _hasChanged);
         return _hasChanged;
+    }
+
+    @Override
+    public BooleanProperty getValueChangedProperty() {
+        return _changed;
     }
 
 //    @Override

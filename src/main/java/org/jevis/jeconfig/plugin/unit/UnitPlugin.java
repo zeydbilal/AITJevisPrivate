@@ -19,21 +19,21 @@
  */
 package org.jevis.jeconfig.plugin.unit;
 
-import org.jevis.jeconfig.plugin.object.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.ListChangeListener;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.SplitPaneBuilder;
+import javafx.scene.control.TreeItem;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisException;
+import org.jevis.application.unit.UnitObject;
+import org.jevis.application.unit.UnitTree;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
@@ -50,6 +50,7 @@ public class UnitPlugin implements Plugin {
     private BorderPane border;
 //    private ObjectTree tf;
     private UnitTree tree;
+    private UnitEditor _editor;
 
     public UnitPlugin(JEVisDataSource ds, String newname) {
         this.ds = ds;
@@ -91,6 +92,23 @@ public class UnitPlugin implements Plugin {
         if (border == null) {
 
             tree = new UnitTree(ds);
+            _editor = new UnitEditor();
+
+            tree.getSelectionModel().getSelectedItems().addListener(new ListChangeListener<TreeItem<UnitObject>>() {
+
+                @Override
+                public void onChanged(ListChangeListener.Change<? extends TreeItem<UnitObject>> change) {
+                    System.out.println("user selected: ");
+                    for (TreeItem<UnitObject> object : change.getList()) {
+                        System.out.println(" - " + object.getValue().getUnit().toString());
+                    }
+                    try {
+                        _editor.setUnit(change.getList().get(0).getValue());
+                    } catch (NullPointerException ne) {
+                        System.out.println("waring, nullpoint in unittree selection");
+                    }
+                }
+            });
 
             VBox left = new VBox();
             left.setStyle("-fx-background-color: #E2E2E2;");
@@ -98,7 +116,7 @@ public class UnitPlugin implements Plugin {
             VBox.setVgrow(tree, Priority.ALWAYS);
 
             SplitPane sp = SplitPaneBuilder.create()
-                    .items(left, tree.getEditor().getView())
+                    .items(left, _editor.getView())
                     .dividerPositions(new double[]{.2d, 0.8d}) // why does this not work!?
                     .orientation(Orientation.HORIZONTAL)
                     .build();
