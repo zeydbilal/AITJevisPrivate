@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
+ * Copyright (C) 2014-2015 Envidatec GmbH <info@envidatec.com>
  *
  * This file is part of JEConfig.
  *
@@ -19,7 +19,6 @@
  */
 package org.jevis.jeconfig.csv;
 
-import java.awt.GridLayout;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -63,7 +62,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.api.JEVisObject;
 import org.jevis.application.dialog.InfoDialog;
 import org.jevis.application.resource.ResourceLoader;
 import org.jevis.commons.parsing.DataCollectorParser;
@@ -664,13 +662,16 @@ public class CSVImportDialog {
                 if (JEConfig.getLastPath() != null) {
 //                    System.out.println("Last Path: " + JEConfig.getLastPath().getParentFile());
                     File file = JEConfig.getLastPath();
-                    fileChooser.setInitialDirectory(file);
+                    if (file.exists() && file.canRead()) {
+                        fileChooser.setInitialDirectory(file);
+                    }
 
                 }
 
                 FileChooser.ExtensionFilter csvFilter = new FileChooser.ExtensionFilter("CSV files (*.csv)", "*.csv");
                 FileChooser.ExtensionFilter allFilter = new FileChooser.ExtensionFilter("All files ", "*");
                 fileChooser.getExtensionFilters().addAll(csvFilter, allFilter);
+
                 final File file = fileChooser.showOpenDialog(JEConfig.getStage());
                 if (file != null) {
                     JEConfig.setLastPath(file);
