@@ -51,6 +51,7 @@ import org.jevis.jeconfig.plugin.object.attribute.BooleanValueEditor;
 import org.jevis.jeconfig.plugin.object.attribute.FileValueEditor;
 import org.jevis.jeconfig.plugin.object.attribute.NumberWithUnit;
 import org.jevis.jeconfig.plugin.object.attribute.PasswordEditor;
+import org.jevis.jeconfig.plugin.object.attribute.StringMultyLine;
 import org.jevis.jeconfig.plugin.object.attribute.StringValueEditor;
 
 /**
@@ -150,7 +151,14 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
                 switch (att.getPrimitiveType()) {
                     case JEVisConstants.PrimitiveType.STRING:
-                        editor = new StringValueEditor(att);
+
+                        if (att.getType().getGUIDisplayType().equalsIgnoreCase(GUIConstants.BASIC_TEXT.getId())) {
+                            editor = new StringValueEditor(att);
+                        }
+                        if (att.getType().getGUIDisplayType().equalsIgnoreCase(GUIConstants.BASIC_TEXT_MULTI.getId())) {
+                            editor = new StringMultyLine(att);
+                        }
+
                         break;
                     case JEVisConstants.PrimitiveType.BOOLEAN:
                         editor = new BooleanValueEditor(att);

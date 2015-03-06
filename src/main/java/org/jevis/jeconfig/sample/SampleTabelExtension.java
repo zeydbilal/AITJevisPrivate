@@ -35,8 +35,11 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.application.dialog.ConfirmDialog;
+import org.jevis.commons.dataprocessing.ProcessorObjectHandler;
+import org.jevis.commons.dataprocessing.Task;
 import org.jevis.jeconfig.JEConfig;
 import org.joda.time.DateTime;
 
@@ -86,7 +89,6 @@ public class SampleTabelExtension implements SampleEditorExtension {
         );
 
         Button deleteSelected = new Button("Delete Selected");
-
         deleteSelected.setOnAction(
                 new EventHandler<ActionEvent>() {
 
@@ -124,8 +126,34 @@ public class SampleTabelExtension implements SampleEditorExtension {
                 }
         );
 
+        Button useDataPorcessor = new Button("Clean");
+        useDataPorcessor.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent t) {
+                try {
+                    if (!samples.isEmpty()) {
+                        List<JEVisObject> dataProcessor = _att.getObject().getChildren(_att.getObject().getDataSource().getJEVisClass("Data Processor"), true);
+                        if (!dataProcessor.isEmpty()) {
+                            System.out.println("Class: " + dataProcessor.get(0).getJEVisClass());
+                            Task cleanTask = ProcessorObjectHandler.getTask(dataProcessor.get(0));
+                            setSamples(att, cleanTask.getResult());
+                            update();
+                        } else {
+                            System.out.println("has no Data porcessor");
+                        }
+
+                    }
+                } catch (Exception ex) {
+                    //TODO: do something...
+                    ex.printStackTrace();
+                }
+            }
+        }
+        );
+
         box.getChildren()
-                .setAll(deleteAll, deleteSelected);
+                .setAll(deleteAll, deleteSelected, useDataPorcessor);
 
         GridPane gp = new GridPane();
 
