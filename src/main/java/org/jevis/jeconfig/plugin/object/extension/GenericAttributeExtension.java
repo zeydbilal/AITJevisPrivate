@@ -53,6 +53,7 @@ import org.jevis.jeconfig.plugin.object.attribute.NumberWithUnit;
 import org.jevis.jeconfig.plugin.object.attribute.PasswordEditor;
 import org.jevis.jeconfig.plugin.object.attribute.StringMultyLine;
 import org.jevis.jeconfig.plugin.object.attribute.StringValueEditor;
+import sun.org.mozilla.javascript.internal.ast.CatchClause;
 
 /**
  *
@@ -152,12 +153,17 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                 switch (att.getPrimitiveType()) {
                     case JEVisConstants.PrimitiveType.STRING:
 
-                        if (att.getType().getGUIDisplayType().equalsIgnoreCase(GUIConstants.BASIC_TEXT.getId())) {
+                        try {
+                            if (att.getType().getGUIDisplayType().equalsIgnoreCase(GUIConstants.BASIC_TEXT.getId())) {
+                                editor = new StringValueEditor(att);
+                            }
+                            if (att.getType().getGUIDisplayType().equalsIgnoreCase(GUIConstants.BASIC_TEXT_MULTI.getId())) {
+                                editor = new StringMultyLine(att);
+                            }
+                        } catch (Exception ex) {
                             editor = new StringValueEditor(att);
                         }
-                        if (att.getType().getGUIDisplayType().equalsIgnoreCase(GUIConstants.BASIC_TEXT_MULTI.getId())) {
-                            editor = new StringMultyLine(att);
-                        }
+
 
                         break;
                     case JEVisConstants.PrimitiveType.BOOLEAN:
@@ -185,7 +191,6 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
                 _attributesEditor.add(editor);
                 editor.getValueChangedProperty().addListener(new ChangeListener<Boolean>() {
-
                     @Override
                     public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
                         System.out.println("GenericAttExtension.value.changed:" + t1);
@@ -227,5 +232,4 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
         _view.setCenter(scroll);
 
     }
-
 }
