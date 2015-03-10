@@ -49,7 +49,6 @@ import org.jevis.application.dialog.InfoDialog;
 import org.jevis.application.resource.ResourceLoader;
 import org.jevis.application.unit.SampleRateNode;
 import org.jevis.application.unit.UnitPanel;
-import org.jevis.commons.unit.UnitManager;
 import org.jevis.jeconfig.JEConfig;
 import org.joda.time.Period;
 

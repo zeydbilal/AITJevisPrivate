@@ -86,7 +86,7 @@ public class ClassGraphic {
 
     private ImageView getIcon(JEVisClass item) {
         try {
-            if (item != null && item != null) {
+            if (item != null) {
                 return ImageConverter.convertToImageView(item.getIcon(), 20, 20);//20
             } else {
                 return JEConfig.getImage("1390343812_folder-open.png", 20, 20);

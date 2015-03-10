@@ -19,10 +19,14 @@
  */
 package org.jevis.jeconfig.sample;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -30,17 +34,23 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.application.dialog.ConfirmDialog;
+import org.jevis.application.type.DisplayType;
+import org.jevis.application.type.GUIConstants;
 import org.jevis.commons.dataprocessing.ProcessorObjectHandler;
 import org.jevis.commons.dataprocessing.Task;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.classes.ClassHelper;
+import org.jevis.jeconfig.plugin.classes.editor.ClassEditor;
 import org.joda.time.DateTime;
 
 /**
@@ -126,53 +136,47 @@ public class SampleTabelExtension implements SampleEditorExtension {
                 }
         );
 
-        Button useDataPorcessor = new Button("Clean");
-        useDataPorcessor.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent t) {
-                try {
-                    if (!samples.isEmpty()) {
-                        List<JEVisObject> dataProcessor = _att.getObject().getChildren(_att.getObject().getDataSource().getJEVisClass("Data Processor"), true);
-                        if (!dataProcessor.isEmpty()) {
-                            System.out.println("Class: " + dataProcessor.get(0).getJEVisClass());
-                            Task cleanTask = ProcessorObjectHandler.getTask(dataProcessor.get(0));
-                            setSamples(att, cleanTask.getResult());
-                            update();
-                        } else {
-                            System.out.println("has no Data porcessor");
-                        }
-
-                    }
-                } catch (Exception ex) {
-                    //TODO: do something...
-                    ex.printStackTrace();
-                }
-            }
-        }
-        );
-
+//        Button useDataPorcessor = new Button("Clean");
+//        useDataPorcessor.setOnAction(new EventHandler<ActionEvent>() {
+//
+//            @Override
+//            public void handle(ActionEvent t) {
+//                try {
+//                    if (!samples.isEmpty()) {
+//                        List<JEVisObject> dataProcessor = _att.getObject().getChildren(_att.getObject().getDataSource().getJEVisClass("Data Processor"), true);
+//                        if (!dataProcessor.isEmpty()) {
+//                            System.out.println("Class: " + dataProcessor.get(0).getJEVisClass());
+//                            Task cleanTask = ProcessorObjectHandler.getTask(dataProcessor.get(0));
+//                            setSamples(att, cleanTask.getResult());
+//                            update();
+//                        } else {
+//                            System.out.println("has no Data porcessor");
+//                        }
+//
+//                    }
+//                } catch (Exception ex) {
+//                    //TODO: do something...
+//                    ex.printStackTrace();
+//                }
+//            }
+//        }
+//        );
         box.getChildren()
-                .setAll(deleteAll, deleteSelected, useDataPorcessor);
+                .setAll(deleteAll, deleteSelected);
 
         GridPane gp = new GridPane();
 
         gp.setStyle(
                 "-fx-background-color: transparent;");
 //        gp.setStyle("-fx-background-color: #E2E2E2;");
-        gp.setPadding(
-                new Insets(0, 0, 10, 0));
-        gp.setHgap(
-                7);
-        gp.setVgap(
-                7);
+        gp.setPadding(new Insets(0, 0, 10, 0));
+        gp.setHgap(7);
+        gp.setVgap(7);
 
         int y = 0;
 
-        gp.add(table,
-                0, y);
-        gp.add(box,
-                0, ++y);
+        gp.add(table, 0, y);
+        gp.add(box, 0, ++y);
 
 //        box.getChildren().setAll(table, deleteAll);
         _view.setCenter(gp);

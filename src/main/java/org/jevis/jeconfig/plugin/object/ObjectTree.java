@@ -481,7 +481,7 @@ public class ObjectTree extends TreeView<JEVisObject> {
             public int compare(TreeItem<JEVisObject> o1, TreeItem<JEVisObject> o2) {
 //                System.out.println("Compare: \n " + o1 + " with\n " + o2);
                 try {
-                    if (o2.getValue().getJEVisClass() != null) {
+                    if (o2.getValue().getJEVisClass() != null && o1.getValue().getJEVisClass() != null) {
                         int classCom = o1.getValue().getJEVisClass().compareTo(o2.getValue().getJEVisClass());
 
                         if (classCom == 0) {//Class is the same now use Name
@@ -490,12 +490,14 @@ public class ObjectTree extends TreeView<JEVisObject> {
                             return classCom;
                         }
                     } else {
-                        return o2.getValue().getJEVisClass().compareTo(o2.getValue().getJEVisClass());
+                        System.out.println("null Sort: o1:" + o1.getValue() + " o2:" + o2.getValue());
+                        return o1.getValue().getJEVisClass().compareTo(o2.getValue().getJEVisClass());
                     }
 
-                } catch (JEVisException ex) {
+                } catch (Exception ex) {
 //                    Logger.getLogger(ObjectItem.class.getName()).log(Level.SEVERE, null, ex);
-                    throw new NullPointerException();
+//                    throw new NullPointerException();
+                    return 0;
                 }
             }
         };

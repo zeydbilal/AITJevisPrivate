@@ -21,12 +21,8 @@ package org.jevis.jeconfig.plugin.object.attribute;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
@@ -177,6 +173,7 @@ public class NumberWithUnit implements AttributeEditor {
             _field.setPrefWidth(500);//TODO: remove this workaround 
 
             _lastSample = _attribute.getLatestSample();
+
             if (_lastSample != null) {
 //                System.out.println("Original Value: " + _attribute.getLatestSample().getValueAsDouble() + " " + _attribute.getInputUnit());
 //                System.out.println("Display  Value: " + _attribute.getLatestSample().getValueAsDouble(_attribute.getDisplayUnit()) + " " + _attribute.getDisplayUnit());

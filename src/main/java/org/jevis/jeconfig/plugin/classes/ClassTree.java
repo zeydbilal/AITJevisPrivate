@@ -241,7 +241,13 @@ public class ClassTree extends TreeView<JEVisClass> {
         }
     }
 
-    public void reload() {
+    public void reload(JEVisClass jclass) {
+        if (jclass != null) {
+
+            TreeItem newItem = buildItem(jclass);
+            newItem.expandedProperty().setValue(false);
+            newItem.expandedProperty().setValue(true);
+        }
 
     }
 
@@ -397,7 +403,9 @@ public class ClassTree extends TreeView<JEVisClass> {
 
             JEVisClass currentClass = null;
 
-            if (item == null && getSelectionModel().getSelectedItem() != null) {
+            if (item != null) {
+                currentClass = item.getValue();
+            } else if (item == null && getSelectionModel().getSelectedItem() != null) {
                 currentClass = getSelectionModel().getSelectedItem().getValue();
             } else if (currentClass != null && currentClass.getName().equals("Classes")) {
                 currentClass = null;
@@ -410,18 +418,33 @@ public class ClassTree extends TreeView<JEVisClass> {
             if (dia.show(JEConfig.getStage(), currentClass, _ds) == NewClassDialog.Response.YES
                     && dia.getClassName() != null
                     && !dia.getClassName().equals("")) {
-                System.out.println("dia end");
-                System.out.println("build class: " + dia.getClassName());
+//                System.out.println("dia end");
+                System.out.println("-----build class: " + dia.getClassName());
 
                 JEVisClass newClass = _ds.buildClass(dia.getClassName());
 
+                if (dia.getInheritance() != null && newClass != null) {
+                    newClass.setIcon(dia.getInheritance().getIcon());
+                    newClass.commit();
+                }
+
                 final TreeItem<JEVisClass> treeItem = buildItem(newClass);
 
+                System.out.println("-----dia.getInheritance(): " + dia.getInheritance());
                 if (dia.getInheritance() != null) {
-                    System.out.println("Class in inherit of: " + dia.getInheritance());
+                    System.out.println("-----Class in inherit of: " + dia.getInheritance());
                     JEVisClassRelationship cr = RelationshipFactory.buildInheritance(dia.getInheritance(), newClass);
-                    System.out.println("new relationship: " + cr);
+                    System.out.println("-----new relationship: " + cr);
                     getChildrenList(getObjectTreeItem(dia.getInheritance())).add(getObjectTreeItem(newClass));
+                    System.out.println("-----new Class end");
+
+//  sout    
+//                    TreeItem<JEVisClass> parentItem = _itemCache.get(dia.getInheritance().getName());
+//                    System.out.println("------->parent: " + parentItem.getValue().getName());
+//                    parentItem.expandedProperty().setValue(false);
+//
+//                    parentItem.getChildren().add(treeItem);
+//                    parentItem.expandedProperty().setValue(true);
                 } else {
                     getChildrenList(getObjectTreeItem(getRoot().getValue())).add(getObjectTreeItem(newClass));
                 }

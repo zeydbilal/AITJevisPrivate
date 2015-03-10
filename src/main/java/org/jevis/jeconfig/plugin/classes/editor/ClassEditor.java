@@ -197,7 +197,7 @@ public class ClassEditor {
                     @Override
                     public void handle(ActionEvent e) {
                         FileChooser fileChooser = new FileChooser();
-                        if (JEConfig.getLastPath() != null) {
+                        if (JEConfig.getLastPath() != null && JEConfig.getLastPath().isDirectory() && JEConfig.getLastPath().canRead()) {
                             fileChooser.setInitialDirectory(JEConfig.getLastPath().getParentFile());
                         }
 
@@ -574,7 +574,7 @@ public class ClassEditor {
 
             //reload tree(icon)
             if (_tree != null) {
-                _tree.reload();
+                _tree.reload(_class);
             }
 
 //            fIcon.setGraphic(getImageView(_class));
@@ -608,7 +608,7 @@ public class ClassEditor {
                 type.delete();
             }
 
-            _tree.reload();
+            _tree.reload(_class);
 
         } catch (JEVisException ex) {
             Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);

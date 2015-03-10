@@ -77,11 +77,11 @@ public class NewClassDialog {
     /**
      *
      * @param owner
-     * @param heir
+     * @param superClass
      * @param ds
      * @return
      */
-    public Response show(Stage owner, final JEVisClass heir, final JEVisDataSource ds) {
+    public Response show(Stage owner, final JEVisClass superClass, final JEVisDataSource ds) {
         System.out.println("new Calss Dialog");
         final Stage stage = new Stage();
 
@@ -129,12 +129,12 @@ public class NewClassDialog {
         warning.setMaxWidth(50);
         warning.setVisible(false);
 
-        if (heir != null) {
+        if (superClass != null) {
             try {
-                heritB.setText(heir.getName());
+                heritB.setText(superClass.getName());
                 heritB.setDisable(false);
                 iherit.setSelected(true);
-                inherit = heir;
+                inherit = superClass;
 //                nameF.setText("new " + heir.getName());
             } catch (JEVisException ex) {
                 Logger.getLogger(NewClassDialog.class.getName()).log(Level.SEVERE, null, ex);

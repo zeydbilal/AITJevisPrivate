@@ -21,12 +21,16 @@ package org.jevis.jeconfig.sample;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -35,6 +39,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
@@ -45,15 +50,27 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.jevis.api.JEVisAttribute;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.application.dialog.DialogHeader;
+import org.jevis.commons.dataprocessing.DataProcessor;
+import org.jevis.commons.dataprocessing.Options;
+import org.jevis.commons.dataprocessing.ProcessorObjectHandler;
+import org.jevis.commons.dataprocessing.Task;
+import org.jevis.commons.dataprocessing.TaskImp;
+import org.jevis.commons.dataprocessing.processor.AggrigatorProcessor;
+import org.jevis.commons.dataprocessing.processor.InputProcessor;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.datepicker.DatePicker;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
+import org.joda.time.Period;
 
 /**
  *
@@ -66,6 +83,17 @@ public class SampleEditor {
     private SampleEditorExtension _visibleExtension = null;
     private DateTime _from = null;
     private DateTime _until = null;
+    final List<SampleEditorExtension> extensions = new ArrayList<>();
+    private JEVisAttribute _attribute;
+    private Task _dataProcessor;
+
+    private enum AGGREGATION {
+
+        None, Daily, Weekly, Monthly,
+        Yearly
+    }
+
+    private AGGREGATION _mode = AGGREGATION.None;
 
     public static enum Response {
 
@@ -90,6 +118,7 @@ public class SampleEditor {
     public Response show(Stage owner, final JEVisAttribute attribute) {
         final Stage stage = new Stage();
 
+        _attribute = attribute;
         stage.setTitle("Sample Editor");
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initOwner(owner);
@@ -104,6 +133,11 @@ public class SampleEditor {
         stage.setMaxWidth(2000);
         stage.initStyle(StageStyle.UTILITY);
         stage.setResizable(false);
+
+        Screen screen = Screen.getPrimary();
+        if (screen.getBounds().getHeight() < 740) {
+            stage.setWidth(screen.getBounds().getHeight());
+        }
 
         HBox buttonPanel = new HBox();
 
@@ -144,27 +178,42 @@ public class SampleEditor {
             startdate.setSelectedDate(_from.toDate());
             startdate.getCalendarView().setShowWeeks(false);
             startdate.getStylesheets().add(JEConfig.getResource("DatePicker.css"));
+            startdate.setMaxWidth(100d);
 
 //            enddate.setSelectedDate(_until.toDate());
             enddate.selectedDateProperty().setValue(_until.toDate());
             enddate.setDateFormat(new SimpleDateFormat("yyyy-MM-dd"));
-            enddate.setSelectedDate(_from.toDate());
+            enddate.setSelectedDate(_until.toDate());
             enddate.getCalendarView().setShowWeeks(true);
             enddate.getStylesheets().add(JEConfig.getResource("DatePicker.css"));
+            enddate.setMaxWidth(100d);
 
         }
 
-        buttonPanel.getChildren().addAll(startLabel, startdate, endLabel, enddate, spacer, ok, cancel);
-        buttonPanel.setAlignment(Pos.CENTER_RIGHT);
+        Node preclean = buildProcessorBox(attribute.getObject());
+
+        Label timeRangeL = new Label("Time range");
+        timeRangeL.setStyle("-fx-font-weight: bold");
+        GridPane timeSpan = new GridPane();
+        timeSpan.setHgap(5);
+        timeSpan.setVgap(2);
+        timeSpan.add(timeRangeL, 0, 0, 2, 1); // column=1 row=0
+        timeSpan.add(startLabel, 0, 1, 1, 1); // column=1 row=0
+        timeSpan.add(endLabel, 0, 2, 1, 1); // column=1 row=0
+
+        timeSpan.add(startdate, 1, 1, 1, 1); // column=1 row=0
+        timeSpan.add(enddate, 1, 2, 1, 1); // column=1 row=0
+
+        buttonPanel.getChildren().addAll(timeSpan, preclean, spacer, ok, cancel);
+//        buttonPanel.getChildren().addAll(startLabel, startdate, endLabel, enddate, preclean, spacer, ok, cancel);
+        buttonPanel.setAlignment(Pos.BOTTOM_RIGHT);
         buttonPanel.setPadding(new Insets(10, 10, 10, 10));
-        buttonPanel.setSpacing(10);//10
+        buttonPanel.setSpacing(15);//10
         buttonPanel.setMaxHeight(25);
         HBox.setHgrow(spacer, Priority.ALWAYS);
 //        HBox.setHgrow(export, Priority.NEVER);
         HBox.setHgrow(ok, Priority.NEVER);
         HBox.setHgrow(cancel, Priority.NEVER);
-
-        final List<SampleEditorExtension> extensions = new ArrayList<>();
 
         extensions.add(tabelExtension);
         extensions.add(new SampleGraphExtension(attribute));
@@ -287,6 +336,129 @@ public class SampleEditor {
         return response;
     }
 
+    private Node buildProcessorBox(final JEVisObject parentObj) {
+        List<String> proNames = new ArrayList<>();
+        proNames.add("Raw Data");
+
+        try {
+            JEVisClass dpClass = parentObj.getDataSource().getJEVisClass("Data Processor");
+            for (JEVisObject configObject : parentObj.getChildren(dpClass, true)) {
+                proNames.add(configObject.getName());
+            }
+
+        } catch (JEVisException ex) {
+            Logger.getLogger(SampleTabelExtension.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        ChoiceBox processorBox = new ChoiceBox();
+        processorBox.setItems(FXCollections.observableArrayList(proNames));
+        processorBox.getSelectionModel().selectFirst();
+        processorBox.valueProperty().addListener(new ChangeListener<String>() {
+
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                System.out.println("Select GUI Tpye: " + newValue);
+                //TODO:replace this quick and dirty workaround
+
+                try {
+                    JEVisClass dpClass = parentObj.getDataSource().getJEVisClass("Data Processor");
+
+                    if (newValue.equals("None")) {
+                        _dataProcessor = null;
+                        update();
+                    } else {
+
+                        for (JEVisObject configObject : parentObj.getChildren(dpClass, true)) {
+                            if (configObject.getName().equals(newValue)) {
+                                _dataProcessor = ProcessorObjectHandler.getTask(configObject);
+                                update();
+                            }
+
+                        }
+                    }
+
+                } catch (JEVisException ex) {
+                    Logger.getLogger(SampleTabelExtension.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+            }
+        });
+//        
+        List<String> aggList = new ArrayList<>();
+        aggList.add("None");
+        aggList.add("Daily");
+        aggList.add("Weekly");
+        aggList.add("Monthly");
+        aggList.add("Yearly");
+
+        ChoiceBox aggrigate = new ChoiceBox();
+        aggrigate.setItems(FXCollections.observableArrayList(aggList));
+        aggrigate.getSelectionModel().selectFirst();
+        aggrigate.valueProperty().addListener(new ChangeListener<String>() {
+
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                System.out.println("Select Aggrigation Tpye: " + newValue);
+                //TODO:replace this quick and dirty workaround
+
+                switch (newValue) {
+                    case "None":
+                        _mode = AGGREGATION.None;
+                        break;
+                    case "Daily":
+                        _mode = AGGREGATION.Daily;
+                        break;
+                    case "Weekly":
+                        _mode = AGGREGATION.Weekly;
+                        break;
+                    case "Monthly":
+                        _mode = AGGREGATION.Monthly;
+                        break;
+                    case "Yearly":
+                        _mode = AGGREGATION.Yearly;
+                        break;
+                }
+                update();
+
+            }
+        });
+
+        processorBox.setMinWidth(150);
+        aggrigate.setMinWidth(150);
+//        aggrigate.prefWidthProperty().bind(processorBox.prefWidthProperty());
+//        aggrigate.prefHeightProperty()
+//        Bindings.add(aggrigate.prefWidthProperty(), processorBox.prefWidthProperty());
+
+        HBox hbox = new HBox(2);
+
+        Label header = new Label("Data Processing");
+        header.setStyle("-fx-font-weight: bold");
+        Label settingL = new Label("Setting:");
+        Label aggrigatein = new Label("Aggregation:");//("Aggrigation");
+
+        Button config = new Button();
+        config.setGraphic(JEConfig.getImage("Service Manager.png", 16, 16));
+
+        hbox.getChildren().addAll(processorBox, config);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(5);
+        grid.setVgap(2);
+        grid.add(header, 0, 0, 2, 1); // column=1 row=0
+
+        grid.add(settingL, 0, 1, 1, 1); // column=1 row=0
+        grid.add(aggrigatein, 0, 2, 1, 1); // column=1 row=0
+
+        grid.add(hbox, 1, 1, 1, 1); // column=1 row=0
+        grid.add(aggrigate, 1, 2, 1, 1); // column=1 row=0
+
+        return grid;
+    }
+
+    private void update() {
+        updateSamples(_attribute, _from, _until, extensions);
+    }
+
     /**
      *
      * @param att
@@ -295,14 +467,74 @@ public class SampleEditor {
      * @param extensions
      */
     private void updateSamples(final JEVisAttribute att, final DateTime from, final DateTime until, List<SampleEditorExtension> extensions) {
-        samples.clear();
-        samples.addAll(att.getSamples(from, until));
-        for (SampleEditorExtension ex : extensions) {
-            ex.setSamples(att, samples);
-        }
-        _dataChanged = true;
-        _visibleExtension.update();
+        try {
+            samples.clear();
 
+            _from = from;
+            _until = until;
+
+            Task aggrigate = null;
+            if (_mode == AGGREGATION.None) {
+
+            } else if (_mode == AGGREGATION.Daily) {
+                aggrigate = new TaskImp();
+                aggrigate.setJEVisDataSource(att.getDataSource());
+                aggrigate.setID("Dynamic");
+                aggrigate.setProcessor(new AggrigatorProcessor());
+                aggrigate.addOption(Options.PERIOD, Period.days(1).toString());
+            } else if (_mode == AGGREGATION.Monthly) {
+                aggrigate = new TaskImp();
+                aggrigate.setJEVisDataSource(att.getDataSource());
+                aggrigate.setID("Dynamic");
+                aggrigate.setProcessor(new AggrigatorProcessor());
+                aggrigate.addOption(Options.PERIOD, Period.months(1).toString());
+            } else if (_mode == AGGREGATION.Weekly) {
+                aggrigate = new TaskImp();
+                aggrigate.setJEVisDataSource(att.getDataSource());
+                aggrigate.setID("Dynamic");
+                aggrigate.setProcessor(new AggrigatorProcessor());
+                aggrigate.addOption(Options.PERIOD, Period.weeks(1).toString());
+            } else if (_mode == AGGREGATION.Yearly) {
+                System.out.println("year.....  " + Period.years(1).toString());
+                aggrigate = new TaskImp();
+                aggrigate.setJEVisDataSource(att.getDataSource());
+                aggrigate.setID("Dynamic");
+                aggrigate.setProcessor(new AggrigatorProcessor());
+                aggrigate.addOption(Options.PERIOD, Period.years(1).toString());
+            }
+
+            if (_dataProcessor == null) {
+                if (aggrigate != null) {
+                    Task input = new TaskImp();
+                    input.setJEVisDataSource(att.getDataSource());
+                    input.setID("Dynamic Input");
+                    input.setProcessor(new InputProcessor());
+                    input.getOptions().put(InputProcessor.ATTRIBUTE_ID, _attribute.getName());
+                    input.getOptions().put(InputProcessor.OBJECT_ID, _attribute.getObject().getID() + "");
+                    aggrigate.setSubTasks(Arrays.asList(input));
+                    samples.addAll(aggrigate.getResult());
+                } else {
+                    samples.addAll(att.getSamples(from, until));
+                }
+
+            } else {
+                if (aggrigate != null) {
+                    aggrigate.setSubTasks(Arrays.asList(_dataProcessor));
+                    samples.addAll(aggrigate.getResult());
+                } else {
+                    samples.addAll(_dataProcessor.getResult());
+                }
+            }
+
+            for (SampleEditorExtension ex : extensions) {
+                ex.setSamples(att, samples);
+            }
+
+            _dataChanged = true;
+            _visibleExtension.update();
+        } catch (JEVisException ex) {
+            ex.printStackTrace();
+        }
     }
 
 }

@@ -82,7 +82,7 @@ public class ObjectEditor {
 //            _hasChanged = true;
             for (ObjectEditorExtension extension : extensions) {
                 if (extension.needSave()) {
-//                    System.out.println("extension need save: " + extension.getTitel());
+                    System.out.println("extension need save: " + extension.getTitel());
                     needSave.add(extension);
                 }
             }
@@ -97,7 +97,7 @@ public class ObjectEditor {
                 if (re == ConfirmDialog.Response.YES) {
                     commitAll();
                 } else {
-                    _hasChanged = true;
+                    _hasChanged = false;
                 }
             }
 

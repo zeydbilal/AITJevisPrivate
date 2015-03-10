@@ -152,11 +152,11 @@ public class ClassPlugin implements Plugin {
                     System.out.println("Expand");
                     break;
                 case Constants.Plugin.Command.NEW:
-                    tree.fireEventNew(null);
+                    tree.fireEventNew(tree.getSelectionModel().getSelectedItem());
                     break;
                 case Constants.Plugin.Command.RELOAD:
                     System.out.println("reload");
-                    tree.reload();
+                    tree.reload(null);
                     break;
                 default:
                     System.out.println("Unknows command ignore...");

@@ -64,7 +64,7 @@ public class ClassContextMenu extends ContextMenu {
 
             @Override
             public void handle(ActionEvent t) {
-                _tree.fireEventNew(_item);
+                _tree.fireEventNew(_tree.getSelectionModel().getSelectedItem());
             }
         });
 

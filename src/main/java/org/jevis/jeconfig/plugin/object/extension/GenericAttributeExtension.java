@@ -123,6 +123,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
             }
         }
 
+        _changed.setValue(false);
         _needSave = false;
 
         //TODO: save
@@ -152,11 +153,16 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                 switch (att.getPrimitiveType()) {
                     case JEVisConstants.PrimitiveType.STRING:
 
-                        if (att.getType().getGUIDisplayType().equalsIgnoreCase(GUIConstants.BASIC_TEXT.getId())) {
+                        try {
+                            if (att.getType().getGUIDisplayType().equalsIgnoreCase(GUIConstants.BASIC_TEXT.getId())) {
+                                editor = new StringValueEditor(att);
+                            }
+                            if (att.getType().getGUIDisplayType().equalsIgnoreCase(GUIConstants.BASIC_TEXT_MULTI.getId())) {
+                                editor = new StringMultyLine(att);
+                            }
+                        } catch (Exception e) {
+                            //TODO: fallback 
                             editor = new StringValueEditor(att);
-                        }
-                        if (att.getType().getGUIDisplayType().equalsIgnoreCase(GUIConstants.BASIC_TEXT_MULTI.getId())) {
-                            editor = new StringMultyLine(att);
                         }
 
                         break;
