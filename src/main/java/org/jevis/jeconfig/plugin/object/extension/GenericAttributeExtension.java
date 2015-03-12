@@ -161,7 +161,6 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                                 editor = new StringMultyLine(att);
                             }
                         } catch (Exception e) {
-                            //TODO: fallback 
                             editor = new StringValueEditor(att);
                         }
 
@@ -191,7 +190,6 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
                 _attributesEditor.add(editor);
                 editor.getValueChangedProperty().addListener(new ChangeListener<Boolean>() {
-
                     @Override
                     public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
                         System.out.println("GenericAttExtension.value.changed:" + t1);
@@ -233,5 +231,4 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
         _view.setCenter(scroll);
 
     }
-
 }
