@@ -36,6 +36,7 @@ import org.jevis.api.JEVisObject;
 import org.jevis.application.dialog.ConfirmDialog;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.plugin.object.extension.LinkExtension;
 import org.jevis.jeconfig.plugin.object.extension.MemberExtension;
 import org.jevis.jeconfig.plugin.object.extension.RootExtension;
 import org.jevis.jeconfig.plugin.object.extension.PermissionExtension;
@@ -124,6 +125,7 @@ public class ObjectEditor {
                 extensions.add(new MemberExtension(obj));
                 extensions.add(new PermissionExtension(obj));
                 extensions.add(new RootExtension(obj));
+                extensions.add(new LinkExtension(obj));
 
                 for (final ObjectEditorExtension ex : extensions) {
                     if (ex.isForObject(obj)) {

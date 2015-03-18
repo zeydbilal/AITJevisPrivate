@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.plugin.object;
 
+import com.sun.prism.impl.ps.BaseShaderContext;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +31,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
@@ -73,6 +75,8 @@ public class ObjectTree extends TreeView<JEVisObject> {
     private ObservableList<TreeItem<JEVisObject>> _emtyList = FXCollections.emptyObservableList();
 
     private JEVisObject _dragObj;
+    private boolean _isDrag = false;
+    private double treeHieght;
 
     public ObjectTree() {
 
@@ -110,6 +114,23 @@ public class ObjectTree extends TreeView<JEVisObject> {
                 }
             });
 
+            treeHieght = getHeight();
+
+//            setOnMouseMoved(new EventHandler<MouseEvent>() {
+//                @Override
+//                public void handle(MouseEvent event) {
+//                    String msg
+//                            = "(x: " + event.getX() + ", y: " + event.getY() + ") -- "
+//                            + "(sceneX: " + event.getSceneX() + ", sceneY: " + event.getSceneY() + ") -- "
+//                            + "(screenX: " + event.getScreenX() + ", screenY: " + event.getScreenY() + ")";
+//                    System.out.println("mouse: " + msg);
+//                    if (event.getY() <= 50) {
+//                        System.out.println("scroll up");
+//                    } else if (event.getY() >= (treeHieght - 50)) {
+//
+//                    }
+//                }
+//            });
             setCellFactory(new Callback<TreeView<JEVisObject>, TreeCell<JEVisObject>>() {
                 @Override
                 public TreeCell<JEVisObject> call(TreeView<JEVisObject> p) {
@@ -122,6 +143,7 @@ public class ObjectTree extends TreeView<JEVisObject> {
             final KeyCombination add = new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN);
             final KeyCombination rename = new KeyCodeCombination(KeyCode.F2);
             final KeyCombination delete = new KeyCodeCombination(KeyCode.DELETE);
+            final KeyCombination pageDown = new KeyCodeCombination(KeyCode.PAGE_DOWN);
 
             addEventHandler(KeyEvent.KEY_RELEASED, new EventHandler<KeyEvent>() {
 
@@ -171,6 +193,8 @@ public class ObjectTree extends TreeView<JEVisObject> {
                             System.out.println("New hotkey");
                             fireEventNew(selectedObject);
                             t.consume();
+                        } else if (pageDown.match(t)) {
+                            System.out.println("pagedown");
                         }
 
                     } catch (Exception ex) {
@@ -178,16 +202,23 @@ public class ObjectTree extends TreeView<JEVisObject> {
                     }
                 }
 
-            });
+            }
+            );
 
-            setId("objecttree");
+            setId(
+                    "objecttree");
 
-            getStylesheets().add("/styles/Styles.css");
-            setPrefWidth(500);
+            getStylesheets()
+                    .add("/styles/Styles.css");
+            setPrefWidth(
+                    500);
 
             setRoot(rootItem);
-            getSelectionModel().select(rootItem);
-            setEditable(true);
+
+            getSelectionModel()
+                    .select(rootItem);
+            setEditable(
+                    true);
 
         } catch (Exception ex) {
 //            Logger.getLogger(ObjectTree.class.getName()).log(Level.SEVERE, null, ex);
@@ -621,11 +652,28 @@ public class ObjectTree extends TreeView<JEVisObject> {
                 setTooltip(grph.getToolTip());
                 setContextMenu(grph.getContexMenu());
 
+//                addEventHandler(MouseEvent.MOUSE_MOVED, new EventHandler<MouseEvent>() {
+//                    @Override
+//                    public void handle(MouseEvent event) {
+//                        String msg
+//                                = "(x: " + event.getX() + ", y: " + event.getY() + ") -- "
+//                                + "(sceneX: " + event.getSceneX() + ", sceneY: " + event.getSceneY() + ") -- "
+//                                + "(screenX: " + event.getScreenX() + ", screenY: " + event.getScreenY() + ")";
+//                        System.out.println("mouse: " + msg);
+//                        if (event.getY() <= 50) {
+//                            System.out.println("scroll up");
+//                        } else if (event.getY() >= (treeHieght - 50)) {
+//
+//                        }
+//                    }
+//                });
                 //---------------------- Drag & Drop part --------------
                 setOnDragDetected(new EventHandler<MouseEvent>() {
 
                     @Override
                     public void handle(MouseEvent e) {
+                        System.out.println("Drag deteced");
+                        _isDrag = true;
 //                        System.out.println("Drag Source: " + obj.getName());
                         ClipboardContent content = new ClipboardContent();
 //                        content.putString(obj.getName());
@@ -635,6 +683,28 @@ public class ObjectTree extends TreeView<JEVisObject> {
 
                         setDragItem(obj);
                         e.consume();
+
+//                        Platform.runLater(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                setOnMouseMoved(new EventHandler<MouseEvent>() {
+//                                    @Override
+//                                    public void handle(MouseEvent event) {
+//                                        String msg
+//                                                = "(x: " + event.getX() + ", y: " + event.getY() + ") -- "
+//                                                + "(sceneX: " + event.getSceneX() + ", sceneY: " + event.getSceneY() + ") -- "
+//                                                + "(screenX: " + event.getScreenX() + ", screenY: " + event.getScreenY() + ")";
+//                                        System.out.println("mouse: " + msg);
+//                                        if (event.getY() <= 50) {
+//                                            System.out.println("scroll up");
+//                                        } else if (event.getY() >= (treeHieght - 50)) {
+//
+//                                        }
+//                                    }
+//                                });
+//
+//                            }
+//                        });
                     }
                 });
 
@@ -643,6 +713,7 @@ public class ObjectTree extends TreeView<JEVisObject> {
                     public void handle(DragEvent dragEvent) {
 //                        System.out.println("Drag done on " + obj.getName());
                         dragEvent.consume();
+                        _isDrag = false;
                     }
                 });
 

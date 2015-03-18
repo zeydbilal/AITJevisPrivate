@@ -112,7 +112,7 @@ public class FileValueEditor implements AttributeEditor {
                             FileChooser fileChooser = new FileChooser();
                             File file = fileChooser.showOpenDialog(JEConfig.getStage());
                             if (file != null) {
-//                        _newSample = _attribute.buildSample(null, e)
+                                //                        _newSample = _attribute.buildSample(null, e)
                             }
                         }
                     });

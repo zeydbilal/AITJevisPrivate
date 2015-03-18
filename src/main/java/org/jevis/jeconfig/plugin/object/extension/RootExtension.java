@@ -238,7 +238,7 @@ public class RootExtension implements ObjectEditorExtension {
         JEVisClass groupClass = obj.getDataSource().getJEVisClass(Constants.JEVisClass.GROUP);
         List<JEVisObject> allGroups = obj.getDataSource().getObjects(groupClass, true);
 
-        Label newOwnerlabel = new Label("Add an additinal enty point: ");
+        Label newOwnerlabel = new Label("Add an additional enty point: ");
         newOwnerlabel.setPrefHeight(21);
         GridPane.setValignment(newOwnerlabel, VPos.CENTER);
         HBox addNewBox = new HBox(5);
