@@ -58,19 +58,19 @@ public class RelationshipTable extends TableView {
         TableColumn colDirection = new TableColumn("Direction");
         colDirection.setCellValueFactory(new PropertyValueFactory<TableSample, Integer>("Direction"));
 
-        TableColumn colObject = new TableColumn("Object");
-//        colObject.setCellValueFactory(new PropertyValueFactory<TableSample, String>("Object"));
-        colObject.setCellValueFactory(new PropertyValueFactory<TableSample, JEVisObject>("Object"));
+        TableColumn colThisObject = new TableColumn("Object");
+        colThisObject.setCellValueFactory(new PropertyValueFactory<TableSample, JEVisObject>("Object"));
 
-//        TableColumn colObjectTo = new TableColumn("Object To");
-//        colObjectTo.setCellValueFactory(new PropertyValueFactory<TableSample, String>("Object To"));
+        TableColumn colOtherObject = new TableColumn("Other Object");
+        colOtherObject.setCellValueFactory(new PropertyValueFactory<TableSample, JEVisObject>("Other"));
+
         TableColumn colType = new TableColumn("Type");
         colType.setCellValueFactory(new PropertyValueFactory<TableSample, Integer>("Type"));
 
         setMinWidth(555d);//TODo: replace Dirty workaround
 //        setPrefHeight(200d);//TODo: replace Dirty workaround
-        setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        getColumns().addAll(colObject, colDirection, colType);
+        setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+        getColumns().addAll(colThisObject, colDirection, colOtherObject, colType);
 
         List<TableSample> tjc = new LinkedList<>();
 //        System.out.println("Rel.size: " + relationships.size());
@@ -79,11 +79,40 @@ public class RelationshipTable extends TableView {
             tjc.add(new TableSample(obj, rel));
         }
 
+        colThisObject.setMinWidth(200);
+        colOtherObject.setMinWidth(200);
+
         colDirection.prefWidthProperty().set(90);
         colDirection.maxWidthProperty().bind(colDirection.prefWidthProperty());
         colDirection.setResizable(false);
 
-        colObject.setCellFactory(new Callback<TableColumn<TableSample, JEVisObject>, TableCell<TableSample, JEVisObject>>() {
+        colOtherObject.setCellFactory(new Callback<TableColumn<TableSample, JEVisObject>, TableCell<TableSample, JEVisObject>>() {
+            @Override
+            public TableCell<TableSample, JEVisObject> call(TableColumn<TableSample, JEVisObject> param) {
+                TableCell<TableSample, JEVisObject> cell = new TableCell<TableSample, JEVisObject>() {
+                    @Override
+                    public void updateItem(JEVisObject item, boolean empty) {
+                        if (item != null) {
+                            HBox box = new HBox(10);
+                            box.setAlignment(Pos.BASELINE_LEFT);
+
+                            try {
+                                ImageView icon = ImageConverter.convertToImageView(item.getJEVisClass().getIcon(), 20, 20);
+                                box.getChildren().setAll(icon);
+                            } catch (JEVisException ex) {
+                                Logger.getLogger(RelationshipTable.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+
+                            box.getChildren().add(new Label(item.getName()));
+                            setGraphic(box);
+                        }
+                    }
+                };
+                return cell;
+            }
+        });
+
+        colThisObject.setCellFactory(new Callback<TableColumn<TableSample, JEVisObject>, TableCell<TableSample, JEVisObject>>() {
             @Override
             public TableCell<TableSample, JEVisObject> call(TableColumn<TableSample, JEVisObject> param) {
                 TableCell<TableSample, JEVisObject> cell = new TableCell<TableSample, JEVisObject>() {
@@ -203,6 +232,7 @@ public class RelationshipTable extends TableView {
 
         private SimpleIntegerProperty direction = new SimpleIntegerProperty();
         private SimpleStringProperty object = new SimpleStringProperty("");
+        private SimpleStringProperty other = new SimpleStringProperty("");
 //        private SimpleStringProperty objectTo = new SimpleStringProperty("");
         private SimpleIntegerProperty type = new SimpleIntegerProperty();
 
@@ -212,8 +242,8 @@ public class RelationshipTable extends TableView {
 
         /**
          *
-         * @param relation
-         * @param jclass
+         * @param obj
+         * @param rel
          */
         public TableSample(final JEVisObject obj, JEVisRelationship rel) {
             try {
@@ -228,7 +258,7 @@ public class RelationshipTable extends TableView {
 
         public Integer getDirection() {
             try {
-                if (_relationship.getStartObject().equals(_relationship.getOtherObject(_thisObject))) {
+                if (_relationship.getEndObject().equals(_relationship.getOtherObject(_thisObject))) {
 //                if (_relationship.getEndObject().equals(_relationship.getOtherObject(_thisObject))) {
                     return 2;
                 } else {
@@ -257,13 +287,24 @@ public class RelationshipTable extends TableView {
 //            this.type = type;
         }
 
-        public JEVisObject getObject() {
+        public JEVisObject getOther() {
             try {
                 return _relationship.getOtherObject(_thisObject);
             } catch (JEVisException ex) {
                 Logger.getLogger(RelationshipTable.class.getName()).log(Level.SEVERE, null, ex);
             }
             return null;
+//            try {
+//                return _relationship.getStartObject().getName();
+//            } catch (JEVisException ex) {
+//                Logger.getLogger(RelationshipTable.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//            return null;
+
+        }
+
+        public JEVisObject getObject() {
+            return _thisObject;
 //            try {
 //                return _relationship.getStartObject().getName();
 //            } catch (JEVisException ex) {

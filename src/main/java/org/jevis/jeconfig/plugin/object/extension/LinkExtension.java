@@ -45,7 +45,7 @@ import org.jevis.jeconfig.plugin.object.relationship.RelationshipTable;
  */
 public class LinkExtension implements ObjectEditorExtension {
 
-    private static final String TITEL = "Link";
+    private static final String TITEL = "Links";
     private final BorderPane _view = new BorderPane();
     private JEVisObject _obj;
     private boolean _needSave = false;

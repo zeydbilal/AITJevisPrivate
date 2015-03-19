@@ -59,7 +59,6 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.application.dialog.DialogHeader;
-import org.jevis.commons.dataprocessing.DataProcessor;
 import org.jevis.commons.dataprocessing.Options;
 import org.jevis.commons.dataprocessing.ProcessorObjectHandler;
 import org.jevis.commons.dataprocessing.Task;
@@ -86,6 +85,7 @@ public class SampleEditor {
     final List<SampleEditorExtension> extensions = new ArrayList<>();
     private JEVisAttribute _attribute;
     private Task _dataProcessor;
+    private List<JEVisObject> _dataProcessors = new ArrayList<JEVisObject>();
 
     private enum AGGREGATION {
 
@@ -342,7 +342,8 @@ public class SampleEditor {
 
         try {
             JEVisClass dpClass = parentObj.getDataSource().getJEVisClass("Data Processor");
-            for (JEVisObject configObject : parentObj.getChildren(dpClass, true)) {
+            _dataProcessors = parentObj.getChildren(dpClass, true);
+            for (JEVisObject configObject : _dataProcessors) {
                 proNames.add(configObject.getName());
             }
 
@@ -368,9 +369,11 @@ public class SampleEditor {
                         update();
                     } else {
 
-                        for (JEVisObject configObject : parentObj.getChildren(dpClass, true)) {
+                        //TODO going by name is not the fine art, replace!
+                        for (JEVisObject configObject : _dataProcessors) {
                             if (configObject.getName().equals(newValue)) {
                                 _dataProcessor = ProcessorObjectHandler.getTask(configObject);
+
                                 update();
                             }
 
@@ -434,12 +437,12 @@ public class SampleEditor {
         Label header = new Label("Data Processing");
         header.setStyle("-fx-font-weight: bold");
         Label settingL = new Label("Setting:");
-        Label aggrigatein = new Label("Aggregation:");//("Aggrigation");
+        Label aggregation = new Label("Aggregation:");//("Aggrigation");
 
         Button config = new Button();
         config.setGraphic(JEConfig.getImage("Service Manager.png", 16, 16));
 
-        hbox.getChildren().addAll(processorBox, config);
+        hbox.getChildren().addAll(processorBox);//, config);
 
         GridPane grid = new GridPane();
         grid.setHgap(5);
@@ -447,7 +450,7 @@ public class SampleEditor {
         grid.add(header, 0, 0, 2, 1); // column=1 row=0
 
         grid.add(settingL, 0, 1, 1, 1); // column=1 row=0
-        grid.add(aggrigatein, 0, 2, 1, 1); // column=1 row=0
+        grid.add(aggregation, 0, 2, 1, 1); // column=1 row=0
 
         grid.add(hbox, 1, 1, 1, 1); // column=1 row=0
         grid.add(aggrigate, 1, 2, 1, 1); // column=1 row=0
@@ -467,11 +470,17 @@ public class SampleEditor {
      * @param extensions
      */
     private void updateSamples(final JEVisAttribute att, final DateTime from, final DateTime until, List<SampleEditorExtension> extensions) {
+        System.out.println("update samples");
         try {
             samples.clear();
 
             _from = from;
             _until = until;
+
+            if (_dataProcessor != null) {
+                Options.setStartEnd(_dataProcessor, _from, _until, true, true);
+                _dataProcessor.restResult();
+            }
 
             Task aggrigate = null;
             if (_mode == AGGREGATION.None) {

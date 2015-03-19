@@ -19,14 +19,10 @@
  */
 package org.jevis.jeconfig.sample;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -34,23 +30,14 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import org.jevis.api.JEVisAttribute;
-import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.application.dialog.ConfirmDialog;
-import org.jevis.application.type.DisplayType;
-import org.jevis.application.type.GUIConstants;
-import org.jevis.commons.dataprocessing.ProcessorObjectHandler;
-import org.jevis.commons.dataprocessing.Task;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.plugin.classes.ClassHelper;
-import org.jevis.jeconfig.plugin.classes.editor.ClassEditor;
 import org.joda.time.DateTime;
 
 /**

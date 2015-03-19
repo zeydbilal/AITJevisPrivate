@@ -99,6 +99,7 @@ public class MemberExtension implements ObjectEditorExtension {
         //First load all users the that the API has the allready cached befor loading the relationhsips
         //TODO: this could be a bad is the system has a lot of users and the current user is the system user
         List<JEVisObject> allUsers = obj.getDataSource().getObjects(obj.getDataSource().getJEVisClass("User"), true);
+        System.out.println("Total User count: " + allUsers.size());
 
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(5, 0, 20, 20));
@@ -211,7 +212,7 @@ public class MemberExtension implements ObjectEditorExtension {
                         case MEMBER_READ:
                             readBox.setSelected(true);
                             //TODo: does not make nuch sens to have and user how cannot read but do everything else?!
-                            System.out.println("Read membership: " + rel);
+//                            System.out.println("Read membership: " + rel);
                             addRemoverelationshipAction(readBox, MEMBER_READ, member.getKey(), obj, rel);
                             readRel = rel;
                             break;
@@ -256,7 +257,7 @@ public class MemberExtension implements ObjectEditorExtension {
             remove.setGraphic(JEConfig.getImage("list-remove.png", 17, 17));
 
             if (RelationsManagment.canDeleteMembership(readRel)) {
-                System.out.println("can delete Relationship");
+//                System.out.println("can delete Relationship");
                 remove.setDisable(false);
 
                 remove.setOnAction(new EventHandler<ActionEvent>() {
@@ -333,6 +334,7 @@ public class MemberExtension implements ObjectEditorExtension {
         Button newB = new Button();
         //ToDo
         final ComboBox<JEVisObject> users = new ComboBox<>();
+        users.setMinWidth(150);
         users.setButtonCell(new ListCell<JEVisObject>() {
 
             @Override
@@ -361,7 +363,7 @@ public class MemberExtension implements ObjectEditorExtension {
                         if (item != null && !empty) {
                             setText(item.getName());
                         } else {
-                            setText("*Error*");
+                            setText("No user available");
                         }
                     }
                 };
@@ -380,8 +382,12 @@ public class MemberExtension implements ObjectEditorExtension {
             });
 
             for (JEVisObject user : allUsers) {
+                System.out.print("User in box: " + user.getName());
                 if (!members.containsKey(user)) {
+                    System.out.println(" is not member yet");
                     users.getItems().add(user);
+                } else {
+                    System.out.println(" is allready member");
                 }
 
             }
