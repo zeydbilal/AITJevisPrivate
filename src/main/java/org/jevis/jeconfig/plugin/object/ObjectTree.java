@@ -19,19 +19,21 @@
  */
 package org.jevis.jeconfig.plugin.object;
 
-import com.sun.prism.impl.ps.BaseShaderContext;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
+import javafx.scene.Cursor;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
@@ -77,6 +79,8 @@ public class ObjectTree extends TreeView<JEVisObject> {
     private JEVisObject _dragObj;
     private boolean _isDrag = false;
     private double treeHieght;
+    private SimpleBooleanProperty loadingProperty = new SimpleBooleanProperty();
+    private SimpleBooleanProperty loadingObjectProperty = new SimpleBooleanProperty();
 
     public ObjectTree() {
 
@@ -90,11 +94,6 @@ public class ObjectTree extends TreeView<JEVisObject> {
             _graphicCache = new HashMap<>();
             _itemChildren = new HashMap<>();
 
-            JEVisObject root = new JEVisRootObject(ds);
-            TreeItem<JEVisObject> rootItem = buildItem(root);
-
-            setShowRoot(false);
-
             getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
             getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<JEVisObject>>() {
@@ -102,39 +101,53 @@ public class ObjectTree extends TreeView<JEVisObject> {
                 @Override
                 public void changed(ObservableValue<? extends TreeItem<JEVisObject>> ov, TreeItem<JEVisObject> t, TreeItem<JEVisObject> t1) {
                     try {
-                        if (t1.getValue().getJEVisClass().getName().equals(CommonClasses.LINK.NAME)) {
-                            System.out.println("changed: oh object is a link so im loading the linked object");
-                            _editor.setObject(t1.getValue().getLinkedObject());
-                        } else {
-                            _editor.setObject(t1.getValue());
+                        if (t1.getValue().getJEVisClass() != null) {
+                            loadingObjectProperty.setValue(true);
+                            if (t1.getValue().getJEVisClass().getName().equals(CommonClasses.LINK.NAME)) {
+                                System.out.println("changed: oh object is a link so im loading the linked object");
+                                _editor.setObject(t1.getValue().getLinkedObject());
+                            } else {
+                                _editor.setObject(t1.getValue());
+                            }
+                            loadingObjectProperty.setValue(false);
                         }
 
                     } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
                 }
             });
 
             treeHieght = getHeight();
 
-//            setOnMouseMoved(new EventHandler<MouseEvent>() {
+//            setCellFactory(new Callback<TreeView<JEVisObject>, TreeCell<JEVisObject>>() {
 //                @Override
-//                public void handle(MouseEvent event) {
-//                    String msg
-//                            = "(x: " + event.getX() + ", y: " + event.getY() + ") -- "
-//                            + "(sceneX: " + event.getSceneX() + ", sceneY: " + event.getSceneY() + ") -- "
-//                            + "(screenX: " + event.getScreenX() + ", screenY: " + event.getScreenY() + ")";
-//                    System.out.println("mouse: " + msg);
-//                    if (event.getY() <= 50) {
-//                        System.out.println("scroll up");
-//                    } else if (event.getY() >= (treeHieght - 50)) {
-//
-//                    }
+//                public TreeCell<JEVisObject> call(TreeView<JEVisObject> p) {
+//                    return new ObjectCell();
 //                }
 //            });
+//
             setCellFactory(new Callback<TreeView<JEVisObject>, TreeCell<JEVisObject>>() {
                 @Override
-                public TreeCell<JEVisObject> call(TreeView<JEVisObject> p) {
-                    return new ObjectCell();
+                public TreeCell<JEVisObject> call(TreeView<JEVisObject> param) {
+                    return new TreeCell<JEVisObject>() {
+//                        private ImageView imageView = new ImageView();
+
+                        @Override
+                        protected void updateItem(JEVisObject item, boolean empty) {
+                            super.updateItem(item, empty);
+
+                            if (!empty) {
+                                ObjectGraphic gc = getObjectGraphic(item);
+
+//                                setText(item);
+                                setGraphic(gc.getGraphic());
+                            } else {
+                                setText(null);
+                                setGraphic(null);
+                            }
+                        }
+                    };
                 }
             });
 
@@ -205,26 +218,44 @@ public class ObjectTree extends TreeView<JEVisObject> {
             }
             );
 
-            setId(
-                    "objecttree");
+            setId("objecttree");
 
-            getStylesheets()
-                    .add("/styles/Styles.css");
-            setPrefWidth(
-                    500);
+            getStylesheets().add("/styles/Styles.css");
+            setPrefWidth(JEConfig.getStage().getWidth() / 1.5);//500
 
+            setShowRoot(false);
+//
+//            List<JEVisObject> roots = ds.getRootObjects();
+//            TreeItem<JEVisObject> rootItem = buildItem(roots.get(0));
+
+            JEVisObject root = new JEVisRootObject(ds);
+            TreeItem<JEVisObject> rootItem = buildItem(root);
             setRoot(rootItem);
 
-            getSelectionModel()
-                    .select(rootItem);
-            setEditable(
-                    true);
+            getSelectionModel().select(rootItem);
+            setEditable(true);
 
         } catch (Exception ex) {
 //            Logger.getLogger(ObjectTree.class.getName()).log(Level.SEVERE, null, ex);
             ex.printStackTrace();
         }
 
+    }
+
+    public SimpleBooleanProperty getLoadingProperty() {
+        return loadingProperty;
+    }
+
+    public void setLoadingProperty(SimpleBooleanProperty loadingProperty) {
+        this.loadingProperty = loadingProperty;
+    }
+
+    public SimpleBooleanProperty getLoadingObjectProperty() {
+        return loadingObjectProperty;
+    }
+
+    public void setLoadingObjectProperty(SimpleBooleanProperty loadingObjectProperty) {
+        this.loadingObjectProperty = loadingObjectProperty;
     }
 
     public JEVisObject getDragItem() {
@@ -236,6 +267,7 @@ public class ObjectTree extends TreeView<JEVisObject> {
     }
 
     public ObjectGraphic getObjectGraphic(JEVisObject object) {
+
         if (_graphicCache.containsKey(object.getID())) {
             return _graphicCache.get(object.getID());
         }
@@ -252,7 +284,9 @@ public class ObjectTree extends TreeView<JEVisObject> {
     }
 
     public TreeItem<JEVisObject> buildItem(JEVisObject object) {
+        System.out.println("buildItem for ID:" + object.getID());
         if (_itemCache.containsKey(object.getID())) {
+            System.out.println("Use cache item: " + object.getID());
             return _itemCache.get(object.getID());
         }
 
@@ -260,24 +294,12 @@ public class ObjectTree extends TreeView<JEVisObject> {
         final TreeItem<JEVisObject> newItem = new ObjectItem(object, this);
         _itemCache.put(object.getID(), newItem);
 
-        return newItem;
+        return _itemCache.get(object.getID());
     }
 
     public void addChildrenList(TreeItem<JEVisObject> item, ObservableList<TreeItem<JEVisObject>> list) {
-//        System.out.println("addChildrenList: " + item);
-//        if (item.getValue().getID().equals(180l)) {
-//            System.out.println("here we are: " + item.getValue());
-//            System.out.println("-relationships-");
-//            try {
-//                for (JEVisRelationship rel : item.getValue().getRelationships()) {
-//                    System.out.println("rel: " + rel);
-//                }
-//                System.out.println("done");
-//            } catch (JEVisException ex) {
-//                ex.printStackTrace();
-//            }
-//        }
 
+        loadingProperty.setValue(true);
         _itemChildren.put(item, list);
         try {
             for (JEVisObject child : item.getValue().getChildren()) {
@@ -288,6 +310,7 @@ public class ObjectTree extends TreeView<JEVisObject> {
             Logger.getLogger(ObjectTree.class.getName()).log(Level.SEVERE, null, ex);
         }
         sortList(list);
+        loadingProperty.setValue(false);
 
     }
 
@@ -300,20 +323,69 @@ public class ObjectTree extends TreeView<JEVisObject> {
             return _itemChildren.get(item);
         }
 
-        ObservableList<TreeItem<JEVisObject>> list = FXCollections.observableArrayList();
-        try {
-            for (JEVisObject child : item.getValue().getChildren()) {
-                TreeItem<JEVisObject> newItem = buildItem(child);
-                list.add(newItem);
+        Task<ObservableList<TreeItem<JEVisObject>>> load = new Task<ObservableList<TreeItem<JEVisObject>>>() {
+            @Override
+            protected ObservableList<TreeItem<JEVisObject>> call() throws Exception {
+                ObservableList<TreeItem<JEVisObject>> list = FXCollections.observableArrayList();
+                try {
+                    for (JEVisObject child : item.getValue().getChildren()) {
+                        TreeItem<JEVisObject> newItem = buildItem(child);
+                        list.add(newItem);
+                    }
+                } catch (JEVisException ex) {
+                    Logger.getLogger(ObjectTree.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                sortList(list);
+                _itemChildren.put(item, list);
+
+                return list;
             }
-        } catch (JEVisException ex) {
+        };
+
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("wait");
+                JEConfig.getStage().getScene().setCursor(Cursor.WAIT);
+            }
+        });
+
+        load.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+
+            @Override
+            public void handle(WorkerStateEvent event) {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        System.out.println("success");
+                        JEConfig.getStage().getScene().setCursor(Cursor.DEFAULT);
+
+                    }
+                });
+            }
+        });
+
+        new Thread(load).start();
+
+        try {
+            return load.get();
+        } catch (Exception ex) {
             Logger.getLogger(ObjectTree.class.getName()).log(Level.SEVERE, null, ex);
+            return FXCollections.observableArrayList();
         }
-        sortList(list);
-        _itemChildren.put(item, list);
 
-        return list;
-
+//        ObservableList<TreeItem<JEVisObject>> list = FXCollections.observableArrayList();
+//        try {
+//            for (JEVisObject child : item.getValue().getChildren()) {
+//                TreeItem<JEVisObject> newItem = buildItem(child);
+//                list.add(newItem);
+//            }
+//        } catch (JEVisException ex) {
+//            Logger.getLogger(ObjectTree.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        sortList(list);
+//        _itemChildren.put(item, list);
+//        return list;
     }
 
     private void getAllExpanded(List<TreeItem<JEVisObject>> list, TreeItem<JEVisObject> item) {
@@ -456,7 +528,7 @@ public class ObjectTree extends TreeView<JEVisObject> {
                     try {
                         //TODo check for uniq
 //                if(!dia.getCreateClass().isUnique()){
-//                    
+//
 //                }
                         String name = dia.getCreateName();
                         if (dia.getCreateCount() > 1) {
@@ -521,13 +593,19 @@ public class ObjectTree extends TreeView<JEVisObject> {
                             return classCom;
                         }
                     } else {
-                        System.out.println("null Sort: o1:" + o1.getValue() + " o2:" + o2.getValue());
-                        return o1.getValue().getJEVisClass().compareTo(o2.getValue().getJEVisClass());
+//                        System.out.println("null Sort: o1:" + o1.getValue() + " o2:" + o2.getValue());
+                        if (o1.getValue().getJEVisClass() != null && o2.getValue().getJEVisClass() != null) {
+                            return o1.getValue().getJEVisClass().compareTo(o2.getValue().getJEVisClass());
+                        } else {
+                            return 0;
+                        }
+
                     }
 
                 } catch (Exception ex) {
 //                    Logger.getLogger(ObjectItem.class.getName()).log(Level.SEVERE, null, ex);
 //                    throw new NullPointerException();
+                    ex.printStackTrace();
                     return 0;
                 }
             }
@@ -631,7 +709,7 @@ public class ObjectTree extends TreeView<JEVisObject> {
 //                                String name = dia.getCreateName();
 //                                for (int i = 0; i < dia.getCreateCount(); ++i) {
 //                                    linkObject(getDragItem(), obj, dia.getCreateName());
-//                                }   
+//                                }
         } else if (re == CopyObjectDialog.Response.CLONE) {
 
         }
@@ -652,21 +730,6 @@ public class ObjectTree extends TreeView<JEVisObject> {
                 setTooltip(grph.getToolTip());
                 setContextMenu(grph.getContexMenu());
 
-//                addEventHandler(MouseEvent.MOUSE_MOVED, new EventHandler<MouseEvent>() {
-//                    @Override
-//                    public void handle(MouseEvent event) {
-//                        String msg
-//                                = "(x: " + event.getX() + ", y: " + event.getY() + ") -- "
-//                                + "(sceneX: " + event.getSceneX() + ", sceneY: " + event.getSceneY() + ") -- "
-//                                + "(screenX: " + event.getScreenX() + ", screenY: " + event.getScreenY() + ")";
-//                        System.out.println("mouse: " + msg);
-//                        if (event.getY() <= 50) {
-//                            System.out.println("scroll up");
-//                        } else if (event.getY() >= (treeHieght - 50)) {
-//
-//                        }
-//                    }
-//                });
                 //---------------------- Drag & Drop part --------------
                 setOnDragDetected(new EventHandler<MouseEvent>() {
 
@@ -684,27 +747,6 @@ public class ObjectTree extends TreeView<JEVisObject> {
                         setDragItem(obj);
                         e.consume();
 
-//                        Platform.runLater(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                setOnMouseMoved(new EventHandler<MouseEvent>() {
-//                                    @Override
-//                                    public void handle(MouseEvent event) {
-//                                        String msg
-//                                                = "(x: " + event.getX() + ", y: " + event.getY() + ") -- "
-//                                                + "(sceneX: " + event.getSceneX() + ", sceneY: " + event.getSceneY() + ") -- "
-//                                                + "(screenX: " + event.getScreenX() + ", screenY: " + event.getScreenY() + ")";
-//                                        System.out.println("mouse: " + msg);
-//                                        if (event.getY() <= 50) {
-//                                            System.out.println("scroll up");
-//                                        } else if (event.getY() >= (treeHieght - 50)) {
-//
-//                                        }
-//                                    }
-//                                });
-//
-//                            }
-//                        });
                     }
                 });
 

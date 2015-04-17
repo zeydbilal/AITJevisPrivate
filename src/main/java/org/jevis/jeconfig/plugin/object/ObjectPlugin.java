@@ -23,10 +23,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
-import javafx.scene.control.SplitPaneBuilder;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
@@ -36,6 +37,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.tool.LoadingPane;
 
 /**
  *
@@ -49,6 +51,8 @@ public class ObjectPlugin implements Plugin {
     private BorderPane border;
 //    private ObjectTree tf;
     private ObjectTree tree;
+    private LoadingPane editorLodingPane = new LoadingPane();
+    private LoadingPane treeLodingPane = new LoadingPane();
 
     public ObjectPlugin(JEVisDataSource ds, String newname) {
         this.ds = ds;
@@ -100,14 +104,52 @@ public class ObjectPlugin implements Plugin {
             VBox.setVgrow(tree, Priority.ALWAYS);
 //            VBox.setVgrow(search, Priority.NEVER);
 
-            SplitPane sp = SplitPaneBuilder.create()
-                    .items(left, tree.getEditor().getView())
-                    .dividerPositions(new double[]{.2d, 0.8d}) // why does this not work!?
-                    .orientation(Orientation.HORIZONTAL)
-                    .build();
+            treeLodingPane.setContent(tree);
+            editorLodingPane.setContent(tree.getEditor().getView());
+
+            SplitPane sp = new SplitPane();
+            sp.setDividerPositions(.3d);
+            sp.setOrientation(Orientation.HORIZONTAL);
             sp.setId("mainsplitpane");
             sp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+//            sp.getItems().setAll(left, tree.getEditor().getView());
+            sp.getItems().setAll(treeLodingPane, editorLodingPane);
 
+            treeLodingPane.endLoading();
+            editorLodingPane.endLoading();
+
+            tree.getLoadingObjectProperty().addListener(new ChangeListener<Boolean>() {
+
+                @Override
+                public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                    if (newValue) {
+                        System.out.println("start loding editor");
+                        editorLodingPane.startLoading();
+                    } else {
+                        editorLodingPane.endLoading();
+                    }
+                }
+            });
+            tree.getLoadingProperty().addListener(new ChangeListener<Boolean>() {
+
+                @Override
+                public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                    if (newValue) {
+                        System.out.println("start loding tree");
+                        treeLodingPane.startLoading();
+                    } else {
+                        treeLodingPane.endLoading();
+                    }
+                }
+            });
+
+//            SplitPane sp = SplitPaneBuilder.create()
+//                    .items(left, tree.getEditor().getView())
+//                    .dividerPositions(new double[]{.2d, 0.8d}) // why does this not work!?
+//                    .orientation(Orientation.HORIZONTAL)
+//                    .build();
+//            sp.setId("mainsplitpane");
+//            sp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
             border = new BorderPane();
             border.setCenter(sp);
             border.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);

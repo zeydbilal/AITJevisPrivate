@@ -26,7 +26,6 @@ import javafx.beans.property.StringProperty;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.SplitPane;
-import javafx.scene.control.SplitPaneBuilder;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
@@ -94,17 +93,26 @@ public class ClassPlugin implements Plugin {
             tree = new ClassTree(ds);
 
             VBox left = new VBox();
-            left.setStyle("-fx-background-color: #E2E2E2;");
+//            left.setStyle("-fx-background-color: #E2E2E2;");
+            left.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
 //            SearchBox search = new SearchBox();
             left.getChildren().addAll(tree);
             VBox.setVgrow(tree, Priority.ALWAYS);
 //            VBox.setVgrow(search, Priority.NEVER);
 
-            SplitPane sp = SplitPaneBuilder.create()
-                    .items(left, tree.getEditor().getView())
-                    .dividerPositions(new double[]{.2d, 0.8d}) // why does this not work!?
-                    .orientation(Orientation.HORIZONTAL)
-                    .build();
+            SplitPane sp = new SplitPane();
+            sp.setDividerPositions(.3d);
+            sp.setOrientation(Orientation.HORIZONTAL);
+            sp.setId("mainsplitpane");
+            sp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+//            sp.getItems().setAll(left, tree.getEditor().getView());
+            sp.getItems().setAll(left, tree.getEditor().getView());
+//            
+//            SplitPane sp = SplitPaneBuilder.create()
+//                    .items(left, tree.getEditor().getView())
+//                    .dividerPositions(new double[]{.2d, 0.8d}) // why does this not work!?
+//                    .orientation(Orientation.HORIZONTAL)
+//                    .build();
             sp.setId("mainsplitpane");
             sp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
 

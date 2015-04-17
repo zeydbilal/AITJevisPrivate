@@ -42,6 +42,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.application.type.GUIConstants;
+import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.object.ObjectEditor;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
@@ -70,6 +71,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
     public GenericAttributeExtension(JEVisObject obj) {
         _obj = obj;
         _attributesEditor = new ArrayList<>();
+        _view.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
     }
 
     @Override
@@ -108,7 +110,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
     @Override
     public boolean needSave() {
         return _changed.getValue();
-//        return true;//TODO: implement 
+//        return true;//TODO: implement
     }
 
     @Override

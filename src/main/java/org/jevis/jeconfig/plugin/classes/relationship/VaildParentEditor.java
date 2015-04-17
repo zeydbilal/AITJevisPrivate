@@ -42,6 +42,7 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisClassRelationship;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
+import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.ImageConverter;
 
@@ -59,7 +60,8 @@ public class VaildParentEditor {
 
     public VaildParentEditor() {
         _view = new VBox();
-        _view.setStyle("-fx-background-color: #E2E2E2");
+//        _view.setStyle("-fx-background-color: #E2E2E2");
+        _view.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
     }
 
     public void setJEVisClass(final JEVisClass jclass) {
@@ -120,7 +122,7 @@ public class VaildParentEditor {
 
                         }
 
-                    
+
                  );
                     }
 

@@ -42,6 +42,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisRelationship;
 import org.jevis.application.resource.ImageConverter;
+import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 
 /**
@@ -78,6 +79,7 @@ public class RelationshipTable extends TableView {
 //            System.out.println("rel: " + rel);
             tjc.add(new TableSample(obj, rel));
         }
+//        setStyle("table-row-cell:empty { -fx-background-color: " + Constants.Color.LIGHT_GREY2 + ";}");
 
         colThisObject.setMinWidth(200);
         colOtherObject.setMinWidth(200);
@@ -105,6 +107,9 @@ public class RelationshipTable extends TableView {
 
                             box.getChildren().add(new Label(item.getName()));
                             setGraphic(box);
+//                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+                        } else {
+                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
                         }
                     }
                 };
@@ -131,6 +136,9 @@ public class RelationshipTable extends TableView {
 
                             box.getChildren().add(new Label(item.getName()));
                             setGraphic(box);
+//                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+                        } else {
+                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
                         }
                     }
                 };
@@ -157,6 +165,9 @@ public class RelationshipTable extends TableView {
 
                             box.getChildren().setAll(icon);
                             setGraphic(box);
+//                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+                        } else {
+                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
                         }
                     }
                 };
@@ -177,6 +188,9 @@ public class RelationshipTable extends TableView {
 //                            ImageView icon = JEConfig.getImage("right.png", 24, 24);
                             box.getChildren().setAll(new Label(getTypeName(item)));
                             setGraphic(box);
+//                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+                        } else {
+                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
                         }
                     }
                 };

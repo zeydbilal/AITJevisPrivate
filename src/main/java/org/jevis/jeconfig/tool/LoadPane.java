@@ -66,25 +66,24 @@ public class LoadPane {
             }
         });
 
-        animation = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(1000);
-
-                } catch (InterruptedException ex) {
-
-                }
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        pi.setProgress(-1);
-                    }
-                });
-            }
-        };
-        animation.start();
-
+//        animation = new Thread() {
+//            @Override
+//            public void run() {
+//                try {
+//                    Thread.sleep(1000);
+//
+//                } catch (InterruptedException ex) {
+//
+//                }
+//                Platform.runLater(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        pi.setProgress(-1);
+//                    }
+//                });
+//            }
+//        };
+//        animation.start();
     }
 
     public void stopLoading() {

@@ -32,12 +32,11 @@ public class ObjectItem extends TreeItem<JEVisObject> {
     private boolean _doInit = true;
     private final ObjectTree _tree;
 
-    public ObjectItem(JEVisObject obj) {
-        super(obj);
-        System.out.println("ohoh falsch cronstrucktor");
-        _tree = null;
-    }
-
+//    public ObjectItem(JEVisObject obj) {
+//        super(obj);
+//        System.out.println("ohoh falsch cronstrucktor");
+//        _tree = null;
+//    }
     public ObjectItem(JEVisObject obj, ObjectTree tree) {
         super(obj);
         _tree = tree;
@@ -59,7 +58,11 @@ public class ObjectItem extends TreeItem<JEVisObject> {
 
     @Override
     public ObservableList<TreeItem<JEVisObject>> getChildren() {
-        if (_doInit) {
+//        System.out.println("getchildren for: " + getValue().getName());
+
+        if ((getValue().getClass().equals(JEVisRootObject.class) && _doInit)
+                || (_doInit && getValue() != null && getParent() != null && getParent().isExpanded())) {
+            System.out.println("first getChildren for " + getValue().getID() + " " + getValue().getName());
             _doInit = false;
             _tree.addChildrenList(this, super.getChildren());
         }

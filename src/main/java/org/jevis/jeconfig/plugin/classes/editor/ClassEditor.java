@@ -62,6 +62,7 @@ import org.jevis.api.JEVisType;
 import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.application.type.DisplayType;
 import org.jevis.application.type.GUIConstants;
+import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.JEConfig;
 import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
 import org.jevis.jeconfig.plugin.classes.ClassHelper;
@@ -92,7 +93,8 @@ public class ClassEditor {
 
     public ClassEditor() {
         _view = new VBox();
-        _view.setStyle("-fx-background-color: #E2E2E2");
+//        _view.setStyle("-fx-background-color: #E2E2E2");
+        _view.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
     }
 
     public void checkIfSaved(JEVisClass obj) {
@@ -112,7 +114,8 @@ public class ClassEditor {
                 _toDelete = new ArrayList<>();
 
                 final Accordion accordion = new Accordion();
-                accordion.setStyle("-fx-background-color: #E2E2E2");
+//                accordion.setStyle("-fx-background-color: #E2E2E2");
+                accordion.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
 
                 GridPane gridPane = new GridPane();
                 gridPane.setPadding(new Insets(5, 0, 20, 20));
@@ -243,10 +246,15 @@ public class ClassEditor {
                 final TitledPane t3 = new TitledPane("Valid Parents", redit.getView());
 //                final TitledPane t3 = new TitledPane("Relationships", table.buildTree(jclass));
 
-                t1.setStyle("-fx-background-color: #E2E2E2");
-                t2.setStyle("-fx-background-color: #E2E2E2");
-                t3.setStyle("-fx-background-color: #E2E2E2");
-                cpGenerell.setStyle("-fx-background-color: #E2E2E2");
+//                t1.setStyle("-fx-background-color: #E2E2E2");
+//                t2.setStyle("-fx-background-color: #E2E2E2");
+//                t3.setStyle("-fx-background-color: #E2E2E2");
+                t1.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+                t2.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+                t3.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+
+//                cpGenerell.setStyle("-fx-background-color: #E2E2E2");
+                cpGenerell.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
 
                 accordion.getPanes().addAll(t1, t2, t3);
                 t1.setAnimated(false);
@@ -272,7 +280,8 @@ public class ClassEditor {
 
     private Node buildTypeNode() {
         ScrollPane cp = new ScrollPane();
-        cp.setStyle("-fx-background-color: #E2E2E2");
+//        cp.setStyle("-fx-background-color: #E2E2E2");
+        cp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(5, 0, 5, 20));
         gridPane.setHgap(7);

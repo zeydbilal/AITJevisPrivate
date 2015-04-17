@@ -27,6 +27,10 @@ import java.util.Objects;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
+import javafx.event.EventHandler;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Accordion;
 //import javafx.scene.control.Dialogs;
@@ -55,6 +59,7 @@ public class ObjectEditor {
 //    private AnchorPane _view;
 //    private LoadPane _view;
     private AnchorPane _view;
+//    LoadingPane loaderP = new LoadingPane();
 
     public ObjectEditor() {
         _view = new AnchorPane();
@@ -62,8 +67,14 @@ public class ObjectEditor {
         _view.setId("objecteditorpane");
         _view.getStylesheets().add("/styles/Styles.css");
         _view.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
-//        _view.setContent(_root);
 
+//        AnchorPane.setTopAnchor(loaderP, 0.0);
+//        AnchorPane.setRightAnchor(loaderP, 0.0);
+//        AnchorPane.setLeftAnchor(loaderP, 0.0);
+//        AnchorPane.setBottomAnchor(loaderP, 0.0);
+//        _view.getChildren().setAll(loaderP);
+//        _view.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+//        _view.setContent(_root);
     }
 
     public void commitAll() {
@@ -110,6 +121,43 @@ public class ObjectEditor {
     }
 
     public void setObject(final JEVisObject obj) {
+        Task<Void> load = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                loadObject(obj);
+                return null;
+            }
+        };
+
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                JEConfig.getStage().getScene().setCursor(Cursor.WAIT);
+
+            }
+        });
+
+        load.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+
+            @Override
+            public void handle(WorkerStateEvent event) {
+
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        JEConfig.getStage().getScene().setCursor(Cursor.DEFAULT);
+
+                    }
+                });
+            }
+        });
+
+        new Thread(load).start();
+
+    }
+
+    public void loadObject(final JEVisObject obj) {
+        System.out.println("ObjectEditor: " + obj);
         checkIfSaved(obj);
         _currentObject = obj;
         Platform.runLater(new Runnable() {
@@ -117,6 +165,7 @@ public class ObjectEditor {
             @Override
             public void run() {
 
+//                AnchorPane content = new AnchorPane();
                 Accordion accordion = new Accordion();
 
                 List<TitledPane> taps = new ArrayList<>();
@@ -151,8 +200,13 @@ public class ObjectEditor {
                                 if (t1) {
                                     try {
                                         JEConfig.loadNotification(true);
-//                                        System.out.println("Expansion is visible: " + ex.getTitel());
+                                        System.out.println("Expansion is visible: " + ex.getTitel());
+//                                        loaderP.setProgress(1);
                                         ex.setVisible();
+//                                        loaderP.setContent(content);
+
+//                                        updateView(content, ex);
+//                                        loaderP.setProgress(100);
                                         _lastOpenEditor = ex.getTitel();
                                         JEConfig.loadNotification(false);
                                     } catch (Exception ex) {
@@ -166,11 +220,11 @@ public class ObjectEditor {
                 }
 
                 accordion.getPanes().addAll(taps);
-
                 AnchorPane.setTopAnchor(accordion, 0.0);
                 AnchorPane.setRightAnchor(accordion, 0.0);
                 AnchorPane.setLeftAnchor(accordion, 0.0);
                 AnchorPane.setBottomAnchor(accordion, 0.0);
+//                content.getChildren().add(accordion);
 
                 //load the last Extensions for the new object
                 boolean foundTab = false;
@@ -179,6 +233,7 @@ public class ObjectEditor {
                     for (ObjectEditorExtension ex : extensions) {
                         if (ex.getTitel().equals(_lastOpenEditor)) {
                             ex.setVisible();
+//                            updateView(content, ex);
                         }
                     }
                     for (TitledPane tap : taps) {
@@ -189,12 +244,16 @@ public class ObjectEditor {
                     }
 
                 }
+//                FXProgressPanel loaderP = new FXProgressPanel(true, accordion);
+//                _view.getChildren().setAll(loaderP);
+
                 if (!foundTab) {
+//                    updateView(content, extensions.get(0));
                     extensions.get(0).setVisible();
                     accordion.setExpandedPane(taps.get(0));
                     _lastOpenEditor = extensions.get(0).getTitel();
                 }
-
+//                loaderP.setContent(content);
                 _view.getChildren().setAll(accordion);
             }
         });

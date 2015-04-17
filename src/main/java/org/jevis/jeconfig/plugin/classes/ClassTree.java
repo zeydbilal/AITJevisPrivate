@@ -34,6 +34,7 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.DragEvent;
@@ -86,7 +87,7 @@ public class ClassTree extends TreeView<JEVisClass> {
             JEVisClass root = new JEVisRootClass(ds);
             TreeItem<JEVisClass> rootItem = buildItem(root);
 
-            setShowRoot(false);
+            setShowRoot(true);
             rootItem.setExpanded(true);
 
             getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
@@ -94,9 +95,30 @@ public class ClassTree extends TreeView<JEVisClass> {
 
             setCellFactory(new Callback<TreeView<JEVisClass>, TreeCell<JEVisClass>>() {
 
+//                @Override
+//                public TreeCell<JEVisClass> call(TreeView<JEVisClass> p) {
+//                    return new ClassCell();
+//                }
                 @Override
-                public TreeCell<JEVisClass> call(TreeView<JEVisClass> p) {
-                    return new ClassCell();
+                public TreeCell<JEVisClass> call(TreeView<JEVisClass> param) {
+                    return new TreeCell<JEVisClass>() {
+//                        private ImageView imageView = new ImageView();
+
+                        @Override
+                        protected void updateItem(JEVisClass item, boolean empty) {
+                            super.updateItem(item, empty);
+
+                            if (!empty) {
+                                ClassGraphic gc = getClassGraphic(item);
+
+//                                setText(item);
+                                setGraphic(gc.getGraphic());
+                            } else {
+                                setText(null);
+                                setGraphic(null);
+                            }
+                        }
+                    };
                 }
             });
 
@@ -306,7 +328,7 @@ public class ClassTree extends TreeView<JEVisClass> {
             _editor.commitAll();
 
             //TODO: replace this dump way of refeshing
-//            
+//
         }
 //        getSelectionModel().getSelectedItem().setExpanded(true);
 
@@ -438,7 +460,7 @@ public class ClassTree extends TreeView<JEVisClass> {
                     getChildrenList(getObjectTreeItem(dia.getInheritance())).add(getObjectTreeItem(newClass));
                     System.out.println("-----new Class end");
 
-//  sout    
+//  sout
 //                    TreeItem<JEVisClass> parentItem = _itemCache.get(dia.getInheritance().getName());
 //                    System.out.println("------->parent: " + parentItem.getValue().getName());
 //                    parentItem.expandedProperty().setValue(false);

@@ -89,7 +89,8 @@ public class ClassGraphic {
             if (item != null) {
                 return ImageConverter.convertToImageView(item.getIcon(), 20, 20);//20
             } else {
-                return JEConfig.getImage("1390343812_folder-open.png", 20, 20);
+                return JEConfig.getImage("1393615831_unknown2.png", 20, 20);
+//                return JEConfig.getImage("1390343812_folder-open.png", 20, 20);
             }
 
         } catch (Exception ex) {

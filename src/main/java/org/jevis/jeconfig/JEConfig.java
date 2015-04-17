@@ -19,55 +19,46 @@
  */
 package org.jevis.jeconfig;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
+import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
-import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import javax.measure.quantity.Dimensionless;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
+import javafx.util.Duration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
-import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisRelationship;
-import org.jevis.api.JEVisType;
-import org.jevis.api.JEVisUnit;
 import org.jevis.application.application.JavaVersionCheck;
 import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.application.dialog.LoginDialog;
 import org.jevis.application.statusbar.Statusbar;
 import org.jevis.commons.application.ApplicationInfo;
-import org.jevis.commons.json.JsonUnit;
-import org.jevis.commons.unit.JEVisUnitImp;
-import org.jevis.jeconfig.plugin.object.attribute.AttributeSettingsDialog;
+import org.jevis.jeconfig.tool.LoginGlass;
 import org.jevis.jeconfig.tool.WelcomePage;
 
 /**
@@ -85,12 +76,15 @@ public class JEConfig extends Application {
     private static File _lastFile;
     private static JEVisDataSource _mainDS;
 
-    JEVisDataSource ds = null;
+    private JEVisDataSource ds = null;
+    //Workaround to load classes and roots while login
+    private static List<JEVisClass> preLodedClasses = new ArrayList<>();
+    private static List<JEVisObject> preLodedRootObjects = new ArrayList<>();
 
     /**
      * Defines the version information in the about dialog
      */
-    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.7 2015-01-30");
+    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.9 2015-04-17");
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static String _lastpath = "";
 
@@ -121,7 +115,136 @@ public class JEConfig extends Application {
         }
 
         _primaryStage = primaryStage;
-        buildGUI(primaryStage);
+//        buildGUI(primaryStage);
+        initGUI(primaryStage);
+    }
+
+    /**
+     * Build an new JEConfig Login and main frame/stage
+     *
+     * @param primaryStage
+     */
+    private void initGUI(Stage primaryStage) {
+        Scene scene;
+        LoginGlass login = new LoginGlass(primaryStage);
+
+        AnchorPane jeconfigRoot = new AnchorPane();
+        AnchorPane.setTopAnchor(jeconfigRoot, 0.0);
+        AnchorPane.setRightAnchor(jeconfigRoot, 0.0);
+        AnchorPane.setLeftAnchor(jeconfigRoot, 0.0);
+        AnchorPane.setBottomAnchor(jeconfigRoot, 0.0);
+//        jeconfigRoot.setStyle("-fx-background-color: white;");
+//        jeconfigRoot.getChildren().setAll(new Label("sodfhsdhdsofhdshdsfdshfjf"));
+
+        Screen screen = Screen.getPrimary();
+        Rectangle2D bounds = screen.getVisualBounds();
+
+        login.getLoginStatus().addListener(new ChangeListener<Boolean>() {
+
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (newValue) {
+                    System.out.println("after request");
+                    _mainDS = login.getDataSource();
+                    ds = _mainDS;
+
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            FadeTransition ft = new FadeTransition(Duration.millis(1500), login);
+                            ft.setFromValue(1.0);
+                            ft.setToValue(0);
+                            ft.setCycleCount(1);
+                            ft.play();
+                        }
+                    });
+
+                    JEConfig.PROGRAMM_INFO.setJEVisAPI(ds.getInfo());
+                    JEConfig.PROGRAMM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
+                    JEConfig.PROGRAMM_INFO.addLibrary(org.jevis.application.Info.INFO);
+
+                    preLodedClasses = login.getAllClasses();
+                    preLodedRootObjects = login.getRootObjects();
+
+                    PluginManager pMan = new PluginManager(ds);
+                    GlobalToolBar toolbar = new GlobalToolBar(pMan);
+                    pMan.addPluginsByUserSetting(null);
+
+//                    StackPane root = new StackPane();
+//                    root.setId("mainpane");
+                    BorderPane border = new BorderPane();
+                    VBox vbox = new VBox();
+                    vbox.getChildren().addAll(new TopMenu(), toolbar.ToolBarFactory());
+                    border.setTop(vbox);
+                    border.setCenter(pMan.getView());
+
+                    Statusbar statusBar = new Statusbar(ds);
+
+                    border.setBottom(statusBar);
+
+                    System.out.println("show welcome");
+
+                    //Disable GUI is StatusBar note an disconnect
+                    border.disableProperty().bind(statusBar.connectedProperty.not());
+
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            AnchorPane.setTopAnchor(border, 0.0);
+                            AnchorPane.setRightAnchor(border, 0.0);
+                            AnchorPane.setLeftAnchor(border, 0.0);
+                            AnchorPane.setBottomAnchor(border, 0.0);
+
+                            jeconfigRoot.getChildren().setAll(border);
+                            try {
+                                //            WelcomePage welcome = new WelcomePage(primaryStage, new URI("http://coffee-project.eu/"));
+                                //            WelcomePage welcome = new WelcomePage(primaryStage, new URI("http://openjevis.org/projects/openjevis/wiki/JEConfig3#JEConfig-Version-3"));
+                                WelcomePage welcome = new WelcomePage(primaryStage, _config.getWelcomeURL());
+
+                            } catch (URISyntaxException ex) {
+                                Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
+                            } catch (MalformedURLException ex) {
+                                Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    });
+                }
+
+            }
+        });
+
+        AnchorPane.setTopAnchor(login, 0.0);
+        AnchorPane.setRightAnchor(login, 0.0);
+        AnchorPane.setLeftAnchor(login, 0.0);
+        AnchorPane.setBottomAnchor(login, 0.0);
+
+        scene = new Scene(jeconfigRoot, bounds.getWidth(), bounds.getHeight());
+        scene.getStylesheets().add("/styles/Styles.css");
+        primaryStage.getIcons().add(getImage("1393354629_Config-Tools.png"));
+        primaryStage.setTitle("JEConfig");
+        primaryStage.setScene(scene);
+        maximize(primaryStage);
+        primaryStage.show();
+
+//        Platform.runLater(new Runnable() {
+//            @Override
+//            public void run() {
+        jeconfigRoot.getChildren().setAll(login);
+//            }
+//        });
+
+        primaryStage.onCloseRequestProperty().addListener(new ChangeListener<EventHandler<WindowEvent>>() {
+
+            @Override
+            public void changed(ObservableValue<? extends EventHandler<WindowEvent>> ov, EventHandler<WindowEvent> t, EventHandler<WindowEvent> t1) {
+                try {
+                    System.out.println("Disconnect");
+                    ds.disconnect();
+                } catch (JEVisException ex) {
+                    Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
 
     }
 
@@ -135,33 +258,27 @@ public class JEConfig extends Application {
         try {
 
             LoginDialog loginD = new LoginDialog();
-//            ds = loginD.showSQL(primaryStage, _config.getLoginIcon());
+//            ds = loginD.showSQL(primaryStage, _config.get<LoginIcon());
 
             ds = loginD.showSQL(primaryStage);//Default
-//            ds = loginD.showSQL(primaryStage, _config.getLoginIcon(), _config.getEnabledSSL(), _config.getShowServer(), _config.getDefaultServer());
+//            ds = loginD.showSQL(primaryStage, _config.getLoginIcon(), _config.getEnabledSSL(), _config.getShowServer(), _config.getDefaultServer());//KAUST
+//            ds = loginD.showSQL(primaryStage, _config.getLoginIcon(), _config.getEnabledSSL(), _config.getShowServer(), _config.getDefaultServer());//Coffee
 
-            if (ds == null) {
-                System.exit(0);
-            }
-
+//            while (ds == null) {
+//                Thread.sleep(100);
+//            }
+//            if (ds == null) {
+//                System.exit(0);
+//            }
+//            System.exit(1);
 //            ds = new JEVisDataSourceSQL("192.168.2.55", "3306", "jevis", "jevis", "jevistest", "Sys Admin", "jevis");
 //            ds.connect("Sys Admin", "jevis");
         } catch (Exception ex) {
             Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
             ExceptionDialog dia = new ExceptionDialog();
             dia.show(primaryStage, "Error", "Could not connect to Server", ex, PROGRAMM_INFO);
-
         }
 
-//        try {
-//            JEVisClassPackageManager cpm = new JEVisClassPackageManager("/tmp/SystemExport.jar", ds);
-//            cpm.setContent(ds.getJEVisClasses());
-//            cpm.importIntoJEVis(ds);
-////            cpm.addJEVisClass(ds.getJEVisClass("Data"));
-//        } catch (Exception ex) {
-//            System.out.println("error while testing class export:");
-//            ex.printStackTrace();
-//        }
         _mainDS = ds;
 
         JEConfig.PROGRAMM_INFO.setJEVisAPI(ds.getInfo());
@@ -189,7 +306,6 @@ public class JEConfig extends Application {
 
         Scene scene = new Scene(root, 300, 250);
         scene.getStylesheets().add("/styles/Styles.css");
-
         primaryStage.getIcons().add(getImage("1393354629_Config-Tools.png"));
         primaryStage.setTitle("JEConfig");
         primaryStage.setScene(scene);
@@ -225,133 +341,6 @@ public class JEConfig extends Application {
 
     }
 
-    private void printTree(JEVisObject obj) {
-
-        try {
-            System.out.println("-Obj: " + obj);
-            for (JEVisRelationship rel : obj.getRelationships()) {
-                System.out.println("----Rel: " + rel);
-            }
-        } catch (JEVisException ex) {
-            Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-    }
-
-    /**
-     * just for testing, can be deleted
-     *
-     * @throws Exception
-     */
-    private void doTest() throws Exception {
-
-        Unit kwh = SI.KILO(SI.WATT).times(NonSI.HOUR);
-
-        //        System.out.println("u1: " + UnitFormat.getInstance().format(NonSI.TON_UK));
-//        System.out.println("u2: " + NonSI.TON_US.getDimension());
-//        System.out.println("u3: " + SI.WATT.times(NonSI.HOUR));
-//        Unit kwh = SI.KILO(SI.WATT).times(NonSI.HOUR);
-//        System.out.println("kwh.tostring: " + kwh);
-//        System.out.println("D1: " + SI.KILO(SI.WATT.times(NonSI.HOUR)));
-//        Unit parsedUnit = Unit.valueOf("(W·s)");
-//        System.out.println("pu: " + parsedUnit);
-//        System.out.println("pu1: " + parsedUnit.getDimension());
-//        System.out.println("hash: " + parsedUnit.hashCode());
-//        System.out.println("Yaher: " + NonSI.YEAR);
-//        System.out.println("kw=: " + ProductUnit.valueOf(SI.KILO(SI.WATT).toString()));
-////        System.out.println("hash1: " + SI.KILO(SI.WATT.times(SI.SECOND)).hashCode());
-//
-//        Unit komplex = SI.WATT.times(NonSI.HOUR).divide(SI.KILOGRAM).times(SI.HERTZ);
-//        System.out.println("komplex: " + komplex);
-//        System.out.println("komplex.equal: " + komplex.equals(ProductUnit.valueOf(komplex.toString())));
-//        System.out.println("Pars kwh: " + kwh.equals(ProductUnit.valueOf(kwh.toString())));
-//        System.out.println("kwh.standart: " + kwh.getStandardUnit());
-//        Measurable kwh100 = Measure.valueOf(100, kwh);
-//        System.out.println("in mega: " + kwh100.doubleValue(SI.MEGA(SI.WATT).times(NonSI.HOUR)));
-//        System.out.println("dim1: " + kwh.pow(10));
-//        System.out.println("dim2: " + kwh.root(10));
-//        System.out.println("hmmm: " + kwh.divide(kwh.getStandardUnit()));
-//        System.out.println("hmmm: " + kwh.divide(kwh.getStandardUnit()).getDimension());
-//
-//        System.out.println("asdasdasdasd: " + kwh100.doubleValue(SI.MEGA(kwh.getStandardUnit())));
-//
-//        Unit proU = ProductUnit.valueOf(SI.KILO((SI.WATT.times(NonSI.HOUR))).toString());
-////(w-s)*3600
-//        System.out.println("??: " + ProductUnit.valueOf((SI.WATT.times(NonSI.HOUR)).toString()));
-//
-//        Unit newU = SI.GRAM.divide(SI.MILLI(NonSI.LITER));
-//        System.out.println("ml = " + newU);
-//        System.out.println("gollom: " + kwh.divide(1000));
-//
-//        System.out.println(" eq: " + newU.equals(ProductUnit.valueOf(newU.toString())));
-//        System.out.println("iiii: " + kwh.getDimension());
-//
-//        Unit gmol = SI.GRAM.divide(SI.MOLE);
-//        gmol.getDimension();
-//        gmol.getStandardUnit();
-//
-//        System.out.println("s-unit: " + gmol.isStandardUnit());
-//        Unit algmol = gmol.alternate("CO2");
-//
-//        System.out.println("CO2: " + algmol);
-//
-//        Unit co2kwh = gmol.divide(kwh);
-//        System.out.println("co2/mol= " + co2kwh);
-//
-//        Unit km100 = SI.KILOMETER.times(100);
-//        System.out.println("kWh100: " + km100);
-//
-//        UnitFormat uf = UnitFormat.getInstance();
-//        uf.label(km100, "100km");
-//
-////        Unit prettykm100 = km100.alternate("100km");
-//        System.out.println("alt: " + uf.format(km100));
-//        System.out.println("liter/100km: " + NonSI.LITER.divide(km100));
-//
-//        Unit cars = Unit.ONE.alternate("Car");
-//        System.out.println("km: " + SI.KILOMETER);
-//
-//        Unit carKennzahl = kwh.divide(cars);
-//        System.out.println("Kennzahl: " + carKennzahl);
-//
-////        UnitFormat uf = UnitFormat.getUCUMInstance();
-////        System.out.println("hashUnitP: " + Unit.valueOf("1148846282"));
-//        System.out.println("equal: " + SI.KILO(SI.WATT.times(NonSI.HOUR)).equals(proU));
-//        Unit sileU = Unit.valueOf((SI.WATT.times(NonSI.HOUR)).toString());
-//        System.out.println("equal2: " + SI.WATT.times(NonSI.HOUR).equals(sileU));
-//        Measurable<Power> watt = Measure.valueOf(100, SI.WATT); // Ok.
-//
-//        watt.doubleValue(SI.WATT.times(SI.SECOND));
-//
-//        UnitConverter uc = SI.KILO(SI.WATT.times(NonSI.HOUR)).getConverterTo(SI.WATT);
-//        System.out.println("convert: " + uc.convert(100));
-        ///-------------------------------------------------
-        JEVisClass food = _mainDS.getJEVisClass("Food");
-        System.out.println("Class: " + food.getName());
-
-        for (JEVisType types : food.getTypes()) {
-            System.out.println("Type: " + types.getName());
-        }
-        for (JEVisClass vclass : food.getValidParents()) {
-            System.out.println("ValidParent: " + vclass.getName());
-        }
-
-        System.out.println("");
-
-        for (JEVisClass heir : food.getHeirs()) {
-            System.out.println("-Heir: " + heir.getName());
-
-            for (JEVisType types : heir.getTypes()) {
-                System.out.println("-type: " + types.getName());
-            }
-            for (JEVisClass vclass : food.getValidParents()) {
-                System.out.println("-ValidParent: " + vclass.getName());
-            }
-            System.out.println("");
-        }
-
-    }
-
     /**
      * The main() method is ignored in correctly deployed JavaFX application.
      * main() serves only as fallback in case the application can not be
@@ -367,7 +356,7 @@ public class JEConfig extends Application {
 
     /**
      * Returns the main JEVis Datasource of this JEConfig Try not to use this
-     * because it will may disapear
+     * because it may disapear
      *
      * @return
      * @deprecated
@@ -502,6 +491,14 @@ public class JEConfig extends Application {
             }
         });
 
+    }
+
+    static public List<JEVisClass> getPreLodedClasses() {
+        return preLodedClasses;
+    }
+
+    static public List<JEVisObject> getPreLodedRootObjects() {
+        return preLodedRootObjects;
     }
 
 }

@@ -19,9 +19,6 @@
  */
 package org.jevis.jeconfig.csv;
 
-import java.util.Arrays;
-import sun.misc.Regexp;
-
 /**
  *
  * @author Florian Simon <florian.simon@envidatec.com>

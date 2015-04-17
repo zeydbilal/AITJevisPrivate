@@ -51,6 +51,7 @@ public class ObjectGraphic {
     private Tooltip _tip;
 
     public ObjectGraphic(JEVisObject obj, ObjectTree tree) {
+        System.out.println("    ObjectGraphic: " + obj.getID());
         _obj = obj;
         _tree = tree;
         _menu = new ObjectContextMenu(obj, tree);
@@ -61,32 +62,45 @@ public class ObjectGraphic {
         _view.setPadding(new Insets(0, 0, 0, 5));
 
         try {
-            if (_obj.getJEVisClass().getName().equals(CommonClasses.LINK.NAME)) {
 
-                if (_obj.getLinkedObject() != null) {
-                    icon = getIcon(_obj.getLinkedObject());
-                } else {
-                    icon = JEConfig.getImage("1403724422_link_break.png", 20, 20);
+            if (_obj.getJEVisClass() != null) {
+                if (_obj.getJEVisClass().getName().equals(CommonClasses.LINK.NAME)) {
+
+                    if (_obj.getLinkedObject() != null) {
+                        icon = getIcon(_obj.getLinkedObject());
+                    } else {
+                        icon = JEConfig.getImage("1403724422_link_break.png", 20, 20);
+                    }
+
                 }
-
+            } else {
+                icon = JEConfig.getImage("1390343812_folder-open.png", 20, 20);
             }
-        } catch (JEVisException ex) {
+
+        } catch (Exception ex) {
             Logger.getLogger(ObjectGraphic.class.getName()).log(Level.SEVERE, null, ex);
             icon = JEConfig.getImage("1403724422_link_break.png", 20, 20);
         }
 
         try {
-            _tip = new Tooltip(String.format("ID:       %s\nName: %s\nClass:  %s\n", obj.getID().toString(), obj.getName(), obj.getJEVisClass().getName()));
+            String classname = "";
+            if (obj.getJEVisClass() != null) {
+                classname = obj.getJEVisClass().getName();
+            }
+
+            _tip = new Tooltip(String.format("ID:       %s\nName: %s\nClass:  %s\n", obj.getID().toString(), obj.getName(), classname));
         } catch (JEVisException ex) {
             Logger.getLogger(ObjectGraphic.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+        nameLabel.setText(_obj.getName());
+        _view.getChildren().setAll(icon, nameLabel);
+
     }
 
     public Node getGraphic() {
-//        icon = getIcon(_obj);
-        nameLabel.setText(_obj.getName());
-        _view.getChildren().setAll(icon, nameLabel);
+//        nameLabel.setText(_obj.getName());
+//        _view.getChildren().setAll(icon, nameLabel);
 
         return _view;
     }
@@ -105,7 +119,8 @@ public class ObjectGraphic {
 
     private ImageView getIcon(JEVisObject item) {
         try {
-            if (item != null && item.getJEVisClass() != null) {
+            if (item != null && item.getJEVisClass() != null && item.getJEVisClass().getIcon() != null) {
+                System.out.println("return class icon");
                 return ImageConverter.convertToImageView(item.getJEVisClass().getIcon(), 20, 20);//20
             } else {
                 return JEConfig.getImage("1390343812_folder-open.png", 20, 20);
@@ -113,8 +128,8 @@ public class ObjectGraphic {
 
         } catch (Exception ex) {
             System.out.println("Error while get icon for object: " + ex);
+            return new ImageView();
         }
-        return new ImageView();
 
     }
 

@@ -5,11 +5,13 @@
 }
 
 #objecteditorpane{   
-    -fx-background-color: #E2E2E2;
+    /*-fx-background-color: #E2E2E2;*/
+    -fx-background-color: f4f4f4;
 }
 
 #objecttree{
-    -fx-background-color: #E2E2E2;
+    /*-fx-background-color: #E2E2E2;*/
+    -fx-background-color: f4f4f4;
     /*-fx-background-color: white;*/
 }
 

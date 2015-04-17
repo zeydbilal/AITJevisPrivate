@@ -49,7 +49,9 @@ public interface Constants {
         public static String LIGHT_BLUE = "#1a719c";
         public static String LIGHT_BLUE2 = "#0E8CCC";
         public static String LIGHT_GREY = "#efefef";
-        public static String LIGHT_GREY2 = "#E2E2E2";
+        public static String LIGHT_GREY2 = "#f4f4f4";
+//public static String LIGHT_GREY2 = "#E2E2E2";
+        //7f4f4f4
     }
 
     public interface JEVisClass {

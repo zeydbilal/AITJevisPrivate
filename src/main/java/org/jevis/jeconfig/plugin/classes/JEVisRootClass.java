@@ -28,6 +28,7 @@ import org.jevis.api.JEVisClassRelationship;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisType;
+import org.jevis.jeconfig.JEConfig;
 
 /**
  * Fake Root
@@ -43,7 +44,8 @@ public class JEVisRootClass implements JEVisClass {
     public JEVisRootClass(JEVisDataSource ds) throws JEVisException {
         this._ds = ds;
 
-        List<JEVisClass> allClasses = _ds.getJEVisClasses();
+//        List<JEVisClass> allClasses = _ds.getJEVisClasses();
+        List<JEVisClass> allClasses = JEConfig.getPreLodedClasses();//workaround, The login will preload Classes in the moment
         for (JEVisClass jclass : allClasses) {
             if (jclass.getInheritance() == null) {
                 _children.add(jclass);

@@ -31,11 +31,11 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisRelationship;
 import org.jevis.commons.CommonClasses;
+import org.jevis.jeconfig.Constants;
 import org.jevis.jeconfig.plugin.object.ObjectEditorExtension;
 import org.jevis.jeconfig.plugin.object.relationship.RelationshipTable;
 
@@ -112,11 +112,11 @@ public class LinkExtension implements ObjectEditorExtension {
 
             }
             RelationshipTable table = new RelationshipTable(obj, rels);
+
 //            StackPane sp = new StackPane();
 //            sp.getChildren().setAll(table);
 //
 //            gridPane.add(sp, 0, 0);
-
             ap.getChildren().add(table);
             AnchorPane.setTopAnchor(table, 0.0);
             AnchorPane.setRightAnchor(table, 0.0);

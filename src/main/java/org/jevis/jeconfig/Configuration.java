@@ -24,6 +24,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 import javafx.application.Application;
+import javafx.scene.paint.Color;
 
 /**
  * This class holds the configutraion for the JEConfig.
@@ -33,12 +34,18 @@ import javafx.application.Application;
  */
 public class Configuration {
 
-    private String _loginIcon = "/icons/openjevislogo_simple2.png";
-    private String _welcomeURL = "http://openjevis.org/projects/openjevis/wiki/JEConfig3#JEConfig-Version-3";
+    private String _loginIcon = "/icons/logo_coffee_klein.png";//"/icons/kaust.jpg";//"/icons/openjevislogo_simple2.png";
+    private String _welcomeURL = "http://coffee-project.eu/";//"http://www.kaust.edu.sa/research-technology-park.html";//http://openjevis.org/projects/openjevis/wiki/JEConfig3#JEConfig-Version-3";
     private String _watermark = "/icons/logo_JEVis_OPEN_Ohne_Schatten_long_v0_10.png";
     private boolean _ssl = false;
-    private boolean _showServer = true;
-    private String _defaultServerURL = "user:password@server:3306/jevis";
+    private boolean _showServer = false;
+    private String _defaultServerURL = "jevis:jevistest@coffee-project.eu:13306/jevis";//"jevis:Taexu3Eesesieth3eid1@lthneo.kaust.edu.sa:3306/jevis";//user:password@server:3306/jevis";
+//    private final String _defaultServerURL = "user:password@server:3306/jevis";
+
+    public static enum COLORS {
+
+        BACKGROUND
+    }
 
     /**
      * Returns if the Sever URL should be visible in the LoginDialog
@@ -80,7 +87,7 @@ public class Configuration {
     }
 
     public void parseParameters(Application.Parameters args) {
-        System.out.println("\nnamedParameters -");
+//        System.out.println("\nnamedParameters -");
         for (Map.Entry<String, String> entry : args.getNamed().entrySet()) {
             System.out.println(entry.getKey() + " : " + entry.getValue());
         }
