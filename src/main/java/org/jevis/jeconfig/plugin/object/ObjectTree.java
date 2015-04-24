@@ -140,6 +140,9 @@ public class ObjectTree extends TreeView<JEVisObject> {
                             if (!empty) {
                                 ObjectGraphic gc = getObjectGraphic(item);
 
+                                setTooltip(gc.getToolTip());
+                                setContextMenu(gc.getContexMenu());
+
 //                                setText(item);
                                 setGraphic(gc.getGraphic());
                             } else {

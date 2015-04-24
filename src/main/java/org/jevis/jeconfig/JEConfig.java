@@ -33,6 +33,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
@@ -196,16 +197,31 @@ public class JEConfig extends Application {
                             AnchorPane.setBottomAnchor(border, 0.0);
 
                             jeconfigRoot.getChildren().setAll(border);
-                            try {
-                                //            WelcomePage welcome = new WelcomePage(primaryStage, new URI("http://coffee-project.eu/"));
-                                //            WelcomePage welcome = new WelcomePage(primaryStage, new URI("http://openjevis.org/projects/openjevis/wiki/JEConfig3#JEConfig-Version-3"));
-                                WelcomePage welcome = new WelcomePage(primaryStage, _config.getWelcomeURL());
+//                            try {
+                            //            WelcomePage welcome = new WelcomePage(primaryStage, new URI("http://coffee-project.eu/"));
+                            //            WelcomePage welcome = new WelcomePage(primaryStage, new URI("http://openjevis.org/projects/openjevis/wiki/JEConfig3#JEConfig-Version-3"));
 
+//                            Task<Void> showWelcome = new Task<Void>() {
+//                                @Override
+//                                protected Void call() throws Exception {
+                            try {
+                                WelcomePage welcome = new WelcomePage(primaryStage, _config.getWelcomeURL());
                             } catch (URISyntaxException ex) {
                                 Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
                             } catch (MalformedURLException ex) {
                                 Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
                             }
+//                                    return null;
+//                                }
+//                            };
+//                            new Thread(showWelcome).start();
+
+//                                WelcomePage welcome = new WelcomePage(primaryStage, _config.getWelcomeURL());
+//                            } catch (URISyntaxException ex) {
+//                                Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
+//                            } catch (MalformedURLException ex) {
+//                                Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
+//                            }
                         }
                     });
                 }

@@ -23,6 +23,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
@@ -170,7 +172,7 @@ public class NumberWithUnit implements AttributeEditor {
 //                }
 //            };
 
-            _field.setPrefWidth(500);//TODO: remove this workaround 
+            _field.setPrefWidth(500);//TODO: remove this workaround
 
             _lastSample = _attribute.getLatestSample();
 
@@ -243,19 +245,28 @@ public class NumberWithUnit implements AttributeEditor {
 //            final Button unitb = new Button(UnitManager.getInstance().formate(_attribute.getType().getUnit()));
             final Button unitb = new Button(_attribute.getDisplayUnit().toString());
 
+            double hight = 28;
+
             unitb.setPrefWidth(60);
-            unitb.setPrefHeight(22);
+            unitb.setPrefHeight(hight);
             unitb.setStyle("-fx-background-radius: 0 10 10 0; -fx-base: rgba(75, 106, 139, 0.89);");
             unitb.setAlignment(Pos.BOTTOM_LEFT);
+
             _field.setStyle("-fx-background-radius: 3 0 0 3;");
+            _field.heightProperty().addListener(new ChangeListener<Number>() {
+
+                @Override
+                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+                    System.out.println("file.height: " + newValue);
+                }
+            });
 
             unitb.setOnAction(new EventHandler<ActionEvent>() {
 
                 @Override
                 public void handle(ActionEvent t) {
 
-                    final Point2D nodeCoord = unitb.localToScene(0.0, 0.0);
-
+//                    final Point2D nodeCoord = unitb.localToScene(0.0, 0.0);
                     AttributeSettingsDialog asd = new AttributeSettingsDialog();
 
                     try {
@@ -274,17 +285,21 @@ public class NumberWithUnit implements AttributeEditor {
             });
 
             HBox.setHgrow(_field, Priority.ALWAYS);
+
             Button chartView = new Button();
+
             try {
                 chartView = new Button();
-                chartView.setGraphic(JEConfig.getImage("1394566386_Graph.png", 20, 20));
+                chartView.setGraphic(JEConfig.getImage("1394566386_Graph.png", hight, hight));
                 chartView.setStyle("-fx-padding: 0 2 0 2;-fx-background-insets: 0;-fx-background-radius: 0;-fx-background-color: transparent;");
 
                 chartView.setMaxHeight(_field.getHeight());
-                chartView.setMaxWidth(20);
+                chartView.setMaxWidth(hight);
+                chartView.setPrefHeight(hight);
 
                 box.getChildren().add(chartView);
                 HBox.setHgrow(chartView, Priority.NEVER);
+                box.setAlignment(Pos.CENTER_LEFT);
 
                 chartView.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
