@@ -149,6 +149,7 @@ public class FileEdior implements AttributeEditor {
             public void handle(ActionEvent t) {
                 try {
                     JEVisFile file = _attribute.getLatestSample().getValueAsFile();
+
                     DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyyMMdd");
 
                     FileChooser fileChooser = new FileChooser();
