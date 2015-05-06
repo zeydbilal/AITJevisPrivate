@@ -84,7 +84,7 @@ public class NumberWithUnit implements AttributeEditor {
     public void commit() throws JEVisException {
         if (hasChanged() && _newSample != null) {
 
-            //TODO: check if tpye is ok, maybe better at imput time
+            //TODO: check if type is ok, maybe better at imput time
             _newSample.commit();
         }
     }
@@ -245,10 +245,10 @@ public class NumberWithUnit implements AttributeEditor {
 //            final Button unitb = new Button(UnitManager.getInstance().formate(_attribute.getType().getUnit()));
             final Button unitb = new Button(_attribute.getDisplayUnit().toString());
 
-            double hight = 28;
+            double height = 28;
 
             unitb.setPrefWidth(60);
-            unitb.setPrefHeight(hight);
+            unitb.setPrefHeight(height);
             unitb.setStyle("-fx-background-radius: 0 10 10 0; -fx-base: rgba(75, 106, 139, 0.89);");
             unitb.setAlignment(Pos.BOTTOM_LEFT);
 
@@ -290,12 +290,12 @@ public class NumberWithUnit implements AttributeEditor {
 
             try {
                 chartView = new Button();
-                chartView.setGraphic(JEConfig.getImage("1394566386_Graph.png", hight, hight));
+                chartView.setGraphic(JEConfig.getImage("1394566386_Graph.png", height, height));
                 chartView.setStyle("-fx-padding: 0 2 0 2;-fx-background-insets: 0;-fx-background-radius: 0;-fx-background-color: transparent;");
 
                 chartView.setMaxHeight(_field.getHeight());
-                chartView.setMaxWidth(hight);
-                chartView.setPrefHeight(hight);
+                chartView.setMaxWidth(height);
+                chartView.setPrefHeight(height);
 
                 box.getChildren().add(chartView);
                 HBox.setHgrow(chartView, Priority.NEVER);
