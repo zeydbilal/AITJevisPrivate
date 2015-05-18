@@ -224,12 +224,10 @@ public class CSVImportDialog {
             public void handle(ActionEvent t) {
                 stage.close();
                 response = Response.CANCEL;
-
             }
         });
 
         ok.setOnAction(new EventHandler<ActionEvent>() {
-
             @Override
             public void handle(ActionEvent t) {
                 System.out.println("size: h:" + stage.getHeight() + " w:" + stage.getWidth());
@@ -238,7 +236,6 @@ public class CSVImportDialog {
                     dia.show(stage, "Success", "Import was successful", "Import was successful.");
                 }
 //                stage.hide();
-
             }
         });
 
@@ -259,7 +256,6 @@ public class CSVImportDialog {
                 if (tree != null) {
                     tree.setPrefHeight(t1.doubleValue());
                 }
-
             }
         });
         VBox.setVgrow(tree, Priority.ALWAYS);
@@ -358,7 +354,6 @@ public class CSVImportDialog {
             @Override
             public void changed(ObservableValue<? extends Toggle> ov, Toggle t, Toggle t1) {
                 updateEnclosed();
-
             }
         });
 
@@ -665,7 +660,6 @@ public class CSVImportDialog {
                     if (file.exists() && file.canRead()) {
                         fileChooser.setInitialDirectory(file);
                     }
-
                 }
 
                 FileChooser.ExtensionFilter csvFilter = new FileChooser.ExtensionFilter("CSV files (*.csv)", "*.csv");
