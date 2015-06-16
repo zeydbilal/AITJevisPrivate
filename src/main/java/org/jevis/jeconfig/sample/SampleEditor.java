@@ -362,7 +362,7 @@ public class SampleEditor {
                 //TODO:replace this quick and dirty workaround
 
                 try {
-                    JEVisClass dpClass = parentObj.getDataSource().getJEVisClass("Data Processor");
+//                    JEVisClass dpClass = parentObj.getDataSource().getJEVisClass("Data Processor");
 
                     if (newValue.equals("None")) {
                         _dataProcessor = null;

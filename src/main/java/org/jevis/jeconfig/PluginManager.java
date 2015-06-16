@@ -34,6 +34,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
+import org.jevis.jeconfig.plugin.graph.GraphPlugin;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
 
 /**
@@ -71,6 +72,7 @@ public class PluginManager {
         _plugins.add(new ObjectPlugin(_ds, "Resources"));
         _plugins.add(new org.jevis.jeconfig.plugin.classes.ClassPlugin(_ds, "Classes"));
         _plugins.add(new org.jevis.jeconfig.plugin.unit.UnitPlugin(_ds, "Units"));
+//        _plugins.add(new GraphPlugin(_ds, "Graph"));
     }
 
     public void setWatermark(boolean water) {

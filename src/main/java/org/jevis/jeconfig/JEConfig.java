@@ -33,7 +33,6 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
@@ -54,11 +53,15 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
 import org.jevis.application.application.JavaVersionCheck;
 import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.application.dialog.LoginDialog;
+import org.jevis.application.dialog.GraphSelectionDialog;
+import org.jevis.application.jevistree.plugin.BarchartPlugin;
 import org.jevis.application.statusbar.Statusbar;
 import org.jevis.commons.application.ApplicationInfo;
+import org.jevis.commons.userregistration.UserFactory;
 import org.jevis.jeconfig.tool.LoginGlass;
 import org.jevis.jeconfig.tool.WelcomePage;
 
@@ -85,7 +88,7 @@ public class JEConfig extends Application {
     /**
      * Defines the version information in the about dialog
      */
-    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.10 2015-04-124");
+    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.10 2015-04-24");
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static String _lastpath = "";
 
@@ -191,6 +194,40 @@ public class JEConfig extends Application {
                     Platform.runLater(new Runnable() {
                         @Override
                         public void run() {
+                            //testing
+//                            GraphSelectionDialog selectionDialog = new GraphSelectionDialog(ds);
+////                            selectionDialog.show(_primaryStage);
+////                            System.exit(1);
+//                            if (selectionDialog.show(_primaryStage) == GraphSelectionDialog.Response.OK) {
+//                                for (Map.Entry<String, BarchartPlugin.DataModel> entrySet : selectionDialog.getSelectedData().entrySet()) {
+//                                    Object key = entrySet.getKey();
+//                                    BarchartPlugin.DataModel value = entrySet.getValue();
+//
+//                                    if (value.getSelected()) {
+//                                        System.out.println("sample for " + key);
+//                                        System.out.println("Color: " + value.getColor());
+//
+//                                        for (JEVisSample sample : value.getSamples()) {
+//                                            try {
+//                                                System.out.println(sample.getTimestamp() + "  " + sample.getValueAsDouble(value.getUnit()));
+//                                            } catch (JEVisException ex) {
+//                                                Logger.getLogger(GraphSelectionDialog.class.getName()).log(Level.SEVERE, null, ex);
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                            System.out.println("show again");
+//                            selectionDialog.show(_primaryStage);
+                            System.out.println("------------");
+//                            try {
+//                                UserFactory.buildMobileDemoStructure(ds, ds.getObject(5l), "Tau", "mypw", "max.musterman@openjevis.org", "Max", "Musterman");
+//                            } catch (JEVisException ex) {
+//                                Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
+//                            }
+//                            System.exit(1);
+                            System.out.println("------------");
+
                             AnchorPane.setTopAnchor(border, 0.0);
                             AnchorPane.setRightAnchor(border, 0.0);
                             AnchorPane.setLeftAnchor(border, 0.0);
