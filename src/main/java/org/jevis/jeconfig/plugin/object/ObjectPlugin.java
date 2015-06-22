@@ -123,7 +123,6 @@ public class ObjectPlugin implements Plugin {
                 @Override
                 public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                     if (newValue) {
-                        System.out.println("start loding editor");
                         editorLodingPane.startLoading();
                     } else {
                         editorLodingPane.endLoading();
@@ -135,7 +134,6 @@ public class ObjectPlugin implements Plugin {
                 @Override
                 public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                     if (newValue) {
-                        System.out.println("start loding tree");
                         treeLodingPane.startLoading();
                     } else {
                         treeLodingPane.endLoading();

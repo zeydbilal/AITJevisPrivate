@@ -287,9 +287,7 @@ public class ObjectTree extends TreeView<JEVisObject> {
     }
 
     public TreeItem<JEVisObject> buildItem(JEVisObject object) {
-        System.out.println("buildItem for ID:" + object.getID());
         if (_itemCache.containsKey(object.getID())) {
-            System.out.println("Use cache item: " + object.getID());
             return _itemCache.get(object.getID());
         }
 
@@ -463,13 +461,15 @@ public class ObjectTree extends TreeView<JEVisObject> {
                         if (!dia.getCreateName().isEmpty()) {
                             currentItem.getValue().setName(dia.getCreateName());
                             currentItem.getValue().commit();
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    currentItem.getParent().setExpanded(false);
-                                    currentItem.getParent().setExpanded(true);
-                                }
-                            });
+                            getObjectGraphic(currentObject).update();
+
+//                            Platform.runLater(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    currentItem.getParent().setExpanded(false);
+//                                    currentItem.getParent().setExpanded(true);
+//                                }
+//                            });
                         }
 
                     } catch (JEVisException ex) {

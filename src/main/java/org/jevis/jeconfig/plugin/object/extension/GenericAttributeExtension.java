@@ -55,6 +55,7 @@ import org.jevis.jeconfig.plugin.object.attribute.NumberWithUnit;
 import org.jevis.jeconfig.plugin.object.attribute.PasswordEditor;
 import org.jevis.jeconfig.plugin.object.attribute.StringMultyLine;
 import org.jevis.jeconfig.plugin.object.attribute.StringValueEditor;
+import org.jevis.jeconfig.plugin.object.attribute.dateValueEditor;
 
 /**
  *
@@ -162,6 +163,10 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                             }
                             if (att.getType().getGUIDisplayType().equalsIgnoreCase(GUIConstants.BASIC_TEXT_MULTI.getId())) {
                                 editor = new StringMultyLine(att);
+                            }
+
+                            if (att.getType().getGUIDisplayType().equalsIgnoreCase(GUIConstants.BASIC_TEXt_DATE_FULL.getId())) {
+                                editor = new dateValueEditor(att);
                             }
                         } catch (Exception e) {
                             editor = new StringValueEditor(att);

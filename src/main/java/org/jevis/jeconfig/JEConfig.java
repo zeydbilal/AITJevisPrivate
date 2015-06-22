@@ -88,7 +88,7 @@ public class JEConfig extends Application {
     /**
      * Defines the version information in the about dialog
      */
-    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.10 2015-04-24");
+    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.11 2015-06-22");
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static String _lastpath = "";
 
@@ -186,14 +186,13 @@ public class JEConfig extends Application {
 
                     border.setBottom(statusBar);
 
-                    System.out.println("show welcome");
-
                     //Disable GUI is StatusBar note an disconnect
                     border.disableProperty().bind(statusBar.connectedProperty.not());
 
                     Platform.runLater(new Runnable() {
                         @Override
                         public void run() {
+
                             //testing
 //                            GraphSelectionDialog selectionDialog = new GraphSelectionDialog(ds);
 ////                            selectionDialog.show(_primaryStage);

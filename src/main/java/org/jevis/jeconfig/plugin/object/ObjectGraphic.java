@@ -41,20 +41,66 @@ import org.jevis.jeconfig.tool.ImageConverter;
  */
 public class ObjectGraphic {
 
-    private final HBox _view = new HBox();
-    private final HBox _edior = new HBox();
+    private HBox _view = new HBox();
+    private HBox _edior = new HBox();
     private ImageView icon = new ImageView();
-    private final Label nameLabel = new Label("*Missing*");
-    private final JEVisObject _obj;
-    private final ObjectContextMenu _menu;
-    private final ObjectTree _tree;
+    private Label nameLabel = new Label("*Missing*");
+    private JEVisObject _obj;
+    private ObjectContextMenu _menu;
+    private ObjectTree _tree;
     private Tooltip _tip;
 
     public ObjectGraphic(JEVisObject obj, ObjectTree tree) {
-        System.out.println("    ObjectGraphic: " + obj.getID());
+//        System.out.println("    ObjectGraphic: " + obj.getID());
         _obj = obj;
         _tree = tree;
-        _menu = new ObjectContextMenu(obj, tree);
+        update();
+
+//        _menu = new ObjectContextMenu(obj, tree);
+//
+//        icon = getIcon(_obj);
+//        _view.setAlignment(Pos.CENTER_LEFT);
+//        _view.setSpacing(3);
+//        _view.setPadding(new Insets(0, 0, 0, 5));
+//
+//        try {
+//
+//            if (_obj.getJEVisClass() != null) {
+//                if (_obj.getJEVisClass().getName().equals(CommonClasses.LINK.NAME)) {
+//
+//                    if (_obj.getLinkedObject() != null) {
+//                        icon = getIcon(_obj.getLinkedObject());
+//                    } else {
+//                        icon = JEConfig.getImage("1403724422_link_break.png", 20, 20);
+//                    }
+//
+//                }
+//            } else {
+//                icon = JEConfig.getImage("1390343812_folder-open.png", 20, 20);
+//            }
+//
+//        } catch (Exception ex) {
+//            Logger.getLogger(ObjectGraphic.class.getName()).log(Level.SEVERE, null, ex);
+//            icon = JEConfig.getImage("1403724422_link_break.png", 20, 20);
+//        }
+//
+//        try {
+//            String classname = "";
+//            if (obj.getJEVisClass() != null) {
+//                classname = obj.getJEVisClass().getName();
+//            }
+//
+//            _tip = new Tooltip(String.format("ID:       %s\nName: %s\nClass:  %s\n", obj.getID().toString(), obj.getName(), classname));
+//        } catch (JEVisException ex) {
+//            Logger.getLogger(ObjectGraphic.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//
+//        nameLabel.setText(_obj.getName());
+//        _view.getChildren().setAll(icon, nameLabel);
+    }
+
+    public void update() {
+        _menu = new ObjectContextMenu(_obj, _tree);
 
         icon = getIcon(_obj);
         _view.setAlignment(Pos.CENTER_LEFT);
@@ -84,18 +130,17 @@ public class ObjectGraphic {
 
         try {
             String classname = "";
-            if (obj.getJEVisClass() != null) {
-                classname = obj.getJEVisClass().getName();
+            if (_obj.getJEVisClass() != null) {
+                classname = _obj.getJEVisClass().getName();
             }
 
-            _tip = new Tooltip(String.format("ID:       %s\nName: %s\nClass:  %s\n", obj.getID().toString(), obj.getName(), classname));
+            _tip = new Tooltip(String.format("ID:       %s\nName: %s\nClass:  %s\n", _obj.getID().toString(), _obj.getName(), classname));
         } catch (JEVisException ex) {
             Logger.getLogger(ObjectGraphic.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         nameLabel.setText(_obj.getName());
         _view.getChildren().setAll(icon, nameLabel);
-
     }
 
     public Node getGraphic() {
@@ -120,7 +165,7 @@ public class ObjectGraphic {
     private ImageView getIcon(JEVisObject item) {
         try {
             if (item != null && item.getJEVisClass() != null && item.getJEVisClass().getIcon() != null) {
-                System.out.println("return class icon");
+//                System.out.println("return class icon");
                 return ImageConverter.convertToImageView(item.getJEVisClass().getIcon(), 20, 20);//20
             } else {
                 return JEConfig.getImage("1390343812_folder-open.png", 20, 20);

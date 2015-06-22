@@ -247,19 +247,12 @@ public class NumberWithUnit implements AttributeEditor {
 
             double height = 28;
 
-            unitb.setPrefWidth(60);
+            unitb.setPrefWidth(80);
             unitb.setPrefHeight(height);
             unitb.setStyle("-fx-background-radius: 0 10 10 0; -fx-base: rgba(75, 106, 139, 0.89);");
             unitb.setAlignment(Pos.BOTTOM_LEFT);
 
             _field.setStyle("-fx-background-radius: 3 0 0 3;");
-            _field.heightProperty().addListener(new ChangeListener<Number>() {
-
-                @Override
-                public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                    System.out.println("file.height: " + newValue);
-                }
-            });
 
             unitb.setOnAction(new EventHandler<ActionEvent>() {
 
