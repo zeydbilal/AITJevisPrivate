@@ -198,6 +198,12 @@ public class ObjectPlugin implements Plugin {
                 case Constants.Plugin.Command.RELOAD:
                     tree.reload();
                     break;
+                case Constants.Plugin.Command.ADD_TABLE:
+                    tree.fireEventCreateTable(tree.getSelectedObject());
+                    break;
+                case Constants.Plugin.Command.EDIT_TABLE:
+                    tree.fireEventEditTable(tree.getSelectedObject());
+                    break;
                 default:
                     System.out.println("Unknows command ignore...");
             }

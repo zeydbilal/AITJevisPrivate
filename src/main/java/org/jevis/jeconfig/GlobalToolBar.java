@@ -65,7 +65,16 @@ public class GlobalToolBar {
         changeBackgroundOnHoverUsingBinding(reload);
         addEventHandler(reload, Constants.Plugin.Command.RELOAD);
 
-        toolBar.getItems().addAll(save, newB, delete, sep1);
+        //@AITBilal - A new table create/edit button on the ToolBar
+        ToggleButton addTable = new ToggleButton("", JEConfig.getImage("add_table.png", iconSize, iconSize));
+        changeBackgroundOnHoverUsingBinding(addTable);
+        addEventHandler(addTable, Constants.Plugin.Command.ADD_TABLE);
+
+        ToggleButton editTable = new ToggleButton("", JEConfig.getImage("edit_table.png", iconSize, iconSize));
+        changeBackgroundOnHoverUsingBinding(editTable);
+        addEventHandler(editTable, Constants.Plugin.Command.EDIT_TABLE);
+
+        toolBar.getItems().addAll(save, newB, delete, sep1, addTable,editTable);
 
         //test
         return toolBar;
