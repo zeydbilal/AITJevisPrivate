@@ -1,7 +1,13 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package org.jevis.jeconfig.plugin.object;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -38,6 +44,7 @@ import org.controlsfx.control.spreadsheet.SpreadsheetCell;
 import org.controlsfx.control.spreadsheet.SpreadsheetCellType;
 import org.controlsfx.control.spreadsheet.SpreadsheetColumn;
 import org.controlsfx.control.spreadsheet.SpreadsheetView;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
@@ -46,10 +53,9 @@ import org.jevis.jeconfig.tool.ImageConverter;
 
 /**
  *
- * @author Bilal
+ * @author CalisZ
  */
-//TODO
-public class CreateTable {
+public class EditTable {
 
     private final ObservableList<ObservableList<SpreadsheetCell>> rows = FXCollections.observableArrayList();
     private ObservableList<SpreadsheetCell> cells;
@@ -60,21 +66,21 @@ public class CreateTable {
     private LinkedList<String> listObjectNames = new LinkedList<>();
     private int rowCount;
     private int columnCount;
-    private CreateNewDataTable createNewDataTable;
+    private CreateNewDataEditTable createNewDataEditTable;
     private ObservableList<String> columnHeaderNames = FXCollections.observableArrayList();
     private ObservableList<String> columnHeaderNamesDataTable = FXCollections.observableArrayList();
     private ObservableList<Pair<String, ArrayList<String>>> pairList = FXCollections.observableArrayList();
     private ObservableList<String> listUnits = FXCollections.observableArrayList();
     private ObservableList<String> listUnitSymbols = FXCollections.observableArrayList();
 
-    class CreateNewTable {
+    class CreateNewEditTable {
 
-        public CreateNewTable() {
+        public CreateNewEditTable(JEVisObject parent) {
             try {
-                rowCount = 1000;
+                rowCount = parent.getChildren().size();
                 columnCount = createClass.getTypes().size() + 1;
             } catch (JEVisException ex) {
-                Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(CreateNewEditTable.class.getName()).log(Level.SEVERE, null, ex);
             }
 
             grid = new GridBase(rowCount, columnCount);
@@ -102,15 +108,44 @@ public class CreateTable {
 
             columnHeaderNames.add("Object Name");
             try {
-                //Get and set Typenames :)
+                //Get and set Typenames
                 for (int i = 0; i < createClass.getTypes().size(); i++) {
                     columnHeaderNames.add(createClass.getTypes().get(i).getName());
                 }
 
             } catch (JEVisException ex) {
-                Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(CreateNewEditTable.class.getName()).log(Level.SEVERE, null, ex);
             }
             spv.getGrid().getColumnHeaders().addAll(columnHeaderNames);
+
+            try {
+//                
+//                List<JEVisAttribute> attributes = parent.getChildren().get(0).get;
+//                for (int i = 0; i < attributes.size(); i++) {
+//                    System.out.println(attributes);
+//                }
+//                
+//                for (int i = 0; i < grid.getRowCount(); i++) {
+//                    for (int j = 1; j < grid.getColumnCount(); j++) {
+//                        SpreadsheetCell spc = rows.get(i).get(j);
+//
+//                        grid.setCellValue(i, 0, spc.getCellType().convertValue(parent.getChildren().get(i).getName()));
+////                        System.out.println(attribut.get(j).getAllSamples().get(j).getValueAsString());
+//                    }
+//                }
+                for (int i = 0; i < grid.getRowCount(); i++) {
+                    String spcObjectName = parent.getChildren().get(i).getName();
+
+                    ArrayList<String> attributes = new ArrayList<>();
+
+                    for (int j = 1; j < grid.getColumnCount(); j++) {
+                        SpreadsheetCell spcAttribut = rows.get(i).get(j);
+                        System.out.println(spcAttribut.getText());
+                    }
+                }
+            } catch (JEVisException ex) {
+                Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 
@@ -126,7 +161,8 @@ public class CreateTable {
 
     private Response response = Response.CANCEL;
 
-    public CreateTable() {
+    public EditTable() {
+
     }
 
     public Response show(Stage owner, final JEVisClass jclass, final JEVisObject parent, boolean fixClass, Type type, String objName) {
@@ -179,14 +215,14 @@ public class CreateTable {
         classComboBox.getSelectionModel().selectFirst();
         createClass = classComboBox.getSelectionModel().getSelectedItem();
 
-        Button createBtn = new Button("Create Structure");
+        Button editBtn = new Button("Edit Structure");
         Button cancelBtn = new Button("Cancel");
 
         try {
             if (createClass.getName().equals("Data")) {
-                createNewDataTable = new CreateNewDataTable(createBtn);
+                createNewDataEditTable = new CreateNewDataEditTable(editBtn);
             } else {
-                new CreateNewTable();
+                new CreateNewEditTable(parent);
             }
         } catch (JEVisException ex) {
             Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
@@ -199,7 +235,7 @@ public class CreateTable {
         root.setTop(hBoxTop);
 
         HBox hBoxBottom = new HBox();
-        hBoxBottom.getChildren().addAll(createBtn, cancelBtn);
+        hBoxBottom.getChildren().addAll(editBtn, cancelBtn);
         hBoxBottom.setAlignment(Pos.BASELINE_RIGHT);
         root.setBottom(hBoxBottom);
 
@@ -248,7 +284,7 @@ public class CreateTable {
             }
         });
 
-        createBtn.setOnAction(new EventHandler<ActionEvent>() {
+        editBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
                 stage.close();
@@ -288,10 +324,10 @@ public class CreateTable {
                     createClass = classComboBox.getSelectionModel().getSelectedItem();
 
                     if (createClass.getName().equals("Data")) {
-                        createNewDataTable = new CreateNewDataTable(createBtn);
+                        createNewDataEditTable = new CreateNewDataEditTable(editBtn);
                         root.setCenter(spv);
                     } else {
-                        new CreateNewTable();
+                        new CreateNewEditTable(parent);
                         root.setCenter(spv);
                     }
                 } catch (JEVisException ex) {
@@ -300,7 +336,7 @@ public class CreateTable {
             }
         });
 
-        stage.setTitle("Bulk Create");
+        stage.setTitle("Bulk Edit");
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initOwner(owner);
         stage.setScene(scene);
@@ -313,227 +349,11 @@ public class CreateTable {
         return response;
     }
 
-    public LinkedList<String> getlistObjectNames() {
-        return listObjectNames;
-    }
+    //TODO
+    class CreateNewDataEditTable {
 
-    public ObservableList<Pair<String, ArrayList<String>>> getPairList() {
-        return pairList;
-    }
+        public CreateNewDataEditTable(Button editBtn) {
 
-    public JEVisClass getCreateClass() {
-        return createClass;
-    }
-
-    public ObservableList<String> getColumnHeaderNames() {
-        return columnHeaderNames;
-    }
-
-    private void addUnits() {
-        JEVisUnit.Prefix[] prefixes = JEVisUnit.Prefix.values();
-
-        for (int i = 0; i < prefixes.length; i++) {
-            String strPrefix = prefixes[i].toString();
-            listUnits.add(strPrefix);
         }
-    }
-
-    public void addSymbols() {
-        // Indische Währungssymbol nicht in der Liste ("₦","..",)
-        listUnitSymbols.addAll("m/s²",
-                "g", "mol", "atom", "rad", "bit", "%", "centiradian", "dB", "°", "'", "byte", "rev", "¨", "sphere", "sr", "rad/s²", "rad/s", "Bq", "Ci", "Hz",
-                "m²", "a", "ha", "cm²", "km²", "kat", "€", "₦", "$", "*?*", "¥", "Hits/cm²", "Hits/m²", "Ω/cm²", "bit/s", "-", "s", "m", "h", "day", "day_sidereal",
-                "week", "month", "year", "year_calendar", "year_sidereal", "g/(cms)", "F", "C", "e", "Fd", "Fr", "S", "A", "Gi", "H", "V", "Ω", "J",
-                "eV", "erg", "N", "dyn", "kgf", "lbf", "lx", "La", "W/m²", "m²/s", "cm²/s", "Å", "ua", "cm", "foot_survey_us", "ft", "in", "km", "ly",
-                "mi", "mm", "nmi", "pc", "pixel", "pt", "yd", "W", "Wb", "Mx", "T", "G", "kg", "u", "me", "t", "oz", "lb", "ton_uk", "ton_us", "kg/s",
-                "cd", "hp", "lm", "var", "Pa", "atm", "bar", "in Hg", "mmHg", "Gy", "rem", "Sv", "rd", "Rd", "rev/s", "grade", "K", "℃", "°F", "°R",
-                "Nm", "Wh", "Ws", "m/s", "c", "km/h", "kn", "Mach", "mph", "m³", "in³", "gallon_dry_us", "gal", "gallon_uk", "l", "oz_uk", "kg/m³", "m³/s");
-    }
-
-    class CreateNewDataTable {
-
-        public CreateNewDataTable(Button createBtn) {
-            String[] colNames = {"Object Name", "Display Prefix", "Display Symbol", "Display Sample Rate", "Input Prefix", "Input Symbol", "Input Sample Rate"};
-            rowCount = 1000;
-            columnCount = colNames.length;
-
-            grid = new GridBase(rowCount, columnCount);
-
-            for (int row = 0; row < grid.getRowCount(); ++row) {
-                cells = FXCollections.observableArrayList();
-                for (int column = 0; column < grid.getColumnCount(); ++column) {
-                    cells.add(SpreadsheetCellType.STRING.createCell(row, column, 1, 1, ""));
-                }
-                rows.add(cells);
-            }
-            grid.setRows(rows);
-            spv = new SpreadsheetView();
-            spv.setGrid(grid);
-
-            ObservableList<SpreadsheetColumn> colList = spv.getColumns();
-
-            for (SpreadsheetColumn colListElement : colList) {
-                colListElement.setPrefWidth(150);
-            }
-
-            spv.setEditable(true);
-            spv.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-            columnHeaderNamesDataTable.addAll(colNames);
-
-            spv.getGrid().getColumnHeaders().addAll(columnHeaderNamesDataTable);
-            //change it
-            createBtn.setDisable(true);
-            addUnits();
-            addSymbols();
-            //GridChange Event for Prefix and Symbol Input Control
-            spv.getGrid().addEventHandler(GridChange.GRID_CHANGE_EVENT, new EventHandler<GridChange>() {
-
-                @Override
-                public void handle(GridChange event) {
-                    inputControl(createBtn);
-                }
-            });
-        }
-    }
-
-    public void inputControl(Button createBtn) {
-        ObservableList<String> listPrefix = FXCollections.observableArrayList();
-        ObservableList<String> listSymbols = FXCollections.observableArrayList();
-        ObservableList<String> listSampleRateControl = FXCollections.observableArrayList();
-
-        Pattern pattern = Pattern.compile("[P]([0-9]+[M])?([0-9][W])?[T]([0-9]+[H])?([0-9]+[M])?([0-9]+[S])?");
-
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            SpreadsheetCell spcDisplayPrefix = rows.get(i).get(1);
-            if (!spcDisplayPrefix.getText().equals("")) {
-                listPrefix.add(spcDisplayPrefix.getText());
-            }
-        }
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            SpreadsheetCell spcInputPrefix = rows.get(i).get(4);
-            if (!spcInputPrefix.getText().equals("")) {
-                listPrefix.add(spcInputPrefix.getText());
-            }
-        }
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            SpreadsheetCell spcDisplaySymbol = rows.get(i).get(2);
-            if (!spcDisplaySymbol.getText().equals("")) {
-                listSymbols.add(spcDisplaySymbol.getText());
-            }
-        }
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            SpreadsheetCell spcInputSymbol = rows.get(i).get(5);
-            if (!spcInputSymbol.getText().equals("")) {
-                listSymbols.add(spcInputSymbol.getText());
-            }
-        }
-
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            SpreadsheetCell spcDisplaySampleRate = rows.get(i).get(3);
-            if (!spcDisplaySampleRate.getText().equals("")) {
-                Matcher matcher = pattern.matcher(spcDisplaySampleRate.getText());
-                if (!matcher.matches()) {
-                    listSampleRateControl.add(spcDisplaySampleRate.getText());
-                }
-            }
-        }
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            SpreadsheetCell spcInputSampleRate = rows.get(i).get(6);
-            if (!spcInputSampleRate.getText().equals("")) {
-                Matcher matcher = pattern.matcher(spcInputSampleRate.getText());
-                if (!matcher.matches()) {
-                    listSampleRateControl.add(spcInputSampleRate.getText());
-                }
-            }
-        }
-
-        if (listUnits.containsAll(listPrefix) && listUnitSymbols.containsAll(listSymbols) && listSampleRateControl.isEmpty()) {
-            createBtn.setDisable(false);
-        } else {
-            createBtn.setDisable(true);
-        }
-
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            SpreadsheetCell spcDisplayPrefix = rows.get(i).get(1);
-            if (!spcDisplayPrefix.getText().equals("")) {
-                if (!listUnits.contains(spcDisplayPrefix.getText())) {
-                    spcDisplayPrefix.getStyleClass().add("spreadsheet-cell-error");
-                } else {
-                    spcDisplayPrefix.getStyleClass().remove("spreadsheet-cell-error");
-                }
-            } else {
-                spcDisplayPrefix.getStyleClass().remove("spreadsheet-cell-error");
-            }
-        }
-
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            SpreadsheetCell spcInputPrefix = rows.get(i).get(4);
-            if (!spcInputPrefix.getText().equals("")) {
-                if (!listUnits.contains(spcInputPrefix.getText())) {
-                    spcInputPrefix.getStyleClass().add("spreadsheet-cell-error");
-                } else {
-                    spcInputPrefix.getStyleClass().remove("spreadsheet-cell-error");
-                }
-            } else {
-                spcInputPrefix.getStyleClass().remove("spreadsheet-cell-error");
-            }
-        }
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            SpreadsheetCell spcDisplaySymbol = rows.get(i).get(2);
-            if (!spcDisplaySymbol.getText().equals("")) {
-                if (!listUnitSymbols.contains(spcDisplaySymbol.getText())) {
-                    spcDisplaySymbol.getStyleClass().add("spreadsheet-cell-error");
-                } else {
-                    spcDisplaySymbol.getStyleClass().remove("spreadsheet-cell-error");
-                }
-            } else {
-                spcDisplaySymbol.getStyleClass().remove("spreadsheet-cell-error");
-            }
-        }
-
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            SpreadsheetCell spcInputSymbol = rows.get(i).get(5);
-            if (!spcInputSymbol.getText().equals("")) {
-                if (!listUnitSymbols.contains(spcInputSymbol.getText())) {
-                    spcInputSymbol.getStyleClass().add("spreadsheet-cell-error");
-                } else {
-                    spcInputSymbol.getStyleClass().remove("spreadsheet-cell-error");
-                }
-            } else {
-                spcInputSymbol.getStyleClass().remove("spreadsheet-cell-error");
-            }
-        }
-
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            SpreadsheetCell spcDisplaySampleRate = rows.get(i).get(3);
-            Matcher matcher = pattern.matcher(spcDisplaySampleRate.getText());
-            if (!spcDisplaySampleRate.getText().equals("")) {
-                if (!matcher.matches()) {
-                    spcDisplaySampleRate.getStyleClass().add("spreadsheet-cell-error");
-                } else {
-                    spcDisplaySampleRate.getStyleClass().remove("spreadsheet-cell-error");
-                }
-            } else {
-                spcDisplaySampleRate.getStyleClass().remove("spreadsheet-cell-error");
-            }
-        }
-
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            SpreadsheetCell spcInputSampleRate = rows.get(i).get(6);
-            Matcher matcher = pattern.matcher(spcInputSampleRate.getText());
-            if (!spcInputSampleRate.getText().equals("")) {
-                if (!matcher.matches()) {
-                    spcInputSampleRate.getStyleClass().add("spreadsheet-cell-error");
-                } else {
-                    spcInputSampleRate.getStyleClass().remove("spreadsheet-cell-error");
-                }
-            } else {
-                spcInputSampleRate.getStyleClass().remove("spreadsheet-cell-error");
-            }
-        }
-
-        listSymbols.clear();
-        listPrefix.clear();
-        listSampleRateControl.clear();
     }
 }

@@ -632,9 +632,9 @@ public class ObjectTree extends TreeView<JEVisObject> {
                             newObject = parent.buildObject(objectName, table.getCreateClass());
                             newObject.commit();
 
-                            List<JEVisAttribute> attribut = newObject.getAttributes();
-                            for (int j = 0; j < attribut.size(); j++) {
-                                attribut.get(j).buildSample(new DateTime(), table.getPairList().get(i).getValue().get(j)).commit();
+                            List<JEVisAttribute> attributes = newObject.getAttributes();
+                            for (int j = 0; j < attributes.size(); j++) {
+                                attributes.get(j).buildSample(new DateTime(), table.getPairList().get(i).getValue().get(j)).commit();
                             }
                         }
 
@@ -665,13 +665,18 @@ public class ObjectTree extends TreeView<JEVisObject> {
             }
         }
     }
-    
+
     //@AITBilal
     //TODO
-    public void fireEventEditTable(final JEVisObject parent) throws JEVisException{
-        
+    public void fireEventEditTable(final JEVisObject parent) throws JEVisException {
+        EditTable table = new EditTable();
+        if (parent != null) {
+            if (table.show(JEConfig.getStage(), null, parent, false, EditTable.Type.NEW, null) == EditTable.Response.YES) {
+                
+            }
+        }
     }
-    
+
     //TODO i dont like this way
     public ObjectEditor getEditor() {
         return _editor;
