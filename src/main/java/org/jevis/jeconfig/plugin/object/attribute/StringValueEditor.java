@@ -95,7 +95,7 @@ public class StringValueEditor implements AttributeEditor {
     private void buildTextFild() throws JEVisException {
         if (_field == null) {
             _field = new TextField();
-            _field.setPrefWidth(500);//TODO: remove this workaround 
+            _field.setPrefWidth(500);//TODO: remove this workaround
 
             if (_attribute.getLatestSample() != null) {
                 _field.setText(_attribute.getLatestSample().getValueAsString());
