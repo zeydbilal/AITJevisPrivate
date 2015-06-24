@@ -165,7 +165,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                                 editor = new StringMultyLine(att);
                             }
 
-                            if (att.getType().getGUIDisplayType().equalsIgnoreCase(GUIConstants.BASIC_TEXt_DATE_FULL.getId())) {
+                            if (att.getType().getGUIDisplayType().equalsIgnoreCase(GUIConstants.BASIC_TEXT_DATE_FULL.getId())) {
                                 editor = new dateValueEditor(att);
                             }
                         } catch (Exception e) {
