@@ -48,6 +48,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
 import org.jevis.jeconfig.tool.ImageConverter;
 
@@ -117,32 +118,45 @@ public class EditTable {
                 Logger.getLogger(CreateNewEditTable.class.getName()).log(Level.SEVERE, null, ex);
             }
             spv.getGrid().getColumnHeaders().addAll(columnHeaderNames);
+            //TODO add objectname and your samples in die Table
 
             try {
-//                
-//                List<JEVisAttribute> attributes = parent.getChildren().get(0).get;
-//                for (int i = 0; i < attributes.size(); i++) {
-//                    System.out.println(attributes);
-//                }
-//                
-//                for (int i = 0; i < grid.getRowCount(); i++) {
-//                    for (int j = 1; j < grid.getColumnCount(); j++) {
-//                        SpreadsheetCell spc = rows.get(i).get(j);
-//
-//                        grid.setCellValue(i, 0, spc.getCellType().convertValue(parent.getChildren().get(i).getName()));
-////                        System.out.println(attribut.get(j).getAllSamples().get(j).getValueAsString());
-//                    }
-//                }
                 for (int i = 0; i < grid.getRowCount(); i++) {
+                    //Get object name
                     String spcObjectName = parent.getChildren().get(i).getName();
+                    // Get attributes
+                    List<JEVisAttribute> attributes = parent.getChildren().get(i).getAttributes();
 
-                    ArrayList<String> attributes = new ArrayList<>();
+                    ObservableList<Pair<String, String>> listSample = FXCollections.observableArrayList();
 
-                    for (int j = 1; j < grid.getColumnCount(); j++) {
-                        SpreadsheetCell spcAttribut = rows.get(i).get(j);
-                        System.out.println(spcAttribut.getText());
+                    for (int z = 0; z < attributes.size(); z++) {
+                        if (attributes.get(z).getLatestSample() != null) {
+                            //Get the last sample for this attribute
+                            JEVisSample lastSample = attributes.get(z).getLatestSample();
+                            // Add the last attribute name und value in the list.
+                            listSample.add(new Pair(lastSample.getAttribute().getName(), lastSample.getValueAsString()));
+                        } else {
+                            listSample.add(new Pair(attributes.get(z).getName(), "WERT"));
+                        }
                     }
+
+                    for (int z = 0; z < listSample.size(); z++) {
+                        System.out.print(listSample.get(z).getKey() + " :: " + listSample.get(z).getValue());
+                    }
+
+                    //Set Object Name
+                    for (int j = 0; j < grid.getColumnCount(); j++) {
+                        if (columnHeaderNames.get(j).equals("Object Name")) {
+                            grid.setCellValue(i, columnHeaderNames.get(j).indexOf("Object Name"), spcObjectName);
+                        } else {
+                            for (int z = 0; z < listSample.size(); z++) {
+                                 grid.setCellValue(i, j, listSample.get(j).getValue());
+                            }                         
+                        }
+                    }
+                    System.out.println("----------------");
                 }
+
             } catch (JEVisException ex) {
                 Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
             }
