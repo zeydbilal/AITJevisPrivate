@@ -37,6 +37,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.Accordion;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
@@ -49,6 +51,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -204,10 +208,12 @@ public class ClassEditor {
                             fileChooser.setInitialDirectory(JEConfig.getLastPath().getParentFile());
                         }
 
+                        FileChooser.ExtensionFilter allImagesFilter = new FileChooser.ExtensionFilter("Image files", "*.png", "*.jpg", "*.gif");
                         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png");
                         FileChooser.ExtensionFilter gifFilter = new FileChooser.ExtensionFilter("GIF files (*.gif)", "*.gif");
                         FileChooser.ExtensionFilter jpgFilter = new FileChooser.ExtensionFilter("JPG files (*.jpg)", "*.jpg");
-                        fileChooser.getExtensionFilters().addAll(gifFilter, extFilter, jpgFilter);
+                        FileChooser.ExtensionFilter allFilter = new FileChooser.ExtensionFilter("All files (*.*)", "*.*");
+                        fileChooser.getExtensionFilters().addAll(allImagesFilter, gifFilter, extFilter, jpgFilter, allFilter);
                         final File file = fileChooser.showOpenDialog(JEConfig.getStage());
                         if (file != null) {
                             openFile(file);
@@ -521,7 +527,8 @@ public class ClassEditor {
         Separator newSep = new Separator();
         gridPane.add(newSep, 0, row++, 6, 1);
 
-        final TextField lName = new TextField("New Attribute");
+        final TextField lName = new TextField();
+        lName.setPromptText("Name of new type");
 //        final ChoiceBox pTypeBox = buildPrimitiveTypeBox(null);
 
         Button newB = new Button();
@@ -529,25 +536,36 @@ public class ClassEditor {
         newB.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-                try {
-                    JEVisType newType = _class.buildType(lName.getText());
-                    JEVisType lastType = _class.getTypes().get(_class.getTypes().size() - 1);
-//                    newType.setPrimitiveType(ClassHelper.getIDforPrimitiveType(pTypeBox.getSelectionModel().getSelectedItem().toString()));
-                    newType.setGUIPosition(lastType.getGUIPosition() + 1);
-                    System.out.println("new pos for new Type: " + newType.getGUIPosition());
 
-                    t2.setContent(buildTypeNode());
+                createTypeAction(lName.getText());
 
-                } catch (Exception ex) {
-                    Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
+//                try {
+//                    JEVisType newType = _class.buildType(lName.getText());
+//                    JEVisType lastType = _class.getTypes().get(_class.getTypes().size() - 1);
+////                    newType.setPrimitiveType(ClassHelper.getIDforPrimitiveType(pTypeBox.getSelectionModel().getSelectedItem().toString()));
+//                    newType.setGUIPosition(lastType.getGUIPosition() + 1);
+//                    System.out.println("new pos for new Type: " + newType.getGUIPosition());
+//
+//                    t2.setContent(buildTypeNode());
+//
+//                } catch (Exception ex) {
+//                    Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+            }
+        });
+
+        lName.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent ke) {
+                if (ke.getCode().equals(KeyCode.ENTER)) {
+                    createTypeAction(lName.getText());
                 }
             }
         });
 
-        ChoiceBox guiType = new ChoiceBox();
-        guiType.setItems(FXCollections.observableArrayList(
-                "Text", "IP-Address", "Number", "File Selector", "Check Box", "PASSWORD Field"));
-
+//        ChoiceBox guiType = new ChoiceBox();
+//        guiType.setItems(FXCollections.observableArrayList(
+//                "Text", "IP-Address", "Number", "File Selector", "Check Box", "PASSWORD Field"));
         gridPane.add(lName, 0, row);
 //        gridPane.add(pTypeBox, 1, row);
 //        gridPane.add(guiType, 2, row);
@@ -556,6 +574,43 @@ public class ClassEditor {
         cp.setContent(gridPane);
 
         return cp;
+    }
+
+    private void createTypeAction(String name) {
+        try {
+            if (name.isEmpty()) {
+                return;
+            }
+
+            if (!name.matches("^[A-Za-z0-9 _]*[A-Za-z0-9][A-Za-z0-9 _]*$")) {
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("Can't create type");
+                alert.setContentText("No special character allowed");
+                alert.showAndWait();
+                return;
+            }
+
+            if (_class.getType(name) != null) {
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("Can't create type");
+                alert.setContentText("Type allready exist.");
+                alert.showAndWait();
+                return;
+            }
+
+            JEVisType newType = _class.buildType(name);
+            JEVisType lastType = _class.getTypes().get(_class.getTypes().size() - 1);
+//                    newType.setPrimitiveType(ClassHelper.getIDforPrimitiveType(pTypeBox.getSelectionModel().getSelectedItem().toString()));
+            newType.setGUIPosition(lastType.getGUIPosition() + 1);
+//            System.out.println("new pos for new Type: " + newType.getGUIPosition());
+
+            t2.setContent(buildTypeNode());
+
+        } catch (Exception ex) {
+            Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private void setUnitButton(Button button, JEVisType type) throws JEVisException {
