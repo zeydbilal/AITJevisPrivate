@@ -43,7 +43,7 @@ public class ClassContextMenu extends ContextMenu {
 
     public ClassContextMenu(TreeItem<JEVisClass> item, ClassTree tree) {
         super();
-
+        System.out.println("build Contex menu");
         _obj = item.getValue();
         _item = item;
         _tree = tree;
@@ -67,6 +67,9 @@ public class ClassContextMenu extends ContextMenu {
                 _tree.fireEventNew(_tree.getSelectionModel().getSelectedItem());
             }
         });
+
+        System.out.println("Disable menu: " + !JEConfig.getCurrentUser().isSysAdmin());
+        addMenu.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
 
         return addMenu;
 
@@ -110,6 +113,8 @@ public class ClassContextMenu extends ContextMenu {
 
             }
         });
+        menu.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
+
         return menu;
     }
 
@@ -122,6 +127,7 @@ public class ClassContextMenu extends ContextMenu {
                 _tree.fireDelete(_obj);
             }
         });
+        menu.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
         return menu;
     }
 }

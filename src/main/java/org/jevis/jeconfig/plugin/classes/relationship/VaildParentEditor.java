@@ -96,14 +96,9 @@ public class VaildParentEditor {
 
                             classBox.getChildren().setAll(icon, otherClass);
 
-//                        otherClass.setDisable(true);
-//                        ComboBox<String> direction = buildDirectionBox(rel, jclass);
-//                        final ComboBox<String> type = buildTypeBox(rel);
                             gb.add(classBox, 0, ++x);
-//                        gb.add(direction, 1, x);
-//                        gb.add(type, 2, x);
-
                             Button remove = new Button();
+                            remove.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
                             remove.setGraphic(JEConfig.getImage("list-remove.png", 20, 20));
                             gb.add(remove, 1, x);
 
@@ -135,21 +130,15 @@ public class VaildParentEditor {
                 final Button newB = new Button();
 
                 newB.setGraphic(JEConfig.getImage("list-add.png", 20, 20));
-                newB.setDisable(
-                        true);
+                newB.setDisable(true);
 
                 //TODO: replace with Tree selection dialog
                 final TextField newTF = new TextField();
 
-                newTF.setPromptText(
-                        "Class Name");
-
-                gb.add(
-                        new Separator(Orientation.HORIZONTAL), 0, ++x, 2, 1);
-                gb.add(newTF,
-                        0, ++x);
-                gb.add(newB,
-                        1, x);
+                newTF.setPromptText("Class Name");
+                gb.add(new Separator(Orientation.HORIZONTAL), 0, ++x, 2, 1);
+                gb.add(newTF, 0, ++x);
+                gb.add(newB, 1, x);
 
                 newTF.setOnKeyReleased(
                         new EventHandler<KeyEvent>() {
@@ -165,7 +154,8 @@ public class VaildParentEditor {
 
                                                 @Override
                                                 public void run() {
-                                                    newB.setDisable(false);
+                                                    newB.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
+//                                                    newB.setDisable(false);
                                                 }
                                             });
 
@@ -245,6 +235,8 @@ public class VaildParentEditor {
                 break;
         }
 
+        box.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
+
         return box;
     }
 
@@ -258,6 +250,8 @@ public class VaildParentEditor {
         } else {
             box.getSelectionModel().select("Backward");
         }
+
+        box.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
 
         return box;
     }

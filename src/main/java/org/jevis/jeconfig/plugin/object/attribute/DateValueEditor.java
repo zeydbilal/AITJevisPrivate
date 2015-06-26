@@ -46,7 +46,7 @@ import org.joda.time.DateTime;
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class dateValueEditor implements AttributeEditor {
+public class DateValueEditor implements AttributeEditor {
 
     HBox box = new HBox();
     public JEVisAttribute _attribute;
@@ -55,7 +55,7 @@ public class dateValueEditor implements AttributeEditor {
     private JEVisSample _lastSample;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
 
-    public dateValueEditor(JEVisAttribute att) {
+    public DateValueEditor(JEVisAttribute att) {
         _attribute = att;
     }
 
@@ -100,7 +100,7 @@ public class dateValueEditor implements AttributeEditor {
     private void buildTextFild() throws JEVisException {
         if (_datePicker == null) {
             _datePicker = new DatePicker();
-            _datePicker.setPrefWidth(250);//TODO: remove this workaround
+            _datePicker.setPrefWidth(150);//TODO: remove this workaround
             _datePicker.setShowWeekNumbers(true);
             _datePicker.setId("attributelabel");
 
@@ -168,7 +168,7 @@ public class dateValueEditor implements AttributeEditor {
                     tooltip.setGraphic(JEConfig.getImage("1393862576_info_blue.png", 30, 30));
                     _datePicker.setTooltip(tooltip);
                 } catch (JEVisException ex) {
-                    Logger.getLogger(dateValueEditor.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(DateValueEditor.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -188,7 +188,7 @@ public class dateValueEditor implements AttributeEditor {
                     HBox.setHgrow(chartView, Priority.NEVER);
                 }
             } catch (Exception ex) {
-                Logger.getLogger(dateValueEditor.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(DateValueEditor.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         }
