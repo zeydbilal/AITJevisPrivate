@@ -76,6 +76,8 @@ public class EditTable {
 
     class CreateNewEditTable {
 
+        ObservableList<Pair<String, ObservableList<Pair<String, String>>>> listObjectAndSample = FXCollections.observableArrayList();
+
         public CreateNewEditTable(JEVisObject parent) {
             try {
                 rowCount = parent.getChildren().size();
@@ -120,6 +122,7 @@ public class EditTable {
             spv.getGrid().getColumnHeaders().addAll(columnHeaderNames);
             //TODO add objectname and your samples in die Table
 
+            //Add to listObjectAndSample
             try {
                 for (int i = 0; i < grid.getRowCount(); i++) {
                     //Get object name
@@ -139,26 +142,24 @@ public class EditTable {
                             listSample.add(new Pair(attributes.get(z).getName(), "WERT"));
                         }
                     }
-
-                    for (int z = 0; z < listSample.size(); z++) {
-                        System.out.print(listSample.get(z).getKey() + " :: " + listSample.get(z).getValue());
-                    }
-
-                    //Set Object Name
-                    for (int j = 0; j < grid.getColumnCount(); j++) {
-                        if (columnHeaderNames.get(j).equals("Object Name")) {
-                            grid.setCellValue(i, columnHeaderNames.get(j).indexOf("Object Name"), spcObjectName);
-                        } else {
-                            for (int z = 0; z < listSample.size(); z++) {
-                                 grid.setCellValue(i, j, listSample.get(j).getValue());
-                            }                         
-                        }
-                    }
-                    System.out.println("----------------");
+                    listObjectAndSample.add(new Pair(spcObjectName, listSample));
                 }
-
             } catch (JEVisException ex) {
                 Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            //Add to table
+            for (int i = 0; i < grid.getRowCount(); i++) {
+                for (int j = 0; j < grid.getColumnCount(); j++) {
+//                    grid.setCellValue(i, 0, listObjectAndSample.get(i).getKey());
+                    for (int k = 0; k < listObjectAndSample.get(i).getValue().size(); k++) {
+//                        System.out.print(listObjectAndSample.get(i).getValue().get(k).getValue()+"--");
+                        grid.setCellValue(i, k, listObjectAndSample.get(i).getValue().get(k).getValue());
+                    }
+                    System.out.println("");
+//                    break;
+                }
+                System.out.println("-------------");
             }
         }
     }

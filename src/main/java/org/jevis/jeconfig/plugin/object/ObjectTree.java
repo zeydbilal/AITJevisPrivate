@@ -572,13 +572,10 @@ public class ObjectTree extends TreeView<JEVisObject> {
                             errorDia.show(JEConfig.getStage(), "Error", "Could not create user", "Could not create new user.", ex, JEConfig.PROGRAMM_INFO);
 
                         }
-
                     }
                 }
-
             }
         }
-
     }
 
     //@AITBilal - Create a new Table!
