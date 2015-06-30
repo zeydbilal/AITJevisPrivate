@@ -1,7 +1,9 @@
 package org.jevis.jeconfig.plugin.object;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -67,6 +69,14 @@ public class CreateTable {
     private ObservableList<String> listUnits = FXCollections.observableArrayList();
     private ObservableList<String> listUnitSymbols = FXCollections.observableArrayList();
 
+    private Map<Integer, Double> generateRowHeight() {
+        Map<Integer, Double> rowHeight = new HashMap<>();
+        for (int i = 0; i < grid.getRowCount(); i++) {
+            rowHeight.put(i, 30.0);
+        }
+        return rowHeight;
+    }
+
     class CreateNewTable {
 
         public CreateNewTable() {
@@ -88,6 +98,7 @@ public class CreateTable {
                 rows.add(cells);
             }
             grid.setRows(rows);
+            grid.setRowHeightCallback(new GridBase.MapBasedRowHeightFactory(generateRowHeight()));
             spv = new SpreadsheetView();
             spv.setGrid(grid);
 
@@ -367,6 +378,7 @@ public class CreateTable {
                 rows.add(cells);
             }
             grid.setRows(rows);
+            grid.setRowHeightCallback(new GridBase.MapBasedRowHeightFactory(generateRowHeight()));
             spv = new SpreadsheetView();
             spv.setGrid(grid);
 

@@ -6,8 +6,10 @@
 package org.jevis.jeconfig.plugin.object;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -74,6 +76,14 @@ public class EditTable {
     private ObservableList<String> listUnits = FXCollections.observableArrayList();
     private ObservableList<String> listUnitSymbols = FXCollections.observableArrayList();
 
+    private Map<Integer, Double> generateRowHeight() {
+        Map<Integer, Double> rowHeight = new HashMap<>();
+        for (int i = 0; i < grid.getRowCount(); i++) {
+            rowHeight.put(i, 30.0);
+        }
+        return rowHeight;
+    }
+
     class CreateNewEditTable {
 
         ObservableList<Pair<String, ObservableList<Pair<String, String>>>> listObjectAndSample = FXCollections.observableArrayList();
@@ -97,6 +107,7 @@ public class EditTable {
                 rows.add(cells);
             }
             grid.setRows(rows);
+            grid.setRowHeightCallback(new GridBase.MapBasedRowHeightFactory(generateRowHeight()));
             spv = new SpreadsheetView();
             spv.setGrid(grid);
 
@@ -153,15 +164,15 @@ public class EditTable {
                 for (int j = 0; j < grid.getColumnCount(); j++) {
                     if (columnHeaderNames.get(j).equals("Object Name")) {
                         grid.setCellValue(i, columnHeaderNames.get(j).indexOf("Object Name"), listObjectAndSample.get(i).getKey());
-                    } 
-                    else {
-                        int counter =1;
+                    } else {
+                        int counter = 1;
                         for (int k = 0; k < listObjectAndSample.get(i).getValue().size(); k++) {
                             if (listObjectAndSample.get(i).getValue().get(k).getKey().equals("Password")) {
                                 //TODO Password sonderfall ?
                                 grid.setCellValue(i, counter, "*******");
                             } else {
                                 grid.setCellValue(i, counter, listObjectAndSample.get(i).getValue().get(k).getValue());
+
                             }
                             counter++;
                         }
