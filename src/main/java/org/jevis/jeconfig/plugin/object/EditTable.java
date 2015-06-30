@@ -139,7 +139,7 @@ public class EditTable {
                             // Add the last attribute name und value in the list.
                             listSample.add(new Pair(lastSample.getAttribute().getName(), lastSample.getValueAsString()));
                         } else {
-                            listSample.add(new Pair(attributes.get(z).getName(), "WERT"));
+                            listSample.add(new Pair(attributes.get(z).getName(), ""));
                         }
                     }
                     listObjectAndSample.add(new Pair(spcObjectName, listSample));
@@ -151,15 +151,22 @@ public class EditTable {
             //Add to table
             for (int i = 0; i < grid.getRowCount(); i++) {
                 for (int j = 0; j < grid.getColumnCount(); j++) {
-//                    grid.setCellValue(i, 0, listObjectAndSample.get(i).getKey());
-                    for (int k = 0; k < listObjectAndSample.get(i).getValue().size(); k++) {
-//                        System.out.print(listObjectAndSample.get(i).getValue().get(k).getValue()+"--");
-                        grid.setCellValue(i, k, listObjectAndSample.get(i).getValue().get(k).getValue());
+                    if (columnHeaderNames.get(j).equals("Object Name")) {
+                        grid.setCellValue(i, columnHeaderNames.get(j).indexOf("Object Name"), listObjectAndSample.get(i).getKey());
+                    } 
+                    else {
+                        int counter =1;
+                        for (int k = 0; k < listObjectAndSample.get(i).getValue().size(); k++) {
+                            if (listObjectAndSample.get(i).getValue().get(k).getKey().equals("Password")) {
+                                //TODO Password sonderfall ?
+                                grid.setCellValue(i, counter, "*******");
+                            } else {
+                                grid.setCellValue(i, counter, listObjectAndSample.get(i).getValue().get(k).getValue());
+                            }
+                            counter++;
+                        }
                     }
-                    System.out.println("");
-//                    break;
                 }
-                System.out.println("-------------");
             }
         }
     }
