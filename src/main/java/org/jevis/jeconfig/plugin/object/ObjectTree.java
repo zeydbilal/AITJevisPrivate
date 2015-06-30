@@ -669,7 +669,16 @@ public class ObjectTree extends TreeView<JEVisObject> {
         EditTable table = new EditTable();
         if (parent != null) {
             if (table.show(JEConfig.getStage(), null, parent, false, EditTable.Type.NEW, null) == EditTable.Response.YES) {
-                
+                for (int i = 0; i < table.getPairList().size(); i++) {
+                    JEVisObject childObject = parent.getChildren().get(i);
+
+                    List<JEVisAttribute> attributes = childObject.getAttributes();
+                    for (int j = 0; j < attributes.size(); j++) {
+                        if (!attributes.get(j).getLatestSample().getValueAsString().equals(table.getPairList().get(i).getValue().get(j))) {
+                            attributes.get(j).buildSample(new DateTime(), table.getPairList().get(i).getValue().get(j)).commit();
+                        }
+                    }
+                }
             }
         }
     }

@@ -59,7 +59,6 @@ public class CreateTable {
     private GridBase grid;
     private Stage stage = new Stage();
     private JEVisClass createClass;
-    private LinkedList<String> listObjectNames = new LinkedList<>();
     private int rowCount;
     private int columnCount;
     private CreateNewDataTable createNewDataTable;
@@ -324,20 +323,12 @@ public class CreateTable {
         return response;
     }
 
-    public LinkedList<String> getlistObjectNames() {
-        return listObjectNames;
-    }
-
     public ObservableList<Pair<String, ArrayList<String>>> getPairList() {
         return pairList;
     }
 
     public JEVisClass getCreateClass() {
         return createClass;
-    }
-
-    public ObservableList<String> getColumnHeaderNames() {
-        return columnHeaderNames;
     }
 
     private void addUnits() {
@@ -394,7 +385,7 @@ public class CreateTable {
 
             spv.getGrid().getColumnHeaders().addAll(columnHeaderNamesDataTable);
             //change it
-            createBtn.setDisable(true);
+            //createBtn.setDisable(false);
             addUnits();
             addSymbols();
             //GridChange Event for Prefix and Symbol Input Control
