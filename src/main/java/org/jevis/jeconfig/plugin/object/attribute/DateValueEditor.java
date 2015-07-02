@@ -109,7 +109,8 @@ public class DateValueEditor implements AttributeEditor {
                     System.out.println("Date is not emty: " + _attribute.getLatestSample());
                     _datePicker.setValue(LocalDate.parse(_attribute.getLatestSample().getValueAsString(), DateTimeFormatter.ISO_DATE));
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    System.out.println("Warning cannot parse");
+//                    ex.printStackTrace();
                 }
 //                _field.setText(_attribute.getLatestSample().getValueAsString());
                 _lastSample = _attribute.getLatestSample();
