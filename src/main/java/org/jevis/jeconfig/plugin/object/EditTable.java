@@ -66,8 +66,10 @@ public class EditTable {
     private GridBase grid;
     private Stage stage = new Stage();
     private JEVisClass selectedClass;
+    private LinkedList<String> listObjectNames = new LinkedList<>();
     private int rowCount;
     private int columnCount;
+    private CreateNewDataEditTable createNewDataEditTable;
     private ObservableList<String> columnHeaderNames = FXCollections.observableArrayList();
     private ObservableList<String> columnHeaderNamesDataTable = FXCollections.observableArrayList();
     private ObservableList<Pair<String, ArrayList<String>>> pairList = FXCollections.observableArrayList();
@@ -129,6 +131,7 @@ public class EditTable {
                 Logger.getLogger(CreateNewEditTable.class.getName()).log(Level.SEVERE, null, ex);
             }
             spv.getGrid().getColumnHeaders().addAll(columnHeaderNames);
+            //TODO add objectname and your samples in die Table
 
             //Add to listObjectAndSample
             try {
@@ -154,6 +157,18 @@ public class EditTable {
                 }
             } catch (JEVisException ex) {
                 Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            //Output in die Konsole
+            for (int i = 0; i < grid.getRowCount(); i++) {
+                for (int j = 0; j < grid.getColumnCount(); j++) {
+                    System.out.print(listObjectAndSample.get(i).getKey() + " : ");
+                    int counter = 1;
+                    for (int k = 0; k < listObjectAndSample.get(i).getValue().size(); k++) {
+                        System.out.print(listObjectAndSample.get(i).getValue().get(k).getValue() + " - ");
+                        counter++;
+                    }
+                    System.out.println("");
+                }
             }
 
             //Add to table
@@ -255,7 +270,7 @@ public class EditTable {
 
         try {
             if (selectedClass.getName().equals("Data")) {
-                new CreateNewDataEditTable(parent, editBtn);
+                createNewDataEditTable = new CreateNewDataEditTable(parent, editBtn);
             } else {
                 new CreateNewEditTable(parent);
             }
@@ -359,7 +374,7 @@ public class EditTable {
                     selectedClass = classComboBox.getSelectionModel().getSelectedItem();
 
                     if (selectedClass.getName().equals("Data")) {
-                        new CreateNewDataEditTable(parent, editBtn);
+                        createNewDataEditTable = new CreateNewDataEditTable(parent, editBtn);
                         root.setCenter(spv);
                     } else {
                         new CreateNewEditTable(parent);
@@ -388,7 +403,7 @@ public class EditTable {
         return pairList;
     }
 
-    public JEVisClass getSelectedClass() {
+    public JEVisClass getCreateClass() {
         return selectedClass;
     }
 
@@ -466,7 +481,7 @@ public class EditTable {
                     ObservableList<Pair<String, String>> listValueAttribute = FXCollections.observableArrayList();
 
                     for (int z = 0; z < attributes.size(); z++) {
-
+                        //TODO displayPrefix,displaySampleRate,inputSampleRate,inputPrefix Empty,Null oder NONE ist
                         JEVisUnit displayUnit = attributes.get(z).getDisplayUnit();
                         String displayPrefix = attributes.get(z).getDisplayUnit().getPrefix().toString();
                         String displaySampleRate = attributes.get(z).getDisplaySampleRate().toString();
@@ -474,14 +489,10 @@ public class EditTable {
                         JEVisUnit inputUnit = attributes.get(z).getInputUnit();
                         String inputSampleRate = attributes.get(z).getInputSampleRate().toString();
                         String inputPrefix = attributes.get(z).getInputUnit().getPrefix().toString();
+                        
+                        listValueAttribute.add(new Pair(attributes.get(z).getName(), displayPrefix));
 
                         if (attributes.get(z).getName().equals("Value")) {
-                            if (displayPrefix.equals("") || displayPrefix.equals(null) || displayPrefix.equals("NONE")) {
-                                listValueAttribute.add(new Pair(attributes.get(z).getName(), ""));
-                            } else {
-                                listValueAttribute.add(new Pair(attributes.get(z).getName(), displayPrefix));
-                            }
-
                             if (displayUnit.toString().equals("") || displayUnit.equals(null) || displayUnit.toString().equals("NONE")) {
                                 listValueAttribute.add(new Pair(attributes.get(z).getName(), ""));
                             } else {
@@ -491,18 +502,9 @@ public class EditTable {
                                     listValueAttribute.add(new Pair(attributes.get(z).getName(), displayUnit.toString().substring(1, displayUnit.toString().length())));
                                 }
                             }
+                            listValueAttribute.add(new Pair(attributes.get(z).getName(), displaySampleRate));
 
-                            if (displaySampleRate.equals("") || displaySampleRate.equals(null) || displaySampleRate.equals("NONE")) {
-                                listValueAttribute.add(new Pair(attributes.get(z).getName(), ""));
-                            } else {
-                                listValueAttribute.add(new Pair(attributes.get(z).getName(), displaySampleRate));
-                            }
-
-                            if (inputPrefix.equals("") || inputPrefix.equals(null) || inputPrefix.equals("NONE")) {
-                                listValueAttribute.add(new Pair(attributes.get(z).getName(), ""));
-                            } else {
-                                listValueAttribute.add(new Pair(attributes.get(z).getName(), inputPrefix));
-                            }
+                            listValueAttribute.add(new Pair(attributes.get(z).getName(), inputPrefix));
 
                             if (inputUnit.toString().equals("") || inputUnit.equals(null) || inputUnit.toString().equals("NONE")) {
                                 listValueAttribute.add(new Pair(attributes.get(z).getName(), ""));
@@ -515,6 +517,7 @@ public class EditTable {
                                 }
                             }
                             listValueAttribute.add(new Pair(attributes.get(z).getName(), inputSampleRate));
+
                         }
                     }
 
@@ -522,6 +525,16 @@ public class EditTable {
                 }
             } catch (JEVisException ex) {
                 Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
+            }
+//            OutPut Console
+            for (int i = 0; i < grid.getRowCount(); i++) {
+                for (int j = 0; j < grid.getColumnCount(); j++) {
+                    System.out.print(listObjectAndValueAttribute.get(i).getKey() + " : ");
+                    for (int k = 0; k < listObjectAndValueAttribute.get(i).getValue().size(); k++) {
+                        System.out.print(listObjectAndValueAttribute.get(i).getValue().get(k).getValue() + " - ");
+                    }
+                    System.out.println("");
+                }
             }
 
             //TODO Add to table
@@ -538,7 +551,7 @@ public class EditTable {
                     }
                 }
             }
-
+            
             addUnits();
             addSymbols();
             //GridChange Event for Prefix and Symbol Input Control
