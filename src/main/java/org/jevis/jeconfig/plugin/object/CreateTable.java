@@ -50,7 +50,6 @@ import org.jevis.jeconfig.tool.ImageConverter;
  *
  * @author Bilal
  */
-//TODO
 public class CreateTable {
 
     private final ObservableList<ObservableList<SpreadsheetCell>> rows = FXCollections.observableArrayList();
@@ -61,7 +60,6 @@ public class CreateTable {
     private JEVisClass createClass;
     private int rowCount;
     private int columnCount;
-    private CreateNewDataTable createNewDataTable;
     private ObservableList<String> columnHeaderNames = FXCollections.observableArrayList();
     private ObservableList<String> columnHeaderNamesDataTable = FXCollections.observableArrayList();
     private ObservableList<Pair<String, ArrayList<String>>> pairList = FXCollections.observableArrayList();
@@ -194,7 +192,7 @@ public class CreateTable {
 
         try {
             if (createClass.getName().equals("Data")) {
-                createNewDataTable = new CreateNewDataTable(createBtn);
+                new CreateNewDataTable(createBtn);
             } else {
                 new CreateNewTable();
             }
@@ -298,7 +296,7 @@ public class CreateTable {
                     createClass = classComboBox.getSelectionModel().getSelectedItem();
 
                     if (createClass.getName().equals("Data")) {
-                        createNewDataTable = new CreateNewDataTable(createBtn);
+                        new CreateNewDataTable(createBtn);
                         root.setCenter(spv);
                     } else {
                         new CreateNewTable();
