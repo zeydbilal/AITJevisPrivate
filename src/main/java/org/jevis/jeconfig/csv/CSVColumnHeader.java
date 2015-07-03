@@ -38,6 +38,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -469,6 +470,9 @@ public class CSVColumnHeader {
         meaning.setPrefSize(FIELD_WIDTH, ROW_HIGHT);
         targetB.setPrefSize(FIELD_WIDTH, ROW_HIGHT);
 
+        gp.setAlignment(Pos.TOP_LEFT);
+        GridPane.setHalignment(typeL, HPos.LEFT);
+
     }
 
     private void buildValueGraphic() {
@@ -564,6 +568,8 @@ public class CSVColumnHeader {
         GridPane.setHgrow(targetB, Priority.ALWAYS);
         GridPane.setHgrow(meaning, Priority.ALWAYS);
 
+        gp.setAlignment(Pos.TOP_LEFT);
+        GridPane.setHalignment(typeL, HPos.LEFT);
         //preite ,hoehe
         meaning.setPrefSize(FIELD_WIDTH, ROW_HIGHT);
         targetB.setPrefSize(FIELD_WIDTH, ROW_HIGHT);
@@ -649,7 +655,7 @@ public class CSVColumnHeader {
         });
 
         //Damn workaround for fu***** layouts
-        typeL.setPrefWidth(100);
+//        typeL.setPrefWidth(100);
         meaning.setPrefWidth(FIELD_WIDTH);
         timeZone.setPrefWidth(FIELD_WIDTH);
         formate.setPrefWidth(FIELD_WIDTH);
@@ -672,6 +678,8 @@ public class CSVColumnHeader {
 
         gp.add(timeZoneL, 0, 2);
         gp.add(timeZone, 1, 2);
+
+        GridPane.setHalignment(typeL, HPos.LEFT);
     }
 
     private void buildIgnoreGraphic() {
@@ -686,6 +694,8 @@ public class CSVColumnHeader {
         //x , y
         gp.add(typeL, 0, 0);
         gp.add(meaning, 1, 0);
+
+        GridPane.setHalignment(typeL, HPos.LEFT);
 
     }
 
@@ -744,7 +754,7 @@ public class CSVColumnHeader {
     }
 
     private Button buildTargetButton() {
-        final Button button = new Button("Select Import Target..");//, JEConfig.getImage("1404843819_node-tree.png", 15, 15));
+        final Button button = new Button("Import Target..");//, JEConfig.getImage("1404843819_node-tree.png", 15, 15));
         button.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -781,6 +791,7 @@ public class CSVColumnHeader {
     }
 
     public Node getGraphic() {
+        root.setStyle("-fx-font-size: 12px;-fx-font-weight: normal;");
         return root;
     }
 
