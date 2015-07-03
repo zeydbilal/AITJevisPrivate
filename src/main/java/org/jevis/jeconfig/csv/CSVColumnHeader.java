@@ -19,8 +19,6 @@
  */
 package org.jevis.jeconfig.csv;
 
-import java.io.IOException;
-import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
@@ -43,7 +41,8 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -52,33 +51,24 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.ImageView;
-import static javafx.scene.input.DataFormat.URL;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.web.WebView;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisUnit;
 import org.jevis.application.dialog.SelectTargetDialog;
 import org.jevis.application.object.tree.UserSelection;
-import org.jevis.application.resource.ResourceLoader;
 import org.jevis.application.unit.UnitChooserDialog;
 import org.jevis.jeconfig.JEConfig;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 /**
  *
@@ -504,6 +494,7 @@ public class CSVColumnHeader {
 
                         UnitChooserDialog dia = new UnitChooserDialog();
                         dia.show(JEConfig.getStage(), _target);
+
                     } else {
                         //TODO reimplement unit
 //                        Unit kwh = SI.KILO(SI.WATT.times(NonSI.HOUR));
@@ -512,7 +503,8 @@ public class CSVColumnHeader {
                     }
 
                 } catch (JEVisException ex) {
-                    Logger.getLogger(CSVColumnHeader.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(CSVColumnHeader.class
+                            .getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
@@ -610,8 +602,11 @@ public class CSVColumnHeader {
 
         switch (mode) {
             case DateTime:
-                formate.setText("yyyy-MM-dd HH:mm:ss");
-                _dateFormater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+                formate.setText(findDateTimePattern());
+                _dateFormater = new SimpleDateFormat(formate.getText());
+//                formate.setText("yyyy-MM-dd HH:mm:ss");
+//                _dateFormater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 break;
             case Date:
                 _dateFormater = new SimpleDateFormat("yyyy-MM-dd");
@@ -694,6 +689,60 @@ public class CSVColumnHeader {
 
     }
 
+    /**
+     * Try to find an matching DateTime pattern for the given Date String. This
+     * implemtaion is very basic.
+     *
+     * @param date
+     * @return
+     */
+    private String findDateTimePattern() {
+
+        //SimpleObjectProperty<Node>> _valuePropertys
+        String valueString = "";
+        int workaround = 0;
+        Iterator it = _lines.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<Integer, CSVLine> pairs = (Map.Entry) it.next();
+            workaround++;
+            if (workaround == 3) {
+                valueString = pairs.getValue().getColumn(coloumNr);
+            } else if (workaround > 3) {
+                break;
+            }
+
+        }
+
+        System.out.println("DateTime value: " + valueString);
+
+        //Best formates are first in list
+        String[] pattern = {
+            "yyyy-MM-dd'T'HH:mm:ssZ",
+            "yyyy-MM-dd HH:mm:ss Z",
+            "yyyy-MM-dd HH:mm:ss",
+            "dd-MM-yyyy HH:mm:ss Z",
+            "dd-MM-yyyy HH:mm:ss"
+        };
+
+        DateTime minDate = new DateTime(1980, 1, 1, 1, 0, 0, 0);
+        DateTime maxDate = DateTime.now().plusYears(2);
+
+        for (int i = 0; i < pattern.length; i++) {
+            try {
+                DateTimeFormatter dtf = DateTimeFormat.forPattern(pattern[i]);
+                DateTime parsedTime = dtf.parseDateTime(valueString);
+                if (parsedTime.isAfter(minDate) && parsedTime.isBefore(maxDate)) {
+                    System.out.println("found patter: " + pattern[i]);
+                    return pattern[i];
+                }
+            } catch (Exception ex) {
+                // Ignore
+            }
+        }
+
+        return "yyyy-MM-dd HH:mm:ss";
+    }
+
     private Button buildTargetButton() {
         final Button button = new Button("Select Import Target..");//, JEConfig.getImage("1404843819_node-tree.png", 15, 15));
         button.setOnAction(new EventHandler<ActionEvent>() {
@@ -709,8 +758,10 @@ public class CSVColumnHeader {
                         try {
                             System.out.println("Unit: " + _target.getDisplayUnit());
                             unitButton.setText(UnitFormat.getInstance().format(_target.getDisplayUnit()));
+
                         } catch (JEVisException ex) {
-                            Logger.getLogger(CSVColumnHeader.class.getName()).log(Level.SEVERE, null, ex);
+                            Logger.getLogger(CSVColumnHeader.class
+                                    .getName()).log(Level.SEVERE, null, ex);
                         }
                         formteAllRows();
 //                        try {
@@ -734,125 +785,85 @@ public class CSVColumnHeader {
     }
 
     public void showHelp() {
-        final Stage stage = new Stage();
-
-        stage.setTitle("Help: Formate");
-        stage.initModality(Modality.NONE);
-        stage.initOwner(JEConfig.getStage());
-
-//        BorderPane root = new BorderPane();
-        VBox root = new VBox();
-
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        stage.setWidth(750);
-        stage.setHeight(620);
-        stage.initStyle(StageStyle.UTILITY);
-
-        BorderPane header = new BorderPane();
-        header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
-        header.setPadding(new Insets(10, 10, 10, 10));
-
-        Label topTitle = new Label("Help: Formate");
-        topTitle.setTextFill(Color.web("#0076a3"));
-        topTitle.setFont(Font.font("Cambria", 25));
-
-        ImageView imageView = ResourceLoader.getImage("1404161580_help_blue.png", 65, 65);
-
-        stage.getIcons().add(imageView.getImage());
-
-        VBox vboxLeft = new VBox();
-        VBox vboxRight = new VBox();
-        vboxLeft.getChildren().add(topTitle);
-        vboxLeft.setAlignment(Pos.CENTER_LEFT);
-        vboxRight.setAlignment(Pos.CENTER_LEFT);
-        vboxRight.getChildren().add(imageView);
-
-        header.setLeft(vboxLeft);
-
-        header.setRight(vboxRight);
-
-        HBox webBox = new HBox();
-        webBox.setPadding(new Insets(10));
         WebView helpView = new WebView();
-//        helpView.getEngine().loadContent(getFormateHelpText());
-//        URL urlHello = getClass().getResource("/html/help_dateformate.html");
         helpView.getEngine().load(getClass().getResource("/html/help_dateformate.html").toExternalForm());
 
-        webBox.getChildren().setAll(helpView);
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("Help: Date Formate");
+        alert.setHeaderText("Date and Time Pattern");
+        alert.setContentText("I have a great message for you!");
+        alert.getDialogPane().setContent(helpView);;
 
-//        TextArea helpText = new TextArea();
-//        helpText.setText(ICON_QUESTION);
-        HBox buttonbox = new HBox();
-        buttonbox.setAlignment(Pos.BOTTOM_RIGHT);
+        alert.showAndWait();
 
-        Button close = new Button("Close");
-        close.setDefaultButton(true);
-        close.setCancelButton(true);
-        close.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent t) {
-                stage.hide();
-            }
-        });
-        buttonbox.getChildren().setAll(close);
-        buttonbox.setPadding(new Insets(10));
-
-        root.getChildren().setAll(header, webBox, buttonbox);
-
-        stage.show();
-    }
-
-    private String getFormateHelpText() {
-        return "<html lang=\"en\"><head>\n"
-                + "<meta http-equiv=\"content-type\" content=\"text/html; charset=windows-1252\">\n"
-                + "<title>MaskFormatter (Java Platform SE 7 )</title>\n"
-                + "</head>\n"
-                + "<body>\n"
-                + "\n"
-                + "<br>\n"
-                + "<p>\n"
-                + "<pre>Formate Mask</span>\n"
-                + "MaskFormatter is used to format and edit strings. The behavior\n"
-                + " of a <code>MaskFormatter</code> is controlled by way of a String mask\n"
-                + " that specifies the valid characters that can be contained at a particular\n"
-                + " location in the <code>Document</code> model. The following characters can\n"
-                + " be specified:\n"
-                + "\n"
-                + " <table summary=\"Valid characters and their descriptions\" border=\"1\">\n"
-                + " <tbody><tr>\n"
-                + "    <th>Character&nbsp;</th>\n"
-                + "    <th><p align=\"left\">Description</p></th>\n"
-                + " </tr>\n"
-                + " <tr>\n"
-                + "    <td>#</td>\n"
-                + "    <td>Any valid number, uses <code>Character.isDigit</code>.</td>\n"
-                + " </tr>\n"
-                + " <tr>\n"
-                + "    <td>'</td>\n"
-                + "    <td>Escape character, used to escape any of the\n"
-                + "       special formatting characters.</td>\n"
-                + " </tr>\n"
-                + " <tr>\n"
-                + "    <td>U</td><td>Any character (<code>Character.isLetter</code>). All\n"
-                + "        lowercase letters are mapped to upper case.</td>\n"
-                + " </tr>\n"
-                + " <tr><td>L</td><td>Any character (<code>Character.isLetter</code>). All\n"
-                + "        upper case letters are mapped to lower case.</td>\n"
-                + " </tr>\n"
-                + " <tr><td>A</td><td>Any character or number (<code>Character.isLetter</code>\n"
-                + "       or <code>Character.isDigit</code>)</td>\n"
-                + " </tr>\n"
-                + " <tr><td>?</td><td>Any character\n"
-                + "        (<code>Character.isLetter</code>).</td>\n"
-                + " </tr>\n"
-                + " <tr><td>*</td><td>Anything.</td></tr>\n"
-                + " <tr><td>H</td><td>Any hex character (0-9, a-f or A-F).</td></tr>\n"
-                + " </tbody></table>\n"
-                + "</p>\n"
-                + " \n"
-                + "</body></html>";
+//        final Stage stage = new Stage();
+//
+//        stage.setTitle("Help: Formate");
+//        stage.initModality(Modality.NONE);
+//        stage.initOwner(JEConfig.getStage());
+//
+////        BorderPane root = new BorderPane();
+//        VBox root = new VBox();
+//
+//        Scene scene = new Scene(root);
+//        stage.setScene(scene);
+//        stage.setWidth(750);
+//        stage.setHeight(620);
+//        stage.initStyle(StageStyle.UTILITY);
+//
+//        BorderPane header = new BorderPane();
+//        header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
+//        header.setPadding(new Insets(10, 10, 10, 10));
+//
+//        Label topTitle = new Label("Help: Formate");
+//        topTitle.setTextFill(Color.web("#0076a3"));
+//        topTitle.setFont(Font.font("Cambria", 25));
+//
+//        ImageView imageView = ResourceLoader.getImage("1404161580_help_blue.png", 65, 65);
+//
+//        stage.getIcons().add(imageView.getImage());
+//
+//        VBox vboxLeft = new VBox();
+//        VBox vboxRight = new VBox();
+//        vboxLeft.getChildren().add(topTitle);
+//        vboxLeft.setAlignment(Pos.CENTER_LEFT);
+//        vboxRight.setAlignment(Pos.CENTER_LEFT);
+//        vboxRight.getChildren().add(imageView);
+//
+//        header.setLeft(vboxLeft);
+//
+//        header.setRight(vboxRight);
+//
+//        HBox webBox = new HBox();
+//        webBox.setPadding(new Insets(10));
+//        WebView helpView = new WebView();
+////        helpView.getEngine().loadContent(getFormateHelpText());
+////        URL urlHello = getClass().getResource("/html/help_dateformate.html");
+//        helpView.getEngine().load(getClass().getResource("/html/help_dateformate.html").toExternalForm());
+//
+//        webBox.getChildren().setAll(helpView);
+//
+////        TextArea helpText = new TextArea();
+////        helpText.setText(ICON_QUESTION);
+//        HBox buttonbox = new HBox();
+//        buttonbox.setAlignment(Pos.BOTTOM_RIGHT);
+//
+//        Button close = new Button("Close");
+//        close.setDefaultButton(true);
+//        close.setCancelButton(true);
+//        close.setOnAction(new EventHandler<ActionEvent>() {
+//
+//            @Override
+//            public void handle(ActionEvent t) {
+//                stage.hide();
+//            }
+//        });
+//        buttonbox.getChildren().setAll(close);
+//        buttonbox.setPadding(new Insets(10));
+//
+//        root.getChildren().setAll(header, webBox, buttonbox);
+//
+//        stage.show();
     }
 
 }

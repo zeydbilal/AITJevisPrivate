@@ -34,9 +34,10 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -133,7 +134,7 @@ public class CSVImportDialog {
         _ds = ds;
 
         stage.setTitle("CSV Import");
-        stage.initModality(Modality.NONE);
+        stage.initModality(Modality.APPLICATION_MODAL);
         stage.initOwner(owner);
 
 //        BorderPane root = new BorderPane();
@@ -141,11 +142,12 @@ public class CSVImportDialog {
 
         Scene scene = new Scene(root);
         stage.setScene(scene);
-        stage.setWidth(1024);
-        stage.setHeight(768);
+        stage.setMaximized(true);
+//        stage.setWidth(1024);
+//        stage.setHeight(768);
         stage.initStyle(StageStyle.UTILITY);
-        stage.setResizable(false);
-        scene.setCursor(Cursor.DEFAULT);
+        stage.setResizable(true);
+//        scene.setCursor(Cursor.DEFAULT);
 
         BorderPane header = new BorderPane();
         header.setStyle("-fx-background-color: linear-gradient(#e2e2e2,#eeeeee);");
@@ -174,6 +176,8 @@ public class CSVImportDialog {
 
         ok.setDefaultButton(true);
 //        ok.setDisable(true);
+
+        saveFormat.setDisable(true);//Disabled as long its not working
 
         Button cancel = new Button("Cancel");
         cancel.setCancelButton(true);
@@ -232,8 +236,13 @@ public class CSVImportDialog {
             public void handle(ActionEvent t) {
                 System.out.println("size: h:" + stage.getHeight() + " w:" + stage.getWidth());
                 if (tree.doImport()) {
-                    InfoDialog dia = new InfoDialog();
-                    dia.show(stage, "Success", "Import was successful", "Import was successful.");
+                    Alert alert = new Alert(AlertType.INFORMATION);
+                    alert.setTitle("Import Success");
+                    alert.setHeaderText("Import was successful");
+                    alert.setContentText("Import was successful.");
+
+                    alert.showAndWait();
+
                 }
 //                stage.hide();
             }
@@ -287,28 +296,9 @@ public class CSVImportDialog {
         lastNameCol.prefWidthProperty().bind(placeholderTree.widthProperty().multiply(0.5));
         placeholderTree.getColumns().addAll(firstNameCol, lastNameCol);
 
-//        placeholderTree.setItems(FXCollections.observableArrayList());
-//        reload.setOnAction(new EventHandler<ActionEvent>() {
-//
-//            @Override
-//            public void handle(ActionEvent t) {
-//
-//                Platform.runLater(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        reloadTree();
-//                    }
-//                });
-//
-//            }
-//        });
         tableRootPane.getChildren().setAll(placeholderTree);
 
         return tableRootPane;
-    }
-
-    private void setMeaning() {
-
     }
 
     private CSVParser parseCSV() {
@@ -328,7 +318,7 @@ public class CSVImportDialog {
 
 //        gp.setStyle("-fx-background-color: #86D64D;");
         Label sepL = new Label("Column separated by:");
-        Label sepTextL = new Label("Text seperated by:");
+        Label sepTextL = new Label("Text enclosed by:");
 
         tab.setToggleGroup(sepGroup);
         semicolon.setToggleGroup(sepGroup);
@@ -389,9 +379,8 @@ public class CSVImportDialog {
             }
         });
 
-        ObservableList<String> options = FXCollections.observableArrayList();
-        options = FXCollections.observableArrayList("Semicolon (;)", "Tabulator (TAB) ", "Comma (,)", "Space ( )", "OtherBox");
-        final ComboBox<String> chaset = new ComboBox<String>(options);
+        ObservableList<String> options = FXCollections.observableArrayList("Semicolon (;)", "Tabulator (TAB) ", "Comma (,)", "Space ( )", "OtherBox");
+        final ComboBox<String> chaset = new ComboBox<>(options);
         chaset.getSelectionModel().selectFirst();
 
         HBox otherBox = new HBox(5);
@@ -402,16 +391,12 @@ public class CSVImportDialog {
         otherTextBox.setAlignment(Pos.CENTER_LEFT);
         otherTextBox.getChildren().setAll(otherTextSep, otherTextF);
 
-        Node title = buildTitle("Seperator options");
-
         HBox root = new HBox();
 
         VBox columnB = new VBox(5);
         VBox textB = new VBox(5);
 
         root.setPadding(new Insets(5, 10, 5, LEFT_PADDING));
-//        FlowPane cSep = new FlowPane(Orientation.VERTICAL, 10, 5);
-//        FlowPane tSep = new FlowPane(Orientation.VERTICAL, 10, 5);
         VBox cSep = new VBox(5);
         VBox tSep = new VBox(5);
         cSep.setPadding(new Insets(0, 0, 0, 20));
@@ -678,6 +663,15 @@ public class CSVImportDialog {
                     }
                     openFile(file);
                     automatic.setDisable(false);
+//                    updateTree();
+
+                    CSVAnalyser analys = new CSVAnalyser(_csvFile);
+                    System.out.println("Enclosed: " + analys.getEnclosed());
+                    System.out.println("Seperator: " + analys.getSeperator());
+
+                    setEncloser(analys.getEnclosed());
+                    setSeperator(analys.getSeperator());
+                    formats.getSelectionModel().select(Format.Custom.name());
                     updateTree();
 
 //                    System.out.println("size.dfs: " + otherColumnF.getHeight());
@@ -694,7 +688,7 @@ public class CSVImportDialog {
 
         gp.add(formatL, 0, ++x);
         gp.add(formats, 1, x);
-        gp.add(automatic, 2, x);
+//        gp.add(automatic, 2, x);
 
         gp.add(charSetL, 0, ++x);
         gp.add(chaset, 1, x);

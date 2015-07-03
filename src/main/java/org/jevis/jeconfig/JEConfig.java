@@ -217,7 +217,8 @@ public class JEConfig extends Application {
         primaryStage.getIcons().add(getImage("1393354629_Config-Tools.png"));
         primaryStage.setTitle("JEConfig");
         primaryStage.setScene(scene);
-        maximize(primaryStage);
+        primaryStage.setMaximized(true);
+//        maximize(primaryStage);
         primaryStage.show();
 
         jeconfigRoot.getChildren().setAll(login);
