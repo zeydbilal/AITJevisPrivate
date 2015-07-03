@@ -19,6 +19,7 @@
  */
 package org.jevis.jeconfig.sample;
 
+import static java.awt.SystemColor.window;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,6 +34,8 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
+import javafx.stage.Window;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisSample;
@@ -51,9 +54,11 @@ public class SampleTabelExtension implements SampleEditorExtension {
     private JEVisAttribute _att;
     private List<JEVisSample> _samples;
     private boolean _dataChanged = true;
+    Stage owner = JEConfig.getStage();
 
-    public SampleTabelExtension(JEVisAttribute att) {
+    public SampleTabelExtension(JEVisAttribute att, Stage stage) {
         _att = att;
+        owner = stage;
     }
 
     private void buildGui(final JEVisAttribute att, final List<JEVisSample> samples) {
@@ -63,6 +68,11 @@ public class SampleTabelExtension implements SampleEditorExtension {
         final SampleTable table = new SampleTable(samples);
         table.setPrefSize(1000, 1000);
 
+//        if (box.getScene().getWindow() instanceof Stage) {
+////            Stage stage = (Stage) window;
+//            owner = (Stage) box.getScene().getWindow();
+//            System.out.println("fix fix");
+//        }
         Button deleteAll = new Button("Delete All");
         deleteAll.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -71,7 +81,7 @@ public class SampleTabelExtension implements SampleEditorExtension {
                 try {
                     if (!samples.isEmpty()) {
                         ConfirmDialog dia = new ConfirmDialog();
-                        if (dia.show(JEConfig.getStage(), "Delte", "Delete Samples", "Do you really want to delete all existing samples?") == ConfirmDialog.Response.YES) {
+                        if (dia.show(owner, "Delete", "Delete Samples", "Do you really want to delete all existing samples?") == ConfirmDialog.Response.YES) {
                             att.deleteAllSample();
                             setSamples(att, att.getAllSamples());
                             update();
@@ -97,7 +107,9 @@ public class SampleTabelExtension implements SampleEditorExtension {
                                 DateTime startDate = samples.get(0).getTimestamp();
                                 DateTime endDate = samples.get(samples.size() - 1).getTimestamp();
                                 ConfirmDialog dia = new ConfirmDialog();
-                                if (dia.show(JEConfig.getStage(), "Delte", "Delete Samples", "Do you really want to delete all selected samples?") == ConfirmDialog.Response.YES) {
+
+//                                        if (dia.show(JEConfig.getStage(), "Delte", "Delete Samples", "Do you really want to delete all selected samples?") == ConfirmDialog.Response.YES) {
+                                if (dia.show(owner, "Delte", "Delete Samples", "Do you really want to delete all selected samples?") == ConfirmDialog.Response.YES) {
                                     ObservableList<SampleTable.TableSample> list = table.getSelectionModel().getSelectedItems();
                                     for (SampleTable.TableSample tsample : list) {
                                         try {

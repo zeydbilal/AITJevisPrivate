@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
+ * Copyright (C) 2009 - 2015 Envidatec GmbH <info@envidatec.com>
  *
  * This file is part of JEConfig.
  *
@@ -25,7 +25,10 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
+import javafx.scene.control.Separator;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToolBar;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
@@ -33,10 +36,13 @@ import javafx.scene.layout.VBox;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.jeconfig.Constants;
+import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 
 /**
+ * The Classplugin is an GUI component which allows the user to configure the
+ * JEVis Calss system.
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
@@ -48,6 +54,7 @@ public class ClassPlugin implements Plugin {
     private BorderPane border;
 //    private ObjectTree tf;
     private ClassTree tree;
+    private ToolBar toolBar;
 
     public ClassPlugin(JEVisDataSource ds, String newname) {
         this.ds = ds;
@@ -107,7 +114,7 @@ public class ClassPlugin implements Plugin {
             sp.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
 //            sp.getItems().setAll(left, tree.getEditor().getView());
             sp.getItems().setAll(left, tree.getEditor().getView());
-//            
+//
 //            SplitPane sp = SplitPaneBuilder.create()
 //                    .items(left, tree.getEditor().getView())
 //                    .dividerPositions(new double[]{.2d, 0.8d}) // why does this not work!?
@@ -131,7 +138,33 @@ public class ClassPlugin implements Plugin {
 
     @Override
     public Node getToolbar() {
-        return null;
+        if (toolBar == null) {
+            toolBar = new ToolBar();
+            toolBar.setId("ObjectPlugin.Toolbar");
+
+            double iconSize = 20;
+            ToggleButton newB = new ToggleButton("", JEConfig.getImage("list-add.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(newB);
+            GlobalToolBar.BuildEventhandler(ClassPlugin.this, newB, Constants.Plugin.Command.NEW);
+
+            ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
+            GlobalToolBar.BuildEventhandler(ClassPlugin.this, save, Constants.Plugin.Command.SAVE);
+
+            ToggleButton delete = new ToggleButton("", JEConfig.getImage("list-remove.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
+            GlobalToolBar.BuildEventhandler(ClassPlugin.this, delete, Constants.Plugin.Command.DELTE);
+
+            Separator sep1 = new Separator();
+
+            ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
+            GlobalToolBar.BuildEventhandler(ClassPlugin.this, reload, Constants.Plugin.Command.RELOAD);
+
+            toolBar.getItems().addAll(save, newB, delete, sep1);
+            toolBar.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
+        }
+        return toolBar;
     }
 
     @Override

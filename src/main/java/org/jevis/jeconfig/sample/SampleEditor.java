@@ -120,7 +120,7 @@ public class SampleEditor {
 
         _attribute = attribute;
         stage.setTitle("Sample Editor");
-        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initModality(Modality.NONE);
         stage.initOwner(owner);
 
         VBox root = new VBox();
@@ -166,7 +166,7 @@ public class SampleEditor {
         enddate.getCalendarView().setShowWeeks(true);
         enddate.getStylesheets().add(JEConfig.getResource("DatePicker.css"));
 
-        SampleTabelExtension tabelExtension = new SampleTabelExtension(attribute);//Default plugin
+        SampleTabelExtension tabelExtension = new SampleTabelExtension(attribute, stage);//Default plugin
 
 //        final List<JEVisSample> samples = attribute.getAllSamples();
         if (attribute.hasSample()) {

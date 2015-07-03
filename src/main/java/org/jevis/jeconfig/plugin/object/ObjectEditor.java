@@ -157,7 +157,6 @@ public class ObjectEditor {
     }
 
     public void loadObject(final JEVisObject obj) {
-        System.out.println("ObjectEditor: " + obj);
         checkIfSaved(obj);
         _currentObject = obj;
         Platform.runLater(new Runnable() {

@@ -62,7 +62,7 @@ public class ObjectItem extends TreeItem<JEVisObject> {
 
         if ((getValue().getClass().equals(JEVisRootObject.class) && _doInit)
                 || (_doInit && getValue() != null && getParent() != null && getParent().isExpanded())) {
-            System.out.println("first getChildren for " + getValue().getID() + " " + getValue().getName());
+//            System.out.println("first getChildren for " + getValue().getID() + " " + getValue().getName());
             _doInit = false;
             _tree.addChildrenList(this, super.getChildren());
         }

@@ -25,6 +25,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBase;
 import javafx.scene.control.Separator;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToolBar;
@@ -49,21 +50,21 @@ public class GlobalToolBar {
         double iconSize = 20;
         ToggleButton newB = new ToggleButton("", JEConfig.getImage("list-add.png", iconSize, iconSize));
         changeBackgroundOnHoverUsingBinding(newB);
-        addEventHandler(newB, Constants.Plugin.Command.NEW);
+        addEventHandler(pm, newB, Constants.Plugin.Command.NEW);
 
         ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", iconSize, iconSize));
         changeBackgroundOnHoverUsingBinding(save);
-        addEventHandler(save, Constants.Plugin.Command.SAVE);
+        addEventHandler(pm, save, Constants.Plugin.Command.SAVE);
 
         ToggleButton delete = new ToggleButton("", JEConfig.getImage("list-remove.png", iconSize, iconSize));
         changeBackgroundOnHoverUsingBinding(delete);
-        addEventHandler(delete, Constants.Plugin.Command.DELTE);
+        addEventHandler(pm, delete, Constants.Plugin.Command.DELTE);
 
         Separator sep1 = new Separator();
 
         ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
         changeBackgroundOnHoverUsingBinding(reload);
-        addEventHandler(reload, Constants.Plugin.Command.RELOAD);
+        addEventHandler(pm, reload, Constants.Plugin.Command.RELOAD);
 
         //@AITBilal - A new table create/edit button on the ToolBar
         ToggleButton addTable = new ToggleButton("", JEConfig.getImage("add_table.png", iconSize, iconSize));
@@ -76,11 +77,10 @@ public class GlobalToolBar {
 
         toolBar.getItems().addAll(save, newB, delete, sep1, addTable,editTable);
 
-        //test
         return toolBar;
     }
 
-    private void addEventHandler(ToggleButton button, final int command) {
+    public static void addEventHandler(PluginManager pm, ToggleButton button, final int command) {
         button.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
@@ -95,20 +95,18 @@ public class GlobalToolBar {
 
     }
 
-    private void addEventHandler(Button button, final int command) {
+    public static void BuildEventhandler(Plugin plugin, ButtonBase button, final int command) {
         button.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-                if (pm.getSelectedPlugin() instanceof ObjectPlugin) {
-                    ((ObjectPlugin) pm.getSelectedPlugin()).handelRequest(command);
-                }
+                plugin.handelRequest(command);
 
             }
         });
 
     }
 
-    private static void changeBackgroundOnHoverUsingBinding(Node node) {
+    public static void changeBackgroundOnHoverUsingBinding(Node node) {
         node.styleProperty().bind(
                 Bindings
                 .when(node.hoverProperty())

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
+ * Copyright (C) 2009 - 2015 Envidatec GmbH <info@envidatec.com>
  *
  * This file is part of JEConfig.
  *
@@ -27,7 +27,10 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
+import javafx.scene.control.Separator;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToolBar;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
@@ -35,11 +38,14 @@ import javafx.scene.layout.VBox;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.jeconfig.Constants;
+import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.tool.LoadingPane;
 
 /**
+ * Theis JEConfig plugin allowes the user con work with the Objects in the JEVis
+ * System.
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
@@ -53,6 +59,7 @@ public class ObjectPlugin implements Plugin {
     private ObjectTree tree;
     private LoadingPane editorLodingPane = new LoadingPane();
     private LoadingPane treeLodingPane = new LoadingPane();
+    private ToolBar toolBar;
 
     public ObjectPlugin(JEVisDataSource ds, String newname) {
         this.ds = ds;
@@ -123,7 +130,6 @@ public class ObjectPlugin implements Plugin {
                 @Override
                 public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                     if (newValue) {
-                        System.out.println("start loding editor");
                         editorLodingPane.startLoading();
                     } else {
                         editorLodingPane.endLoading();
@@ -135,7 +141,6 @@ public class ObjectPlugin implements Plugin {
                 @Override
                 public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                     if (newValue) {
-                        System.out.println("start loding tree");
                         treeLodingPane.startLoading();
                     } else {
                         treeLodingPane.endLoading();
@@ -165,7 +170,33 @@ public class ObjectPlugin implements Plugin {
 
     @Override
     public Node getToolbar() {
-        return null;
+
+        if (toolBar == null) {
+            toolBar = new ToolBar();
+            toolBar.setId("ObjectPlugin.Toolbar");
+            double iconSize = 20;
+            ToggleButton newB = new ToggleButton("", JEConfig.getImage("list-add.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(newB);
+            GlobalToolBar.BuildEventhandler(ObjectPlugin.this, newB, Constants.Plugin.Command.NEW);
+
+            ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
+            GlobalToolBar.BuildEventhandler(ObjectPlugin.this, save, Constants.Plugin.Command.SAVE);
+
+            ToggleButton delete = new ToggleButton("", JEConfig.getImage("list-remove.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
+            GlobalToolBar.BuildEventhandler(ObjectPlugin.this, delete, Constants.Plugin.Command.DELTE);
+
+            Separator sep1 = new Separator();
+
+            ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
+            GlobalToolBar.BuildEventhandler(ObjectPlugin.this, reload, Constants.Plugin.Command.RELOAD);
+
+            toolBar.getItems().addAll(save, newB, delete, sep1);
+        }
+
+        return toolBar;
     }
 
     @Override

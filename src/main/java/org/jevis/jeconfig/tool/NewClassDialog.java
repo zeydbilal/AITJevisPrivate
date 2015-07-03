@@ -82,7 +82,6 @@ public class NewClassDialog {
      * @return
      */
     public Response show(Stage owner, final JEVisClass superClass, final JEVisDataSource ds) {
-        System.out.println("new Calss Dialog");
         final Stage stage = new Stage();
 
         final BooleanProperty isOK = new SimpleBooleanProperty(false);

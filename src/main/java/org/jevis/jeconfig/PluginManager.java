@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
+ * Copyright (C) 2009 - 2015 Envidatec GmbH <info@envidatec.com>
  *
  * This file is part of JEConfig.
  *
@@ -21,6 +21,9 @@ package org.jevis.jeconfig;
 
 import java.util.ArrayList;
 import java.util.List;
+import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
@@ -29,17 +32,19 @@ import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisObject;
-import org.jevis.jeconfig.plugin.graph.GraphPlugin;
 import org.jevis.jeconfig.plugin.object.ObjectPlugin;
 
 /**
+ * The PluginManger controls the view of the different Plugins
  *
- * @author Florian Simon <florian.simon@envidatec.com>
+ * i* @author Florian Simon <florian.simon@envidatec.com>
  */
 public class PluginManager {
 
@@ -50,6 +55,8 @@ public class PluginManager {
     private Number _tabPos = 0;
     private Number _tabPosOld = 0;
     private TabPane tabPane;
+    private AnchorPane toolbar = new AnchorPane();
+    private ObjectProperty<Plugin> selectedPluginProperty = new SimpleObjectProperty();
 
     public PluginManager(JEVisDataSource _ds) {
         this._ds = _ds;
@@ -67,12 +74,17 @@ public class PluginManager {
         return _plugins;
     }
 
+    /**
+     * Add all plugins based on the JEVis usersettings
+     *
+     * @param user
+     */
     public void addPluginsByUserSetting(JEVisObject user) {
-        //TODO
+        //TODO: load the user an add only the allowed plugins
         _plugins.add(new ObjectPlugin(_ds, "Resources"));
         _plugins.add(new org.jevis.jeconfig.plugin.classes.ClassPlugin(_ds, "Classes"));
         _plugins.add(new org.jevis.jeconfig.plugin.unit.UnitPlugin(_ds, "Units"));
-//        _plugins.add(new GraphPlugin(_ds, "Graph"));
+//        _plugins.add(new GraphPlugin(_ds, "Dashboard"));
     }
 
     public void setWatermark(boolean water) {
@@ -84,6 +96,12 @@ public class PluginManager {
 
         tabPane = new TabPane();
         tabPane.setSide(Side.LEFT);
+
+        toolbar.setStyle("-fx-background-color: #CCFF99;");
+//        AnchorPane.setTopAnchor(toolbar, 0.0);
+//        AnchorPane.setLeftAnchor(toolbar, 0.0);
+//        AnchorPane.setRightAnchor(toolbar, 0.0);
+//        AnchorPane.setBottomAnchor(toolbar, 0.0);
 
         for (Plugin plugin : _plugins) {
             Tab pluginTab = new Tab(plugin.getName());
@@ -105,12 +123,33 @@ public class PluginManager {
 
         }
 
+        selectedPluginProperty.addListener(new ChangeListener<Plugin>() {
+
+            @Override
+            public void changed(ObservableValue<? extends Plugin> observable, Plugin oldValue, Plugin newValue) {
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+//                        toolbar.getChildren().removeAll();
+                        Node pluginToolbar = newValue.getToolbar();
+
+                        toolbar.getChildren().setAll(pluginToolbar);
+                        AnchorPane.setTopAnchor(pluginToolbar, 0.0);
+                        AnchorPane.setLeftAnchor(pluginToolbar, 0.0);
+                        AnchorPane.setRightAnchor(pluginToolbar, 0.0);
+                        AnchorPane.setBottomAnchor(pluginToolbar, 0.0);
+
+                    }
+                });
+            }
+        });
+        selectedPluginProperty.setValue(_plugins.get(0));
+
         tabPane.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> ov, Number oldValue, Number newValue) {
-                // do something...
-                _tabPos = newValue;
-                _tabPosOld = oldValue;
+                selectedPluginProperty.setValue(_plugins.get(newValue.intValue()));
+
             }
         });
 
@@ -129,6 +168,12 @@ public class PluginManager {
     }
 
     Plugin getSelectedPlugin() {
-        return _plugins.get(_tabPos.intValue());
+        return selectedPluginProperty.getValue();
+//        return _plugins.get(_tabPos.intValue());
+    }
+
+    public Node getToolbar() {
+        return toolbar;
+//        return getSelectedPlugin().getToolbar();
     }
 }

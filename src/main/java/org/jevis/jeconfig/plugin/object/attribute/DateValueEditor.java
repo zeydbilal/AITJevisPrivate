@@ -19,19 +19,22 @@
  */
 package org.jevis.jeconfig.plugin.object.attribute;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
 //import javafx.scene.control.Dialogs;
-import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javax.swing.text.DateFormatter;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
@@ -43,16 +46,16 @@ import org.joda.time.DateTime;
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
-public class StringValueEditor implements AttributeEditor {
+public class DateValueEditor implements AttributeEditor {
 
     HBox box = new HBox();
     public JEVisAttribute _attribute;
-    private TextField _field;
+    private DatePicker _datePicker;
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
 
-    public StringValueEditor(JEVisAttribute att) {
+    public DateValueEditor(JEVisAttribute att) {
         _attribute = att;
     }
 
@@ -73,9 +76,11 @@ public class StringValueEditor implements AttributeEditor {
 //    }
     @Override
     public void commit() throws JEVisException {
+        System.out.println("request Commit");
         if (hasChanged() && _newSample != null) {
 
             //TODO: check if tpye is ok, maybe better at imput time
+            System.out.println("Commit date: " + _newSample.getValueAsString());
             _newSample.commit();
         }
     }
@@ -93,92 +98,83 @@ public class StringValueEditor implements AttributeEditor {
     }
 
     private void buildTextFild() throws JEVisException {
-        if (_field == null) {
-            _field = new TextField();
-            _field.setPrefWidth(500);//TODO: remove this workaround
+        if (_datePicker == null) {
+            _datePicker = new DatePicker();
+            _datePicker.setPrefWidth(150);//TODO: remove this workaround
+            _datePicker.setShowWeekNumbers(true);
+            _datePicker.setId("attributelabel");
 
             if (_attribute.getLatestSample() != null) {
-                _field.setText(_attribute.getLatestSample().getValueAsString());
+                try {
+                    System.out.println("Date is not emty: " + _attribute.getLatestSample());
+                    _datePicker.setValue(LocalDate.parse(_attribute.getLatestSample().getValueAsString(), DateTimeFormatter.ISO_DATE));
+                } catch (Exception ex) {
+                    System.out.println("Warning cannot parse");
+//                    ex.printStackTrace();
+                }
+//                _field.setText(_attribute.getLatestSample().getValueAsString());
                 _lastSample = _attribute.getLatestSample();
             } else {
-                _field.setText("");
+
+//                _field.setText("");
             }
 
-            _field.setOnKeyReleased(new EventHandler<KeyEvent>() {
+            _datePicker.setOnAction(new EventHandler<ActionEvent>() {
 
                 @Override
-                public void handle(KeyEvent t) {
+                public void handle(ActionEvent event) {
+                    System.out.println("setOnAction");
                     try {
                         if (_lastSample == null) {
                             System.out.println("new Value");
-//                            _lastSample = _attribute.buildSample(new DateTime(), _field.getText());
-                            _newSample = _attribute.buildSample(new DateTime(), _field.getText());
+                            _newSample = _attribute.buildSample(new DateTime(), _datePicker.getValue().format(DateTimeFormatter.ISO_DATE));
                             _changed.setValue(true);
-                        } else if (!_lastSample.getValueAsString().equals(_field.getText())) {
-                            _changed.setValue(true);
-                            _newSample = _attribute.buildSample(new DateTime(), _field.getText());
                             System.out.println("value changed");
-                        } else if (_lastSample.getValueAsString().equals(_field.getText())) {
-                            _changed.setValue(false);
+                        } else {
+                            System.out.println("change existing value");
+                            _newSample.setValue(_datePicker.getValue().format(DateTimeFormatter.ISO_DATE));
+                            _changed.setValue(true);
                         }
-                    } catch (JEVisException ex) {
+                    } catch (Exception ex) {
                         Logger.getLogger(NumberWithUnit.class.getName()).log(Level.SEVERE, null, ex);
                     }
-
                 }
             });
 
-//            _field.focusedProperty().addListener(new ChangeListener<Boolean>() {
+//            _datePicker.valueProperty().addListener(new ChangeListener<LocalDate>() {
+//
 //                @Override
-//                public void changed(ObservableValue<? extends Boolean> arg0, Boolean oldPropertyValue, Boolean newPropertyValue) {
+//                public void changed(ObservableValue<? extends LocalDate> observable, LocalDate oldValue, LocalDate newValue) {
+//                    System.out.println("valueProperty");
 //                    try {
-//                        if (newPropertyValue) {
+//                        if (_lastSample == null) {
+//                            System.out.println("new Value");
+//                            _newSample = _attribute.buildSample(new DateTime(), newValue.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+//                            _changed.setValue(true);
+//                            System.out.println("value changed");
 //                        } else {
-//                            if (_lastSample != null) {
-//                                if (!_lastSample.getValueAsString().equals(_field.getText())) {
-//                                    _hasChanged = true;
-//                                } else {
-//                                    _hasChanged = false;
-//                                }
-//                            } else {
-//                                if (!_field.getText().equals("")) {
-//                                    _hasChanged = true;
-//                                }
-//                            }
-//
-//                            if (_hasChanged) {
-//                                try {
-//                                    _newSample = _attribute.buildSample(new DateTime(), _field.getText());
-//                                } catch (JEVisException ex) {
-//                                    Logger.getLogger(StringValueEditor.class.getName()).log(Level.SEVERE, null, ex);
-//
-//                                    ExceptionDialog dia = new ExceptionDialog();
-//                                    dia.show(JEConfig.getStage(), "Error", "Could commit changes to Server", ex, PROGRAMM_INFO);
-//                                }
-//                            }
+//                            System.out.println("change existing value");
+//                            _lastSample.setValue(newValue.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+//                            _changed.setValue(true);
 //                        }
 //                    } catch (Exception ex) {
-//
+//                        Logger.getLogger(NumberWithUnit.class.getName()).log(Level.SEVERE, null, ex);
 //                    }
-//
 //                }
 //            });
-            _field.setPrefWidth(500);
-            _field.setId("attributelabel");
-
             if (_attribute.getType().getDescription() != null && !_attribute.getType().getDescription().isEmpty()) {
                 Tooltip tooltip = new Tooltip();
                 try {
                     tooltip.setText(_attribute.getType().getDescription());
                     tooltip.setGraphic(JEConfig.getImage("1393862576_info_blue.png", 30, 30));
-                    _field.setTooltip(tooltip);
+                    _datePicker.setTooltip(tooltip);
                 } catch (JEVisException ex) {
-                    Logger.getLogger(StringValueEditor.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(DateValueEditor.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
-            box.getChildren().add(_field);
-            HBox.setHgrow(_field, Priority.ALWAYS);
+            box.getChildren().add(_datePicker);
+            HBox.setHgrow(_datePicker, Priority.ALWAYS);
 
             try {
                 if (_attribute.getType().getValidity() == JEVisConstants.Validity.AT_DATE) {
@@ -186,31 +182,14 @@ public class StringValueEditor implements AttributeEditor {
                     chartView.setGraphic(JEConfig.getImage("1394566386_Graph.png", 20, 20));
                     chartView.setStyle("-fx-padding: 0 2 0 2;-fx-background-insets: 0;-fx-background-radius: 0;-fx-background-color: transparent;");
 
-                    chartView.setMaxHeight(_field.getHeight());
+                    chartView.setMaxHeight(_datePicker.getHeight());
                     chartView.setMaxWidth(20);
 
                     box.getChildren().add(chartView);
                     HBox.setHgrow(chartView, Priority.NEVER);
-
-//                    chartView.setOnAction(new EventHandler<ActionEvent>() {
-//                        @Override
-//                        public void handle(ActionEvent t) {
-//                            Stage dialogStage = new Stage();
-//                            dialogStage.setTitle("Sample Editor");
-//                            HBox root = new HBox();
-//
-//                            root.getChildren().add(new SampleTable(_attribute));
-//
-//                            Scene scene = new Scene(root);
-//                            scene.getStylesheets().add("/styles/Styles.css");
-//                            dialogStage.setScene(scene);
-//                            dialogStage.show();
-//
-//                        }
-//                    });
                 }
             } catch (Exception ex) {
-                Logger.getLogger(StringValueEditor.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(DateValueEditor.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         }

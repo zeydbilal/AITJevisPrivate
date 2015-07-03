@@ -46,17 +46,10 @@ public class JEVisRootObject implements JEVisObject {
 //        _children = _ds.getRootObjects();
         _children = JEConfig.getPreLodedRootObjects();//Workaround, the login will allready preload the classes, the API has to be come more intellegent
         for (JEVisObject rootObj : _children) {
-            System.out.println("RealRoot: " + rootObj + "   class: " + rootObj.getJEVisClass());
+//            System.out.println("RealRoot: " + rootObj + "   class: " + rootObj.getJEVisClass());
         }
-//        System.out.println("root children count: " + _children.size());
-        System.out.println("JEVisRootObject - init");
     }
 
-//    public JEVisRootObject(JEVisDataSource ds, List<JEVisObject> roots) throws JEVisException {
-//        _ds = ds;
-//
-//        _children = roots;
-//    }
     @Override
     public String getName() {
         System.out.println("root.getName: " + _name);

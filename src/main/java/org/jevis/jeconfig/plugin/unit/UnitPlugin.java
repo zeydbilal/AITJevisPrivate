@@ -24,8 +24,11 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
+import javafx.scene.control.Separator;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.SplitPaneBuilder;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToolBar;
 import javafx.scene.control.TreeItem;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -35,8 +38,10 @@ import org.jevis.api.JEVisDataSource;
 import org.jevis.application.unit.UnitObject;
 import org.jevis.application.unit.UnitTree;
 import org.jevis.jeconfig.Constants;
+import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
+import org.jevis.jeconfig.plugin.classes.ClassPlugin;
 
 /**
  *
@@ -51,6 +56,7 @@ public class UnitPlugin implements Plugin {
 //    private ObjectTree tf;
     private UnitTree tree;
     private UnitEditor _editor;
+    private ToolBar toolBar;
 
     public UnitPlugin(JEVisDataSource ds, String newname) {
         this.ds = ds;
@@ -137,7 +143,34 @@ public class UnitPlugin implements Plugin {
 
     @Override
     public Node getToolbar() {
-        return null;
+        if (toolBar == null) {
+            toolBar = new ToolBar();
+            toolBar.setId("ObjectPlugin.Toolbar");
+
+            double iconSize = 20;
+            ToggleButton newB = new ToggleButton("", JEConfig.getImage("list-add.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(newB);
+//            GlobalToolBar.BuildEventhandler(UnitPlugin.this, newB, Constants.Plugin.Command.NEW);
+
+            ToggleButton save = new ToggleButton("", JEConfig.getImage("save.gif", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(save);
+//            GlobalToolBar.BuildEventhandler(UnitPlugin.this, save, Constants.Plugin.Command.SAVE);
+
+            ToggleButton delete = new ToggleButton("", JEConfig.getImage("list-remove.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(delete);
+//            GlobalToolBar.BuildEventhandler(UnitPlugin.this, delete, Constants.Plugin.Command.DELTE);
+
+            Separator sep1 = new Separator();
+
+            ToggleButton reload = new ToggleButton("", JEConfig.getImage("1403018303_Refresh.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
+//            GlobalToolBar.BuildEventhandler(UnitPlugin.this, reload, Constants.Plugin.Command.RELOAD);
+
+            toolBar.getItems().addAll(save, newB, delete, sep1);
+//            toolBar.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
+            toolBar.setDisable(true);//the function are not implemente yet.
+        }
+        return toolBar;
     }
 
     @Override

@@ -24,6 +24,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisFile;
 import org.jevis.api.JEVisSample;
+import org.jevis.commons.JEVisFileImp;
 import org.jevis.jeconfig.JEConfig;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -113,20 +114,14 @@ public class FileEdior implements AttributeEditor {
                 if (selectedFile != null) {
                     try {
                         System.out.println("add new file: " + selectedFile);
-                        JEVisSample sample = _attribute.buildSample(new DateTime(), Files.readAllBytes(selectedFile.toPath()));
-
-                        JEVisFile jfile = sample.getValueAsFile();
-                        System.out.println("set jevis filename: " + selectedFile.getName());
-                        jfile.setFilename(selectedFile.getName());
-//                        jfile.setFileExtension("txt");
-
-//                        JEVisFile jfile = new JEVisFileSQL(null);
-                        sample.commit();
+                        JEVisFile jfile = new JEVisFileImp(selectedFile.getName(), selectedFile);
+                        JEVisSample sample = _attribute.buildSample(new DateTime(), jfile);
+                        sample.commit();//normaly the user need to press save
 
                         try {
                             if (_attribute.hasSample()) {
                                 JEVisFile lasTFile = _attribute.getLatestSample().getValueAsFile();
-                                _downloadButton.setText("Download " + lasTFile.getFilename());
+                                _downloadButton.setText("Download");//+ lasTFile.getFilename());
                             } else {
                                 _downloadButton.setDisable(true);
                             }

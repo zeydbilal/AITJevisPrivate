@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
+ * Copyright (C) 2009 - 2015 Envidatec GmbH <info@envidatec.com>
  *
  * This file is part of JEConfig.
  *
@@ -41,7 +41,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -53,15 +52,9 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
-import org.jevis.api.JEVisSample;
 import org.jevis.application.application.JavaVersionCheck;
-import org.jevis.application.dialog.ExceptionDialog;
-import org.jevis.application.dialog.LoginDialog;
-import org.jevis.application.dialog.GraphSelectionDialog;
-import org.jevis.application.jevistree.plugin.BarchartPlugin;
 import org.jevis.application.statusbar.Statusbar;
 import org.jevis.commons.application.ApplicationInfo;
-import org.jevis.commons.userregistration.UserFactory;
 import org.jevis.jeconfig.tool.LoginGlass;
 import org.jevis.jeconfig.tool.WelcomePage;
 
@@ -88,9 +81,11 @@ public class JEConfig extends Application {
     /**
      * Defines the version information in the about dialog
      */
-    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.10 2015-04-24");
+    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.12 2015-07-02");
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static String _lastpath = "";
+
+    private static User _currentUser;
 
     @Override
     public void init() throws Exception {
@@ -137,8 +132,6 @@ public class JEConfig extends Application {
         AnchorPane.setRightAnchor(jeconfigRoot, 0.0);
         AnchorPane.setLeftAnchor(jeconfigRoot, 0.0);
         AnchorPane.setBottomAnchor(jeconfigRoot, 0.0);
-//        jeconfigRoot.setStyle("-fx-background-color: white;");
-//        jeconfigRoot.getChildren().setAll(new Label("sodfhsdhdsofhdshdsfdshfjf"));
 
         Screen screen = Screen.getPrimary();
         Rectangle2D bounds = screen.getVisualBounds();
@@ -151,6 +144,7 @@ public class JEConfig extends Application {
                     System.out.println("after request");
                     _mainDS = login.getDataSource();
                     ds = _mainDS;
+                    _currentUser = new User(ds);
 
                     Platform.runLater(new Runnable() {
                         @Override
@@ -174,11 +168,11 @@ public class JEConfig extends Application {
                     GlobalToolBar toolbar = new GlobalToolBar(pMan);
                     pMan.addPluginsByUserSetting(null);
 
-//                    StackPane root = new StackPane();
-//                    root.setId("mainpane");
                     BorderPane border = new BorderPane();
                     VBox vbox = new VBox();
-                    vbox.getChildren().addAll(new TopMenu(), toolbar.ToolBarFactory());
+                    vbox.setStyle("-fx-background-color: black;");
+//                    vbox.getChildren().addAll(new TopMenu(), toolbar.ToolBarFactory());
+                    vbox.getChildren().addAll(new TopMenu(), pMan.getToolbar());
                     border.setTop(vbox);
                     border.setCenter(pMan.getView());
 
@@ -186,47 +180,12 @@ public class JEConfig extends Application {
 
                     border.setBottom(statusBar);
 
-                    System.out.println("show welcome");
-
                     //Disable GUI is StatusBar note an disconnect
                     border.disableProperty().bind(statusBar.connectedProperty.not());
 
                     Platform.runLater(new Runnable() {
                         @Override
                         public void run() {
-                            //testing
-//                            GraphSelectionDialog selectionDialog = new GraphSelectionDialog(ds);
-////                            selectionDialog.show(_primaryStage);
-////                            System.exit(1);
-//                            if (selectionDialog.show(_primaryStage) == GraphSelectionDialog.Response.OK) {
-//                                for (Map.Entry<String, BarchartPlugin.DataModel> entrySet : selectionDialog.getSelectedData().entrySet()) {
-//                                    Object key = entrySet.getKey();
-//                                    BarchartPlugin.DataModel value = entrySet.getValue();
-//
-//                                    if (value.getSelected()) {
-//                                        System.out.println("sample for " + key);
-//                                        System.out.println("Color: " + value.getColor());
-//
-//                                        for (JEVisSample sample : value.getSamples()) {
-//                                            try {
-//                                                System.out.println(sample.getTimestamp() + "  " + sample.getValueAsDouble(value.getUnit()));
-//                                            } catch (JEVisException ex) {
-//                                                Logger.getLogger(GraphSelectionDialog.class.getName()).log(Level.SEVERE, null, ex);
-//                                            }
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                            System.out.println("show again");
-//                            selectionDialog.show(_primaryStage);
-                            System.out.println("------------");
-//                            try {
-//                                UserFactory.buildMobileDemoStructure(ds, ds.getObject(5l), "Tau", "mypw", "max.musterman@openjevis.org", "Max", "Musterman");
-//                            } catch (JEVisException ex) {
-//                                Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
-//                            }
-//                            System.exit(1);
-                            System.out.println("------------");
 
                             AnchorPane.setTopAnchor(border, 0.0);
                             AnchorPane.setRightAnchor(border, 0.0);
@@ -234,13 +193,6 @@ public class JEConfig extends Application {
                             AnchorPane.setBottomAnchor(border, 0.0);
 
                             jeconfigRoot.getChildren().setAll(border);
-//                            try {
-                            //            WelcomePage welcome = new WelcomePage(primaryStage, new URI("http://coffee-project.eu/"));
-                            //            WelcomePage welcome = new WelcomePage(primaryStage, new URI("http://openjevis.org/projects/openjevis/wiki/JEConfig3#JEConfig-Version-3"));
-
-//                            Task<Void> showWelcome = new Task<Void>() {
-//                                @Override
-//                                protected Void call() throws Exception {
                             try {
                                 WelcomePage welcome = new WelcomePage(primaryStage, _config.getWelcomeURL());
                             } catch (URISyntaxException ex) {
@@ -248,17 +200,6 @@ public class JEConfig extends Application {
                             } catch (MalformedURLException ex) {
                                 Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
                             }
-//                                    return null;
-//                                }
-//                            };
-//                            new Thread(showWelcome).start();
-
-//                                WelcomePage welcome = new WelcomePage(primaryStage, _config.getWelcomeURL());
-//                            } catch (URISyntaxException ex) {
-//                                Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
-//                            } catch (MalformedURLException ex) {
-//                                Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
-//                            }
                         }
                     });
                 }
@@ -279,105 +220,7 @@ public class JEConfig extends Application {
         maximize(primaryStage);
         primaryStage.show();
 
-//        Platform.runLater(new Runnable() {
-//            @Override
-//            public void run() {
         jeconfigRoot.getChildren().setAll(login);
-//            }
-//        });
-
-        primaryStage.onCloseRequestProperty().addListener(new ChangeListener<EventHandler<WindowEvent>>() {
-
-            @Override
-            public void changed(ObservableValue<? extends EventHandler<WindowEvent>> ov, EventHandler<WindowEvent> t, EventHandler<WindowEvent> t1) {
-                try {
-                    System.out.println("Disconnect");
-                    ds.disconnect();
-                } catch (JEVisException ex) {
-                    Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        });
-
-    }
-
-    /**
-     * Build an new JEConfig Login and main frame/stage
-     *
-     * @param primaryStage
-     */
-    private void buildGUI(Stage primaryStage) {
-
-        try {
-
-            LoginDialog loginD = new LoginDialog();
-//            ds = loginD.showSQL(primaryStage, _config.get<LoginIcon());
-
-            ds = loginD.showSQL(primaryStage);//Default
-//            ds = loginD.showSQL(primaryStage, _config.getLoginIcon(), _config.getEnabledSSL(), _config.getShowServer(), _config.getDefaultServer());//KAUST
-//            ds = loginD.showSQL(primaryStage, _config.getLoginIcon(), _config.getEnabledSSL(), _config.getShowServer(), _config.getDefaultServer());//Coffee
-
-//            while (ds == null) {
-//                Thread.sleep(100);
-//            }
-//            if (ds == null) {
-//                System.exit(0);
-//            }
-//            System.exit(1);
-//            ds = new JEVisDataSourceSQL("192.168.2.55", "3306", "jevis", "jevis", "jevistest", "Sys Admin", "jevis");
-//            ds.connect("Sys Admin", "jevis");
-        } catch (Exception ex) {
-            Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
-            ExceptionDialog dia = new ExceptionDialog();
-            dia.show(primaryStage, "Error", "Could not connect to Server", ex, PROGRAMM_INFO);
-        }
-
-        _mainDS = ds;
-
-        JEConfig.PROGRAMM_INFO.setJEVisAPI(ds.getInfo());
-        JEConfig.PROGRAMM_INFO.addLibrary(org.jevis.commons.application.Info.INFO);
-        JEConfig.PROGRAMM_INFO.addLibrary(org.jevis.application.Info.INFO);
-
-        PluginManager pMan = new PluginManager(ds);
-        GlobalToolBar toolbar = new GlobalToolBar(pMan);
-        pMan.addPluginsByUserSetting(null);
-
-        StackPane root = new StackPane();
-        root.setId("mainpane");
-
-        BorderPane border = new BorderPane();
-        VBox vbox = new VBox();
-        vbox.getChildren().addAll(new TopMenu(), toolbar.ToolBarFactory());
-        border.setTop(vbox);
-        border.setCenter(pMan.getView());
-
-        Statusbar statusBar = new Statusbar(ds);
-
-        border.setBottom(statusBar);
-
-        root.getChildren().addAll(border);
-
-        Scene scene = new Scene(root, 300, 250);
-        scene.getStylesheets().add("/styles/Styles.css");
-        primaryStage.getIcons().add(getImage("1393354629_Config-Tools.png"));
-        primaryStage.setTitle("JEConfig");
-        primaryStage.setScene(scene);
-        maximize(primaryStage);
-        primaryStage.show();
-
-        try {
-            //            WelcomePage welcome = new WelcomePage(primaryStage, new URI("http://coffee-project.eu/"));
-//            WelcomePage welcome = new WelcomePage(primaryStage, new URI("http://openjevis.org/projects/openjevis/wiki/JEConfig3#JEConfig-Version-3"));
-            WelcomePage welcome = new WelcomePage(primaryStage, _config.getWelcomeURL());
-
-        } catch (URISyntaxException ex) {
-            Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (MalformedURLException ex) {
-            Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        //Disable GUI is StatusBar note an disconnect
-        root.disableProperty().bind(statusBar.connectedProperty.not());
 
         primaryStage.onCloseRequestProperty().addListener(new ChangeListener<EventHandler<WindowEvent>>() {
 
@@ -544,6 +387,10 @@ public class JEConfig extends Application {
             }
         });
 
+    }
+
+    static public User getCurrentUser() {
+        return _currentUser;
     }
 
     static public List<JEVisClass> getPreLodedClasses() {

@@ -37,6 +37,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.Accordion;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
@@ -49,6 +51,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -85,7 +89,7 @@ public class ClassEditor {
 //    private final UnitChooser pop = new UnitChooser();
     private VBox _view;
     TextField fName = new TextField();
-    TextArea fDescript = new TextArea();
+    TextArea fDescription = new TextArea();
     CheckBox fUnique = new CheckBox();
     private ClassTree _tree = null;
 
@@ -157,7 +161,7 @@ public class ClassEditor {
                 gridPane.add(lIsUnique, 0, ++x);
                 gridPane.add(fUnique, 1, x);
                 gridPane.add(lDescription, 0, ++x);
-                gridPane.add(fDescript, 1, x, 1, 2);
+                gridPane.add(fDescription, 1, x, 1, 2);
 
 //                GridPane.setHalignment(lInherit, HPos.LEFT);
                 GridPane.setHalignment(lIcon, HPos.LEFT);
@@ -186,8 +190,8 @@ public class ClassEditor {
 //                            fInherit.setText("Choose...");
                         }
 
-                        fDescript.setWrapText(true);
-                        fDescript.setText(jclass.getDescription());
+                        fDescription.setWrapText(true);
+                        fDescription.setText(jclass.getDescription());
                         fUnique.setSelected(jclass.isUnique());
                     }
 
@@ -204,10 +208,12 @@ public class ClassEditor {
                             fileChooser.setInitialDirectory(JEConfig.getLastPath().getParentFile());
                         }
 
+                        FileChooser.ExtensionFilter allImagesFilter = new FileChooser.ExtensionFilter("Image files", "*.png", "*.jpg", "*.gif");
                         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png");
                         FileChooser.ExtensionFilter gifFilter = new FileChooser.ExtensionFilter("GIF files (*.gif)", "*.gif");
                         FileChooser.ExtensionFilter jpgFilter = new FileChooser.ExtensionFilter("JPG files (*.jpg)", "*.jpg");
-                        fileChooser.getExtensionFilters().addAll(gifFilter, extFilter, jpgFilter);
+                        FileChooser.ExtensionFilter allFilter = new FileChooser.ExtensionFilter("All files (*.*)", "*.*");
+                        fileChooser.getExtensionFilters().addAll(allImagesFilter, gifFilter, extFilter, jpgFilter, allFilter);
                         final File file = fileChooser.showOpenDialog(JEConfig.getStage());
                         if (file != null) {
                             openFile(file);
@@ -234,6 +240,8 @@ public class ClassEditor {
                     }
                 });
 
+                fIcon.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
+
                 ScrollPane cpGenerell = new ScrollPane();
                 cpGenerell.setContent(gridPane);
 
@@ -244,16 +252,11 @@ public class ClassEditor {
                 redit.setJEVisClass(jclass);
 
                 final TitledPane t3 = new TitledPane("Valid Parents", redit.getView());
-//                final TitledPane t3 = new TitledPane("Relationships", table.buildTree(jclass));
 
-//                t1.setStyle("-fx-background-color: #E2E2E2");
-//                t2.setStyle("-fx-background-color: #E2E2E2");
-//                t3.setStyle("-fx-background-color: #E2E2E2");
                 t1.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
                 t2.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
                 t3.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
 
-//                cpGenerell.setStyle("-fx-background-color: #E2E2E2");
                 cpGenerell.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
 
                 accordion.getPanes().addAll(t1, t2, t3);
@@ -266,6 +269,10 @@ public class ClassEditor {
                         accordion.setExpandedPane(t1);//TODO the selected pane is not blue highlighted like if the user clicked.....
                     }
                 });
+
+                fName.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
+                fUnique.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
+                fDescription.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
 
                 _view.getChildren().setAll(accordion);
                 VBox.setVgrow(accordion, Priority.ALWAYS);
@@ -332,6 +339,7 @@ public class ClassEditor {
 
                 ObservableList<String> items = FXCollections.observableList(gTypes);
                 guiType.setItems(items);
+                guiType.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
                 guiType.getSelectionModel().select(type.getGUIDisplayType());
                 guiType.valueProperty().addListener(new ChangeListener<String>() {
 
@@ -346,7 +354,8 @@ public class ClassEditor {
                     }
                 });
 
-                final Button unitSelector = new Button("Error");
+                final Button unitSelector = new Button("");
+                unitSelector.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
                 unitSelector.setMaxWidth(56.0);
                 setUnitButton(unitSelector, type);
 
@@ -398,6 +407,7 @@ public class ClassEditor {
 //                });
                 ChoiceBox primType = new ChoiceBox();
                 primType.setItems(ClassHelper.getAllPrimitiveTypes());
+                primType.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
                 primType.getSelectionModel().select(ClassHelper.getNameforPrimitiveType(type));
                 primType.valueProperty().addListener(new ChangeListener<String>() {
 
@@ -425,9 +435,9 @@ public class ClassEditor {
 //                PopOver poUnit = new PopOver(unitSelector);
                 Button up = new Button();
                 if (_class.getTypes().indexOf(type) == 0) {
-                    up.disableProperty().set(true);
+//                    up.disableProperty().set(true);
+                    up.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
                 }
-
                 up.setGraphic(JEConfig.getImage("1395085229_arrow_return_right_up.png", 20, 20));
                 up.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
@@ -453,7 +463,8 @@ public class ClassEditor {
 
                 Button down = new Button();
                 if (_class.getTypes().indexOf(type) == _class.getTypes().size() - 1) {
-                    down.disableProperty().set(true);
+//                    down.disableProperty().set(true);
+                    down.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
                 }
                 down.setGraphic(JEConfig.getImage("1395085233_arrow_return_right_down.png", 20, 20));
                 down.setOnAction(new EventHandler<ActionEvent>() {
@@ -483,6 +494,7 @@ public class ClassEditor {
 
                 Button remove = new Button();
                 remove.setGraphic(JEConfig.getImage("list-remove.png", 20, 20));
+                remove.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
                 remove.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent t) {
@@ -521,7 +533,8 @@ public class ClassEditor {
         Separator newSep = new Separator();
         gridPane.add(newSep, 0, row++, 6, 1);
 
-        final TextField lName = new TextField("New Attribute");
+        final TextField fName = new TextField();
+        fName.setPromptText("Name of new type");
 //        final ChoiceBox pTypeBox = buildPrimitiveTypeBox(null);
 
         Button newB = new Button();
@@ -529,26 +542,25 @@ public class ClassEditor {
         newB.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-                try {
-                    JEVisType newType = _class.buildType(lName.getText());
-                    JEVisType lastType = _class.getTypes().get(_class.getTypes().size() - 1);
-//                    newType.setPrimitiveType(ClassHelper.getIDforPrimitiveType(pTypeBox.getSelectionModel().getSelectedItem().toString()));
-                    newType.setGUIPosition(lastType.getGUIPosition() + 1);
-                    System.out.println("new pos for new Type: " + newType.getGUIPosition());
+                createTypeAction(fName.getText());
+            }
+        });
+        newB.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
+        fName.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
 
-                    t2.setContent(buildTypeNode());
-
-                } catch (Exception ex) {
-                    Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
+        fName.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent ke) {
+                if (ke.getCode().equals(KeyCode.ENTER)) {
+                    createTypeAction(fName.getText());
                 }
             }
         });
 
-        ChoiceBox guiType = new ChoiceBox();
-        guiType.setItems(FXCollections.observableArrayList(
-                "Text", "IP-Address", "Number", "File Selector", "Check Box", "PASSWORD Field"));
-
-        gridPane.add(lName, 0, row);
+//        ChoiceBox guiType = new ChoiceBox();
+//        guiType.setItems(FXCollections.observableArrayList(
+//                "Text", "IP-Address", "Number", "File Selector", "Check Box", "PASSWORD Field"));
+        gridPane.add(fName, 0, row);
 //        gridPane.add(pTypeBox, 1, row);
 //        gridPane.add(guiType, 2, row);
         gridPane.add(newB, 1, row);
@@ -556,6 +568,44 @@ public class ClassEditor {
         cp.setContent(gridPane);
 
         return cp;
+    }
+
+    private void createTypeAction(String name) {
+        try {
+            if (name.isEmpty()) {
+                return;
+            }
+
+            if (!name.matches("^[A-Za-z0-9 _]*[A-Za-z0-9][A-Za-z0-9 _]*$")) {
+                //no specail chars allowed, will this be a problem is some countries?
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("Can't create type");
+                alert.setContentText("No special character allowed");
+                alert.showAndWait();
+                return;
+            }
+
+            if (_class.getType(name) != null) {
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error");
+                alert.setHeaderText("Can't create type");
+                alert.setContentText("Type allready exist.");
+                alert.showAndWait();
+                return;
+            }
+
+            JEVisType newType = _class.buildType(name);
+            JEVisType lastType = _class.getTypes().get(_class.getTypes().size() - 1);
+//                    newType.setPrimitiveType(ClassHelper.getIDforPrimitiveType(pTypeBox.getSelectionModel().getSelectedItem().toString()));
+            newType.setGUIPosition(lastType.getGUIPosition() + 1);
+//            System.out.println("new pos for new Type: " + newType.getGUIPosition());
+
+            t2.setContent(buildTypeNode());
+
+        } catch (Exception ex) {
+            Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private void setUnitButton(Button button, JEVisType type) throws JEVisException {
@@ -601,7 +651,7 @@ public class ClassEditor {
         System.out.println("Commit Class");
         try {
             _class.setName(fName.getText());
-            _class.setDescription(fDescript.getText());
+            _class.setDescription(fDescription.getText());
             _class.setUnique(fUnique.isSelected());
 
             //ToDo: if inheritace change also change the tree
