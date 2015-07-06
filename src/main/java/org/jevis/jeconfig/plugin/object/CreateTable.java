@@ -10,6 +10,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -192,12 +193,19 @@ public class CreateTable {
         }
 
         BorderPane root = new BorderPane();
+//        root.setPadding(new Insets(3));
 
         HBox hBoxTop = new HBox();
-        hBoxTop.getChildren().addAll(classComboBox);
+        hBoxTop.setSpacing(10);
+//        hBoxTop.setPadding(new Insets(3, 3, 3, 3));
+        Label lClass = new Label("Class:");
+        hBoxTop.getChildren().addAll(lClass, classComboBox);
+
         root.setTop(hBoxTop);
 
         HBox hBoxBottom = new HBox();
+        hBoxBottom.setSpacing(10);
+//        hBoxBottom.setPadding(new Insets(0, 3, 3, 3));
         hBoxBottom.getChildren().addAll(createBtn, cancelBtn);
         hBoxBottom.setAlignment(Pos.BASELINE_RIGHT);
         root.setBottom(hBoxBottom);
@@ -381,7 +389,7 @@ public class CreateTable {
 
             spv.getGrid().getColumnHeaders().addAll(columnHeaderNamesDataTable);
             //change it
-            createBtn.setDisable(true);
+            //createBtn.setDisable(true);
             addUnits();
             addSymbols();
             //GridChange Event for Prefix and Symbol Input Control

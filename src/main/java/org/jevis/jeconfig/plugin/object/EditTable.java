@@ -18,6 +18,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -88,7 +89,8 @@ public class EditTable {
 
         public CreateNewEditTable(JEVisObject parent) {
             try {
-                rowCount = parent.getChildren().size();
+                //rowCount = parent.getChildren().size();
+                rowCount = parent.getChildren(selectedClass, true).size();
                 columnCount = selectedClass.getTypes().size() + 1;
             } catch (JEVisException ex) {
                 Logger.getLogger(CreateNewEditTable.class.getName()).log(Level.SEVERE, null, ex);
@@ -134,9 +136,9 @@ public class EditTable {
             try {
                 for (int i = 0; i < grid.getRowCount(); i++) {
                     //Get object name
-                    String spcObjectName = parent.getChildren().get(i).getName();
+                    String spcObjectName = parent.getChildren(selectedClass, true).get(i).getName();
                     // Get attributes
-                    List<JEVisAttribute> attributes = parent.getChildren().get(i).getAttributes();
+                    List<JEVisAttribute> attributes = parent.getChildren(selectedClass, true).get(i).getAttributes();
 
                     ObservableList<Pair<String, String>> listSample = FXCollections.observableArrayList();
 
@@ -264,12 +266,18 @@ public class EditTable {
         }
 
         BorderPane root = new BorderPane();
+//        root.setPadding(new Insets(3));
 
         HBox hBoxTop = new HBox();
-        hBoxTop.getChildren().addAll(classComboBox);
+        hBoxTop.setSpacing(10);
+//        hBoxTop.setPadding(new Insets(3, 3, 3, 3));
+        Label lClass = new Label("Class:");
+        hBoxTop.getChildren().addAll(lClass, classComboBox);
         root.setTop(hBoxTop);
 
         HBox hBoxBottom = new HBox();
+        hBoxBottom.setSpacing(10);
+//        hBoxBottom.setPadding(new Insets(3, 3, 3, 3));
         hBoxBottom.getChildren().addAll(editBtn, cancelBtn);
         hBoxBottom.setAlignment(Pos.BASELINE_RIGHT);
         root.setBottom(hBoxBottom);
@@ -422,7 +430,7 @@ public class EditTable {
 
             String[] colNames = {"Object Name", "Display Prefix", "Display Symbol", "Display Sample Rate", "Input Prefix", "Input Symbol", "Input Sample Rate"};
             try {
-                rowCount = parent.getChildren().size();
+                rowCount = parent.getChildren(selectedClass, true).size();
                 columnCount = colNames.length;
             } catch (JEVisException ex) {
                 Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
@@ -460,9 +468,9 @@ public class EditTable {
             try {
                 for (int i = 0; i < grid.getRowCount(); i++) {
                     //Get object name
-                    String spcObjectName = parent.getChildren().get(i).getName();
+                    String spcObjectName = parent.getChildren(selectedClass, true).get(i).getName();
                     // Get attributes
-                    List<JEVisAttribute> attributes = parent.getChildren().get(i).getAttributes();
+                    List<JEVisAttribute> attributes = parent.getChildren(selectedClass, true).get(i).getAttributes();
                     ObservableList<Pair<String, String>> listValueAttribute = FXCollections.observableArrayList();
 
                     for (int z = 0; z < attributes.size(); z++) {

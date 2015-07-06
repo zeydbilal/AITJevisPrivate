@@ -677,7 +677,7 @@ public class ObjectTree extends TreeView<JEVisObject> {
 
                     if (table.getSelectedClass().getName().equals("Data")) {
                         String objectName = table.getPairList().get(i).getKey();
-                        childObject = parent.getChildren().get(i);
+                        childObject = parent.getChildren(table.getSelectedClass(), true).get(i);
                         if (!objectName.equals(childObject.getName())) {
                             childObject.setName(objectName);
                             childObject.commit();
@@ -718,7 +718,7 @@ public class ObjectTree extends TreeView<JEVisObject> {
                         attributeValue.commit();
                     } else {
                         String objectName = table.getPairList().get(i).getKey();
-                        childObject = parent.getChildren().get(i);
+                        childObject =  parent.getChildren(table.getSelectedClass(), true).get(i);
                         if (!objectName.equals(childObject.getName())) {
                             childObject.setName(objectName);
                             childObject.commit();
