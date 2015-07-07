@@ -483,14 +483,13 @@ public class EditTable {
                     for (int z = 0; z < attributes.size(); z++) {
                         //TODO displayPrefix,displaySampleRate,inputSampleRate,inputPrefix Empty,Null oder NONE ist
                         JEVisUnit displayUnit = attributes.get(z).getDisplayUnit();
-                        System.out.println(displayUnit.toString());
                         String displayPrefix = attributes.get(z).getDisplayUnit().getPrefix().toString();
                         String displaySampleRate = attributes.get(z).getDisplaySampleRate().toString();
 
                         JEVisUnit inputUnit = attributes.get(z).getInputUnit();
                         String inputSampleRate = attributes.get(z).getInputSampleRate().toString();
                         String inputPrefix = attributes.get(z).getInputUnit().getPrefix().toString();
-                        System.out.println(inputUnit.toString());
+                        
                         listValueAttribute.add(new Pair(attributes.get(z).getName(), displayPrefix));
 
                         if (attributes.get(z).getName().equals("Value")) {
