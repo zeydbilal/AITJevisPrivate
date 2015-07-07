@@ -254,7 +254,6 @@ public class CreateTable {
                 }
             }
         });
-
         createBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {

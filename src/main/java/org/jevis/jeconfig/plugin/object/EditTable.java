@@ -421,7 +421,6 @@ public class EditTable {
                 "Nm", "Wh", "Ws", "m/s", "c", "km/h", "kn", "Mach", "mph", "m³", "in³", "gallon_dry_us", "gal", "gallon_uk", "l", "oz_uk", "kg/m³", "m³/s");
     }
 
-    //TODO
     class CreateNewDataEditTable {
 
         private ObservableList<Pair<String, ObservableList<Pair<String, String>>>> listObjectAndValueAttribute = FXCollections.observableArrayList();
@@ -464,7 +463,6 @@ public class EditTable {
             //change it
             //editBtn.setDisable(true);
 
-            //TODO Add to list(listObjectAndAttribute)
             try {
                 for (int i = 0; i < grid.getRowCount(); i++) {
                     //Get object name
@@ -493,6 +491,7 @@ public class EditTable {
                             if (displayUnit.toString().equals("") || displayUnit.equals(null) || displayUnit.toString().equals("NONE")) {
                                 listValueAttribute.add(new Pair(attributes.get(z).getName(), ""));
                             } else {
+                                //TODO Display displayUnit.toString().length()==1       
                                 if (displayUnit.toString().substring(0, 2).equals("da")) {
                                     listValueAttribute.add(new Pair(attributes.get(z).getName(), displayUnit.toString().substring(2, displayUnit.toString().length())));
                                 } else {
@@ -525,7 +524,6 @@ public class EditTable {
                             listValueAttribute.add(new Pair(attributes.get(z).getName(), inputSampleRate));
                         }
                     }
-
                     listObjectAndValueAttribute.add(new Pair(spcObjectName, listValueAttribute));
                 }
             } catch (JEVisException ex) {

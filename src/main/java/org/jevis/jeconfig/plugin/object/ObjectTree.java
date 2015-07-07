@@ -665,9 +665,8 @@ public class ObjectTree extends TreeView<JEVisObject> {
             }
         }
     }
-    
-    //@AITBilal
-    //TODO
+
+    //@AITBilal - Edit a new Table!
     public void fireEventEditTable(final JEVisObject parent) throws JEVisException {
         EditTable table = new EditTable();
         if (parent != null) {
@@ -718,7 +717,7 @@ public class ObjectTree extends TreeView<JEVisObject> {
                         attributeValue.commit();
                     } else {
                         String objectName = table.getPairList().get(i).getKey();
-                        childObject =  parent.getChildren(table.getSelectedClass(), true).get(i);
+                        childObject = parent.getChildren(table.getSelectedClass(), true).get(i);
                         if (!objectName.equals(childObject.getName())) {
                             childObject.setName(objectName);
                             childObject.commit();
@@ -735,7 +734,7 @@ public class ObjectTree extends TreeView<JEVisObject> {
             }
         }
     }
-    
+
     //TODO i dont like this way
     public ObjectEditor getEditor() {
         return _editor;
