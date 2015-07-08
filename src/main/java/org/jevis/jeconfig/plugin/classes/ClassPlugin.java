@@ -161,7 +161,15 @@ public class ClassPlugin implements Plugin {
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(reload);
             GlobalToolBar.BuildEventhandler(ClassPlugin.this, reload, Constants.Plugin.Command.RELOAD);
 
-            toolBar.getItems().addAll(save, newB, delete, sep1);
+            ToggleButton addTable = new ToggleButton("", JEConfig.getImage("add_table.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(addTable);
+            GlobalToolBar.BuildEventhandler(ClassPlugin.this, addTable, Constants.Plugin.Command.ADD_TABLE);
+
+            ToggleButton editTable = new ToggleButton("", JEConfig.getImage("edit_table.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(editTable);
+            GlobalToolBar.BuildEventhandler(ClassPlugin.this, editTable, Constants.Plugin.Command.EDIT_TABLE);
+            
+            toolBar.getItems().addAll(save, newB, delete, sep1,addTable,editTable);
             toolBar.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
         }
         return toolBar;
