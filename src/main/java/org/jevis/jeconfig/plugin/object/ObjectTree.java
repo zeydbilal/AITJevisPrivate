@@ -58,6 +58,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisRelationship;
 import org.jevis.api.JEVisUnit;
+import org.jevis.api.JEVisUnit.Prefix;
 import org.jevis.application.dialog.ConfirmDialog;
 import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.application.dialog.InfoDialog;
@@ -600,18 +601,27 @@ public class ObjectTree extends TreeView<JEVisObject> {
                                 attributeValue.setDisplayUnit(new JEVisUnitImp("", "", JEVisUnit.Prefix.NONE));
                             } else {
                                 String displaySymbol = table.getPairList().get(i).getValue().get(1);
-                                JEVisUnit.Prefix prefixDisplayUnit = JEVisUnit.Prefix.valueOf(table.getPairList().get(i).getValue().get(0));
-                                attributeValue.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", prefixDisplayUnit));
+                                if (table.getPairList().get(i).getValue().get(0).isEmpty() && !table.getPairList().get(i).getValue().get(1).isEmpty()) {
+                                    attributeValue.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", Prefix.NONE));
+                                } else {
+                                    JEVisUnit.Prefix prefixDisplayUnit = JEVisUnit.Prefix.valueOf(table.getPairList().get(i).getValue().get(0));
+                                    attributeValue.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", prefixDisplayUnit));
+                                }
                             }
 
                             if (table.getPairList().get(i).getValue().get(3).isEmpty() && table.getPairList().get(i).getValue().get(4).isEmpty()) {
                                 attributeValue.setDisplayUnit(new JEVisUnitImp("", "", JEVisUnit.Prefix.NONE));
                             } else {
                                 String inputSymbol = table.getPairList().get(i).getValue().get(4);
-                                JEVisUnit.Prefix prefixInputUnit = JEVisUnit.Prefix.valueOf(table.getPairList().get(i).getValue().get(3));
-                                attributeValue.setInputUnit(new JEVisUnitImp(Unit.valueOf(inputSymbol), "", prefixInputUnit));
+                                if (table.getPairList().get(i).getValue().get(3).isEmpty() && !table.getPairList().get(i).getValue().get(4).isEmpty()) {
+                                    attributeValue.setInputUnit(new JEVisUnitImp(Unit.valueOf(inputSymbol), "", Prefix.NONE));
+                                } else {
+                                    JEVisUnit.Prefix prefixInputUnit = JEVisUnit.Prefix.valueOf(table.getPairList().get(i).getValue().get(3));
+                                    attributeValue.setInputUnit(new JEVisUnitImp(Unit.valueOf(inputSymbol), "", prefixInputUnit));
+                                }
                             }
 
+                            //TODO Symbol without Prefix
                             if (table.getPairList().get(i).getValue().get(2).isEmpty()) {
                                 attributeValue.setDisplaySampleRate(Period.parse("PT0S"));//Period.ZERO
                             } else {

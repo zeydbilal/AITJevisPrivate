@@ -474,14 +474,19 @@ public class EditTable {
                     for (int z = 0; z < attributes.size(); z++) {
 
                         JEVisUnit displayUnit = attributes.get(z).getDisplayUnit();
+                        String[] splitDisplayUnit = attributes.get(z).getDisplayUnit().toJSON().split("\"");
+
                         String displayPrefix = attributes.get(z).getDisplayUnit().getPrefix().toString();
                         String displaySampleRate = attributes.get(z).getDisplaySampleRate().toString();
 
                         JEVisUnit inputUnit = attributes.get(z).getInputUnit();
+                        String[] splitInputUnit = attributes.get(z).getInputUnit().toJSON().split("\"");
+
                         String inputSampleRate = attributes.get(z).getInputSampleRate().toString();
                         String inputPrefix = attributes.get(z).getInputUnit().getPrefix().toString();
 
                         if (attributes.get(z).getName().equals("Value")) {
+
                             if (displayPrefix.equals("") || displayPrefix.equals(null) || displayPrefix.equals("NONE")) {
                                 listValueAttribute.add(new Pair(attributes.get(z).getName(), ""));
                             } else {
@@ -491,12 +496,8 @@ public class EditTable {
                             if (displayUnit.toString().equals("") || displayUnit.equals(null) || displayUnit.toString().equals("NONE")) {
                                 listValueAttribute.add(new Pair(attributes.get(z).getName(), ""));
                             } else {
-                                //TODO Display displayUnit.toString().length()==1       
-                                if (displayUnit.toString().substring(0, 2).equals("da")) {
-                                    listValueAttribute.add(new Pair(attributes.get(z).getName(), displayUnit.toString().substring(2, displayUnit.toString().length())));
-                                } else {
-                                    listValueAttribute.add(new Pair(attributes.get(z).getName(), displayUnit.toString().substring(1, displayUnit.toString().length())));
-                                }
+                                listValueAttribute.add(new Pair(attributes.get(z).getName(), splitDisplayUnit[3]));
+
                             }
 
                             if (displaySampleRate.equals("") || displaySampleRate.equals(null) || displaySampleRate.equals("NONE")) {
@@ -514,12 +515,7 @@ public class EditTable {
                             if (inputUnit.toString().equals("") || inputUnit.equals(null) || inputUnit.toString().equals("NONE")) {
                                 listValueAttribute.add(new Pair(attributes.get(z).getName(), ""));
                             } else {
-                                if (inputUnit.toString().substring(0, 2).equals("da")) {
-                                    listValueAttribute.add(new Pair(attributes.get(z).getName(), inputUnit.toString().substring(2, inputUnit.toString().length())));
-                                } else {
-                                    listValueAttribute.add(new Pair(attributes.get(z).getName(), inputUnit.toString().substring(1, inputUnit.toString().length())));
-
-                                }
+                                listValueAttribute.add(new Pair(attributes.get(z).getName(), splitInputUnit[3]));
                             }
                             listValueAttribute.add(new Pair(attributes.get(z).getName(), inputSampleRate));
                         }
