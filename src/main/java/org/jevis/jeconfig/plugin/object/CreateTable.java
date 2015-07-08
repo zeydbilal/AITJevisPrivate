@@ -1,9 +1,7 @@
 package org.jevis.jeconfig.plugin.object;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -12,6 +10,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -50,31 +49,23 @@ import org.jevis.jeconfig.tool.ImageConverter;
  *
  * @author Bilal
  */
-//TODO
 public class CreateTable {
 
     private final ObservableList<ObservableList<SpreadsheetCell>> rows = FXCollections.observableArrayList();
     private ObservableList<SpreadsheetCell> cells;
+    private ObservableList<String> listAttribute = FXCollections.observableArrayList();
     private SpreadsheetView spv;
     private GridBase grid;
     private Stage stage = new Stage();
     private JEVisClass createClass;
+    private LinkedList<String> listObjectNames = new LinkedList<>();
     private int rowCount;
     private int columnCount;
-    private CreateNewDataTable createNewDataTable;
     private ObservableList<String> columnHeaderNames = FXCollections.observableArrayList();
     private ObservableList<String> columnHeaderNamesDataTable = FXCollections.observableArrayList();
     private ObservableList<Pair<String, ArrayList<String>>> pairList = FXCollections.observableArrayList();
     private ObservableList<String> listUnits = FXCollections.observableArrayList();
     private ObservableList<String> listUnitSymbols = FXCollections.observableArrayList();
-
-    private Map<Integer, Double> generateRowHeight() {
-        Map<Integer, Double> rowHeight = new HashMap<>();
-        for (int i = 0; i < grid.getRowCount(); i++) {
-            rowHeight.put(i, 30.0);
-        }
-        return rowHeight;
-    }
 
     class CreateNewTable {
 
@@ -97,7 +88,6 @@ public class CreateTable {
                 rows.add(cells);
             }
             grid.setRows(rows);
-            grid.setRowHeightCallback(new GridBase.MapBasedRowHeightFactory(generateRowHeight()));
             spv = new SpreadsheetView();
             spv.setGrid(grid);
 
@@ -194,7 +184,7 @@ public class CreateTable {
 
         try {
             if (createClass.getName().equals("Data")) {
-                createNewDataTable = new CreateNewDataTable(createBtn);
+                new CreateNewDataTable(createBtn);
             } else {
                 new CreateNewTable();
             }
@@ -203,12 +193,19 @@ public class CreateTable {
         }
 
         BorderPane root = new BorderPane();
+//        root.setPadding(new Insets(3));
 
         HBox hBoxTop = new HBox();
-        hBoxTop.getChildren().addAll(classComboBox);
+        hBoxTop.setSpacing(10);
+//        hBoxTop.setPadding(new Insets(3, 3, 3, 3));
+        Label lClass = new Label("Class:");
+        hBoxTop.getChildren().addAll(lClass, classComboBox);
+
         root.setTop(hBoxTop);
 
         HBox hBoxBottom = new HBox();
+        hBoxBottom.setSpacing(10);
+//        hBoxBottom.setPadding(new Insets(0, 3, 3, 3));
         hBoxBottom.getChildren().addAll(createBtn, cancelBtn);
         hBoxBottom.setAlignment(Pos.BASELINE_RIGHT);
         root.setBottom(hBoxBottom);
@@ -257,7 +254,6 @@ public class CreateTable {
                 }
             }
         });
-
         createBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
@@ -266,12 +262,12 @@ public class CreateTable {
                     SpreadsheetCell spcObjectName = rows.get(i).get(0);
 
                     if (!spcObjectName.getText().equals("")) {
-                        ArrayList<String> attributes = new ArrayList<>();
+                        ArrayList<String> attributs = new ArrayList<>();
                         for (int j = 1; j < grid.getColumnCount(); j++) {
                             SpreadsheetCell spcAttribut = rows.get(i).get(j);
-                            attributes.add(spcAttribut.getText());
+                            attributs.add(spcAttribut.getText());
                         }
-                        pairList.add(new Pair(spcObjectName.getText(), attributes));
+                        pairList.add(new Pair(spcObjectName.getText(), attributs));
                     }
                 }
                 response = Response.YES;
@@ -298,7 +294,7 @@ public class CreateTable {
                     createClass = classComboBox.getSelectionModel().getSelectedItem();
 
                     if (createClass.getName().equals("Data")) {
-                        createNewDataTable = new CreateNewDataTable(createBtn);
+                        new CreateNewDataTable(createBtn);
                         root.setCenter(spv);
                     } else {
                         new CreateNewTable();
@@ -323,12 +319,20 @@ public class CreateTable {
         return response;
     }
 
+    public LinkedList<String> getlistObjectNames() {
+        return listObjectNames;
+    }
+
     public ObservableList<Pair<String, ArrayList<String>>> getPairList() {
         return pairList;
     }
 
     public JEVisClass getCreateClass() {
         return createClass;
+    }
+
+    public ObservableList<String> getColumnHeaderNames() {
+        return columnHeaderNames;
     }
 
     private void addUnits() {
@@ -369,7 +373,6 @@ public class CreateTable {
                 rows.add(cells);
             }
             grid.setRows(rows);
-            grid.setRowHeightCallback(new GridBase.MapBasedRowHeightFactory(generateRowHeight()));
             spv = new SpreadsheetView();
             spv.setGrid(grid);
 
@@ -385,7 +388,7 @@ public class CreateTable {
 
             spv.getGrid().getColumnHeaders().addAll(columnHeaderNamesDataTable);
             //change it
-            //createBtn.setDisable(false);
+            //createBtn.setDisable(true);
             addUnits();
             addSymbols();
             //GridChange Event for Prefix and Symbol Input Control
