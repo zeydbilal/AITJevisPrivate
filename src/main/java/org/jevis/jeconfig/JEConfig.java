@@ -81,7 +81,7 @@ public class JEConfig extends Application {
     /**
      * Defines the version information in the about dialog
      */
-    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.12 2015-07-02");
+    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.13 2015-07-02");
     private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static String _lastpath = "";
 
@@ -214,10 +214,12 @@ public class JEConfig extends Application {
 
         scene = new Scene(jeconfigRoot, bounds.getWidth(), bounds.getHeight());
         scene.getStylesheets().add("/styles/Styles.css");
-        primaryStage.getIcons().add(getImage("1393354629_Config-Tools.png"));
+        primaryStage.getIcons().add(getImage("JEVisIconBlue.png"));
+
         primaryStage.setTitle("JEConfig");
         primaryStage.setScene(scene);
-        maximize(primaryStage);
+        primaryStage.setMaximized(true);
+//        maximize(primaryStage);
         primaryStage.show();
 
         jeconfigRoot.getChildren().setAll(login);
