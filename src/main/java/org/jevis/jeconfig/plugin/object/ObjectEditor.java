@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
+ * Copyright (C) 2009 - 2015 Envidatec GmbH <info@envidatec.com>
  *
  * This file is part of JEConfig.
  *
@@ -30,12 +30,21 @@ import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Accordion;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 //import javafx.scene.control.Dialogs;
 import javafx.scene.control.TitledPane;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.dialog.ConfirmDialog;
 import org.jevis.jeconfig.Constants;
@@ -44,8 +53,11 @@ import org.jevis.jeconfig.plugin.object.extension.LinkExtension;
 import org.jevis.jeconfig.plugin.object.extension.MemberExtension;
 import org.jevis.jeconfig.plugin.object.extension.RootExtension;
 import org.jevis.jeconfig.plugin.object.extension.PermissionExtension;
+import org.jevis.jeconfig.tool.ImageConverter;
 
 /**
+ * This Edior is used to configure the Attributes of an Objects. Its used in the
+ * right side next to the Objects Tree.
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
@@ -56,25 +68,14 @@ public class ObjectEditor {
     private boolean _hasChanged = true;
     private String _lastOpenEditor = "";
 
-//    private AnchorPane _view;
-//    private LoadPane _view;
     private AnchorPane _view;
-//    LoadingPane loaderP = new LoadingPane();
 
     public ObjectEditor() {
         _view = new AnchorPane();
-//        _view = new LoadPane(false);
         _view.setId("objecteditorpane");
         _view.getStylesheets().add("/styles/Styles.css");
         _view.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
 
-//        AnchorPane.setTopAnchor(loaderP, 0.0);
-//        AnchorPane.setRightAnchor(loaderP, 0.0);
-//        AnchorPane.setLeftAnchor(loaderP, 0.0);
-//        AnchorPane.setBottomAnchor(loaderP, 0.0);
-//        _view.getChildren().setAll(loaderP);
-//        _view.setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
-//        _view.setContent(_root);
     }
 
     public void commitAll() {
@@ -252,8 +253,69 @@ public class ObjectEditor {
                     accordion.setExpandedPane(taps.get(0));
                     _lastOpenEditor = extensions.get(0).getTitel();
                 }
-//                loaderP.setContent(content);
-                _view.getChildren().setAll(accordion);
+
+                //Header
+                ImageView classIcon;
+                try {
+                    classIcon = ImageConverter.convertToImageView(obj.getJEVisClass().getIcon(), 60, 60);
+                } catch (Exception ex) {
+                    classIcon = JEConfig.getImage("1390343812_folder-open.png", 20, 20);
+                }
+
+//                FlowPane header = new FlowPane();
+                GridPane header = new GridPane();
+                try {
+//                header.setStyle("-fx-background-color: linear-gradient(from 25% 25% to 100% 100%, #1a719c, #f4f4f4)");
+                    Label nameLabel = new Label("Name:");
+                    Label objectName = new Label(obj.getName());
+                    objectName.setStyle("-fx-font-weight: bold;");
+                    Label classlabel = new Label("Type:");
+                    Label className = new Label(obj.getJEVisClass().getName());
+                    Label idlabel = new Label("ID:");
+                    Label idField = new Label(obj.getID() + "");
+
+                    //TODO: would be nice if the user can copy the ID and name but the layout is broken if i use this textfield code
+//                    idField.setEditable(false);
+//                    idField.setStyle("-fx-background-color: transparent ;-fx-background-insets: 0px ;-fx-text-box-border: transparent;");
+                    Region spacer = new Region();
+                    GridPane.setVgrow(spacer, Priority.ALWAYS);
+                    GridPane.setVgrow(nameLabel, Priority.NEVER);
+                    GridPane.setVgrow(classlabel, Priority.NEVER);
+                    GridPane.setVgrow(idlabel, Priority.NEVER);
+                    GridPane.setVgrow(objectName, Priority.NEVER);
+                    GridPane.setVgrow(className, Priority.NEVER);
+                    GridPane.setVgrow(idField, Priority.NEVER);
+
+                    header.add(classIcon, 0, 0, 1, 4);
+
+                    header.add(nameLabel, 1, 0, 1, 1);
+                    header.add(classlabel, 1, 1, 1, 1);
+                    header.add(idlabel, 1, 2, 1, 1);
+
+                    header.add(objectName, 2, 0, 1, 1);
+                    header.add(className, 2, 1, 1, 1);
+                    header.add(idField, 2, 2, 1, 1);
+
+                    header.add(spacer, 1, 3, 2, 1);
+
+                    header.setPadding(new Insets(10));
+                    header.setVgap(5);
+                    header.setHgap(10);
+//                    header.getChildren().setAll(classIcon, objectName);
+                } catch (Exception ex) {
+
+                }
+
+                BorderPane pane = new BorderPane();
+                pane.setTop(header);
+                pane.setCenter(accordion);
+                AnchorPane.setRightAnchor(pane, 1.0);
+                AnchorPane.setLeftAnchor(pane, 1.0);
+                AnchorPane.setTopAnchor(pane, 1.0);
+                AnchorPane.setBottomAnchor(pane, 1.0);
+
+                _view.getChildren().setAll(pane);
+//                _view.getChildren().setAll(accordion);
             }
         });
 

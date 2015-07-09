@@ -26,6 +26,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -237,6 +239,21 @@ public class NewObjectDialog {
         final ComboBox<JEVisClass> comboBox = new ComboBox<JEVisClass>(options);
         comboBox.setCellFactory(cellFactory);
         comboBox.setButtonCell(cellFactory.call(null));
+
+        comboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<JEVisClass>() {
+
+            @Override
+            public void changed(ObservableValue<? extends JEVisClass> observable, JEVisClass oldValue, JEVisClass newValue) {
+                if (fName.getText().isEmpty()) {
+                    try {
+                        fName.setText(newValue.getName());
+                    } catch (JEVisException ex) {
+                        Logger.getLogger(NewObjectDialog.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+
+            }
+        });
 
         if (jclass != null) {
             comboBox.getSelectionModel().select(jclass);
