@@ -244,14 +244,11 @@ public class NewObjectDialog {
 
             @Override
             public void changed(ObservableValue<? extends JEVisClass> observable, JEVisClass oldValue, JEVisClass newValue) {
-                if (fName.getText().isEmpty()) {
-                    try {
-                        fName.setText(newValue.getName());
-                    } catch (JEVisException ex) {
-                        Logger.getLogger(NewObjectDialog.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                try {
+                    fName.setText(newValue.getName());
+                } catch (JEVisException ex) {
+                    Logger.getLogger(NewObjectDialog.class.getName()).log(Level.SEVERE, null, ex);
                 }
-
             }
         });
 
