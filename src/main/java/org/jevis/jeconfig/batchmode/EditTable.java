@@ -3,11 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jevis.jeconfig.plugin.object;
+package org.jevis.jeconfig.batchmode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -18,7 +17,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -364,6 +362,7 @@ public class EditTable {
                     rows.clear();
                     columnHeaderNames.clear();
                     columnHeaderNamesDataTable.clear();
+                    pairList.clear();
                     selectedClass = classComboBox.getSelectionModel().getSelectedItem();
 
                     if (selectedClass.getName().equals("Data")) {

@@ -1,4 +1,4 @@
-package org.jevis.jeconfig.plugin.object;
+package org.jevis.jeconfig.batchmode;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -10,7 +10,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -19,6 +18,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.Separator;
 import javafx.scene.control.TablePosition;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
@@ -43,6 +43,7 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisUnit;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.ImageConverter;
 
 /**
@@ -199,7 +200,9 @@ public class CreateTable {
         hBoxTop.setSpacing(10);
 //        hBoxTop.setPadding(new Insets(3, 3, 3, 3));
         Label lClass = new Label("Class:");
-        hBoxTop.getChildren().addAll(lClass, classComboBox);
+        Button help = new Button("Help", JEConfig.getImage("quick_help_icon.png", 22, 22));
+        Separator sep1 = new Separator();
+        hBoxTop.getChildren().addAll(lClass, classComboBox, sep1, help);
 
         root.setTop(hBoxTop);
 
@@ -291,6 +294,7 @@ public class CreateTable {
                     rows.clear();
                     columnHeaderNames.clear();
                     columnHeaderNamesDataTable.clear();
+                    pairList.clear();
                     createClass = classComboBox.getSelectionModel().getSelectedItem();
 
                     if (createClass.getName().equals("Data")) {
@@ -303,6 +307,13 @@ public class CreateTable {
                 } catch (JEVisException ex) {
                     Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
                 }
+            }
+        });
+
+        help.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                WebBrowser webBrowser = new WebBrowser();
             }
         });
 

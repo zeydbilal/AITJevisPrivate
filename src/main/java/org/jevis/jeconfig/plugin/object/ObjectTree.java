@@ -19,6 +19,8 @@
  */
 package org.jevis.jeconfig.plugin.object;
 
+import org.jevis.jeconfig.batchmode.CreateTable;
+import org.jevis.jeconfig.batchmode.EditTable;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -621,7 +623,6 @@ public class ObjectTree extends TreeView<JEVisObject> {
                                 }
                             }
 
-                            //TODO Symbol without Prefix
                             if (table.getPairList().get(i).getValue().get(2).isEmpty()) {
                                 attributeValue.setDisplaySampleRate(Period.parse("PT0S"));//Period.ZERO
                             } else {
