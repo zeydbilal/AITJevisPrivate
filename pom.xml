@@ -12,6 +12,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mainClass>org.jevis.jeconfig.JEConfig</mainClass>
+        <additionalparam>-Xdoclint:none</additionalparam>
     </properties>
 
     <organization>
