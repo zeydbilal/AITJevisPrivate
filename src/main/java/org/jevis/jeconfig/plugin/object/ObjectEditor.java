@@ -31,11 +31,13 @@ import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
 //import javafx.scene.control.Dialogs;
 import javafx.scene.control.TitledPane;
@@ -167,6 +169,8 @@ public class ObjectEditor {
 
 //                AnchorPane content = new AnchorPane();
                 Accordion accordion = new Accordion();
+                accordion.getStylesheets().add("/styles/objecteditor.css");
+                accordion.setStyle("-fx-box-border: transparent;");
 
                 List<TitledPane> taps = new ArrayList<>();
                 extensions = new ArrayList<>();
@@ -178,8 +182,10 @@ public class ObjectEditor {
 
                 for (final ObjectEditorExtension ex : extensions) {
                     if (ex.isForObject(obj)) {
-//                        System.out.println("Extension " + ex.getTitel() + " is for Object: " + obj.getName());
                         TitledPane newTab = new TitledPane(ex.getTitel(), ex.getView());
+                        newTab.getStylesheets().add("/styles/objecteditor.css");
+//                        newTab.setStyle("-fx-background-color: transparent;");
+
                         newTab.setAnimated(false);
                         taps.add(newTab);
                         ex.getValueChangedProperty().addListener(new ChangeListener<Boolean>() {
@@ -251,6 +257,7 @@ public class ObjectEditor {
 //                    updateView(content, extensions.get(0));
                     extensions.get(0).setVisible();
                     accordion.setExpandedPane(taps.get(0));
+                    taps.get(0).requestFocus();
                     _lastOpenEditor = extensions.get(0).getTitel();
                 }
 
@@ -298,9 +305,14 @@ public class ObjectEditor {
 
                     header.add(spacer, 1, 3, 2, 1);
 
+                    Separator sep = new Separator(Orientation.HORIZONTAL);
+                    GridPane.setVgrow(sep, Priority.ALWAYS);
+
+//                    header.add(sep, 0, 4, 4, 1);
                     header.setPadding(new Insets(10));
                     header.setVgap(5);
-                    header.setHgap(10);
+                    header.setHgap(12);
+                    header.setPadding(new Insets(10, 0, 20, 10));
 //                    header.getChildren().setAll(classIcon, objectName);
                 } catch (Exception ex) {
 
