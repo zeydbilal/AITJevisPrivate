@@ -75,6 +75,7 @@ public class NewObjectDialog {
     private int createCount = 1;
     private JEVisClass createClass;
     private String createName = "No Name";
+    private boolean userSetName = false;
 
     public static enum Type {
 
@@ -183,7 +184,16 @@ public class NewObjectDialog {
 
         if (objName != null) {
             fName.setText(objName);
+            userSetName = true;
         }
+
+        fName.setOnKeyTyped(new EventHandler<KeyEvent>() {
+
+            @Override
+            public void handle(KeyEvent event) {
+                userSetName = true;
+            }
+        });
 
         Label lClass = new Label("Class:");
 
@@ -245,7 +255,9 @@ public class NewObjectDialog {
             @Override
             public void changed(ObservableValue<? extends JEVisClass> observable, JEVisClass oldValue, JEVisClass newValue) {
                 try {
-                    fName.setText(newValue.getName());
+                    if (!userSetName) {
+                        fName.setText(newValue.getName());
+                    }
                 } catch (JEVisException ex) {
                     Logger.getLogger(NewObjectDialog.class.getName()).log(Level.SEVERE, null, ex);
                 }
