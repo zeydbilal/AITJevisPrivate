@@ -1,26 +1,26 @@
 
 .titled-pane {
-    /*-fx-effect: dropshadow(three-pass-box, #9F9F9F, 15, 0, 0, 0);*/
-    -fx-animated: false;
-    -fx-background-color: transparent;
     -fx-text-fill: #505050;
-    /*-fx-border-color: grey;*/
-    -fx-border-width: 0;
+   
+    -fx-animated: false;
     -fx-background-radius: 0;
+    -fx-background-color: transparent;
     -fx-padding: 0;
     -fx-border-insets: 0;
-    
-    -fx-border-width: 0 0 2 0;
-    -fx-border-color: #ebebeb;
     -fx-border-insets: 0 2 0 2;
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
+    -fx-border-insets: 0;
     
 }
 
 .titled-pane:focused {
     /*-fx-effect: dropshadow(three-pass-box, #9F9F9F, 15, 0, 0, 0);*/
+    -fx-text-fill: #1a719c;
+    
     -fx-animated: false;
     -fx-background-radius: 0;
-    -fx-text-fill: #1a719c;
+    -fx-background-color: transparent;    
     -fx-padding: 0;
     -fx-border-insets: 0;
     -fx-border-insets: 0 2 0 2;
