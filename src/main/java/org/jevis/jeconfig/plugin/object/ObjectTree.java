@@ -680,21 +680,30 @@ public class ObjectTree extends TreeView<JEVisObject> {
     //@AITBilal - Edit a new Table!
     public void fireEventEditTable(final JEVisObject parent) throws JEVisException {
         EditTable table = new EditTable();
+
         if (parent != null) {
             if (table.show(JEConfig.getStage(), null, parent, false, EditTable.Type.NEW, null) == EditTable.Response.YES) {
+                System.out.println(table.getPairList().size() + "<-pair   parent->" + parent.getChildren(table.getSelectedClass(), true).size());
+                for (int j = 0; j < table.getPairList().size(); j++) {
+                    System.out.println(table.getPairList().get(j).getKey());
+                }
+                System.out.println("Value Size :" + table.getPairList().get(0).getValue().size());
+                for (int i = 0; i < table.getPairList().get(0).getValue().size(); i++) {
+                    System.out.println(table.getPairList().get(i).getValue().get(i));
+                }
+                
                 for (int i = 0; i < parent.getChildren(table.getSelectedClass(), true).size(); i++) {
                     JEVisObject childObject = null;
 
                     if (table.getSelectedClass().getName().equals("Data")) {
                         String objectName = table.getPairList().get(i).getKey();
                         childObject = parent.getChildren(table.getSelectedClass(), true).get(i);
-                        System.out.println("size : : : :" + parent.getChildren(table.getSelectedClass(), true).size());
 
                         if (!objectName.equals(childObject.getName())) {
                             childObject.setName(objectName);
                             childObject.commit();
                         }
-
+                        System.out.println("setname -> " + childObject.getName());
                         JEVisAttribute attributeValue = childObject.getAttribute("Value");
 
                         if (table.getPairList().get(i).getValue().get(0).isEmpty() && table.getPairList().get(i).getValue().get(1).isEmpty()) {
@@ -752,21 +761,20 @@ public class ObjectTree extends TreeView<JEVisObject> {
                         }
                     }
                 }
+                //sort the list and reload tree
+//                for (int i = 0; i < parent.getChildren(table.getSelectedClass(), true).size(); i++) {
+//                    getObjectGraphic(parent.getChildren(table.getSelectedClass(), true).get(i)).update();
+//                }
+//
+//                final TreeItem<JEVisObject> parentItem = getObjectTreeItem(parent);
+//                parentItem.setExpanded(false);
+//                sortList(getChildrenList(parentItem));
+//
+//                for (int i = 0; i < parent.getChildren().size(); i++) {
+//                    getObjectGraphic(parent.getChildren(table.getSelectedClass(), true).get(i)).update();
+//                }
+//                parentItem.setExpanded(true);
             }
-            //sort the list and reload tree
-            for (int i = 0; i < parent.getChildren(table.getSelectedClass(), true).size(); i++) {
-                getObjectGraphic(parent.getChildren(table.getSelectedClass(), true).get(i)).update();
-            }
-
-            final TreeItem<JEVisObject> parentItem = getObjectTreeItem(parent);
-            parentItem.setExpanded(false);
-            sortList(getChildrenList(parentItem));
-
-            for (int i = 0; i < parent.getChildren(table.getSelectedClass(), true).size(); i++) {
-                getObjectGraphic(parent.getChildren(table.getSelectedClass(), true).get(i)).update();
-            }
-
-            parentItem.setExpanded(true);
         }
     }
 
