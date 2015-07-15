@@ -682,12 +682,14 @@ public class ObjectTree extends TreeView<JEVisObject> {
         EditTable table = new EditTable();
         if (parent != null) {
             if (table.show(JEConfig.getStage(), null, parent, false, EditTable.Type.NEW, null) == EditTable.Response.YES) {
-                for (int i = 0; i < table.getPairList().size(); i++) {
+                for (int i = 0; i < parent.getChildren(table.getSelectedClass(), true).size(); i++) {
                     JEVisObject childObject = null;
-                    
+
                     if (table.getSelectedClass().getName().equals("Data")) {
                         String objectName = table.getPairList().get(i).getKey();
                         childObject = parent.getChildren(table.getSelectedClass(), true).get(i);
+                        System.out.println("size : : : :" + parent.getChildren(table.getSelectedClass(), true).size());
+
                         if (!objectName.equals(childObject.getName())) {
                             childObject.setName(objectName);
                             childObject.commit();
@@ -749,10 +751,22 @@ public class ObjectTree extends TreeView<JEVisObject> {
                             }
                         }
                     }
-                    //TODO reload
-                    
                 }
             }
+            //sort the list and reload tree
+            for (int i = 0; i < parent.getChildren(table.getSelectedClass(), true).size(); i++) {
+                getObjectGraphic(parent.getChildren(table.getSelectedClass(), true).get(i)).update();
+            }
+
+            final TreeItem<JEVisObject> parentItem = getObjectTreeItem(parent);
+            parentItem.setExpanded(false);
+            sortList(getChildrenList(parentItem));
+
+            for (int i = 0; i < parent.getChildren(table.getSelectedClass(), true).size(); i++) {
+                getObjectGraphic(parent.getChildren(table.getSelectedClass(), true).get(i)).update();
+            }
+
+            parentItem.setExpanded(true);
         }
     }
 
