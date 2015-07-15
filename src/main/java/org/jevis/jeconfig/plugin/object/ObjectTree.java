@@ -684,7 +684,7 @@ public class ObjectTree extends TreeView<JEVisObject> {
             if (table.show(JEConfig.getStage(), null, parent, false, EditTable.Type.NEW, null) == EditTable.Response.YES) {
                 for (int i = 0; i < table.getPairList().size(); i++) {
                     JEVisObject childObject = null;
-
+                    
                     if (table.getSelectedClass().getName().equals("Data")) {
                         String objectName = table.getPairList().get(i).getKey();
                         childObject = parent.getChildren(table.getSelectedClass(), true).get(i);
