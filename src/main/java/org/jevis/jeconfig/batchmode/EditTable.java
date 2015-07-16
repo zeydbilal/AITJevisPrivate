@@ -70,6 +70,7 @@ public class EditTable {
     private ObservableList<String> columnHeaderNames = FXCollections.observableArrayList();
     private ObservableList<String> columnHeaderNamesDataTable = FXCollections.observableArrayList();
     private ObservableList<Pair<String, ArrayList<String>>> pairList = FXCollections.observableArrayList();
+    private ObservableList<Pair<String, String>> pairObNameandObID = FXCollections.observableArrayList();
     private ObservableList<String> listUnits = FXCollections.observableArrayList();
     private ObservableList<String> listUnitSymbols = FXCollections.observableArrayList();
 
@@ -340,7 +341,7 @@ public class EditTable {
 
                         if (!spcObjectName.getText().equals("")) {
                             ArrayList<String> attributes = new ArrayList<>();
-                            for (int j = 1; j < grid.getColumnCount(); j++) {
+                            for (int j = 2; j < grid.getColumnCount(); j++) {
                                 SpreadsheetCell spcAttribut = rows.get(i).get(j);
                                 attributes.add(spcAttribut.getText());
                             }
@@ -372,6 +373,7 @@ public class EditTable {
                     columnHeaderNames.clear();
                     columnHeaderNamesDataTable.clear();
                     pairList.clear();
+                    pairObNameandObID.clear();
                     selectedClass = classComboBox.getSelectionModel().getSelectedItem();
 
                     if (selectedClass.getName().equals("Data")) {
@@ -402,6 +404,10 @@ public class EditTable {
 
     public ObservableList<Pair<String, ArrayList<String>>> getPairList() {
         return pairList;
+    }
+
+    public ObservableList<Pair<String, String>> getPairObNameandObID() {
+        return pairObNameandObID;
     }
 
     public JEVisClass getSelectedClass() {
@@ -539,7 +545,7 @@ public class EditTable {
                     for (int j = 0; j < grid.getColumnCount(); j++) {
                         if (columnHeaderNamesDataTable.get(j).equals("Object ID")) {
                             grid.setCellValue(i, 0, parent.getChildren(selectedClass, true).get(i).getID());
-                        }else if (columnHeaderNamesDataTable.get(j).equals("Object Name")) {
+                        } else if (columnHeaderNamesDataTable.get(j).equals("Object Name")) {
                             grid.setCellValue(i, 1, listObjectAndValueAttribute.get(i).getKey());
                         } else {
                             //Attribute ab zweite spalte einsetzen!
@@ -554,7 +560,7 @@ public class EditTable {
             } catch (JEVisException ex) {
                 Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
+
             addUnits();
             addSymbols();
             //GridChange Event for Prefix and Symbol Input Control
