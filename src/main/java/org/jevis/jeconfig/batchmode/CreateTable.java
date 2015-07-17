@@ -22,6 +22,7 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.TablePosition;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -117,7 +118,7 @@ public class CreateTable {
 
     public static enum Type {
 
-        NEW, RENAME
+        NEW, RENAME, EDIT
     };
 
     public static enum Response {
@@ -257,6 +258,38 @@ public class CreateTable {
                 }
             }
         });
+        //TODO copy
+        scene.getAccelerators().put(new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_ANY), new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    Clipboard clipboard = Clipboard.getSystemClipboard();
+                    ClipboardContent content = new ClipboardContent();
+
+                    if (clipboard.hasString()) {
+                        ObservableList<TablePosition> focusedCell = spv.getSelectionModel().getSelectedCells();
+
+                        int currentRow = 0;
+                        int currentColumn = 0;
+
+                        for (final TablePosition<?, ?> p : focusedCell) {
+                            currentRow = p.getRow();
+                            currentColumn = p.getColumn();
+                        }
+                        StringBuilder strBuild = new StringBuilder();
+
+                        content.putString("Some text");
+                        clipboard.setContent(content);
+                    } else {
+                        spv.copyClipboard();
+                    }
+                } catch (NullPointerException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+        });
+
         createBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
@@ -356,14 +389,14 @@ public class CreateTable {
     }
 
     public void addSymbols() {
-        listUnitSymbols.addAll("m/s²",
-                "g", "mol", "atom", "rad", "bit", "%", "centiradian", "dB", "°", "'", "byte", "rev", "¨", "sphere", "sr", "rad/s²", "rad/s", "Bq", "Ci", "Hz",
-                "m²", "a", "ha", "cm²", "km²", "kat", "€", "₦","\u20B9","$", "*?*", "¥", "Hits/cm²", "Hits/m²", "Ω/cm²", "bit/s", "-", "s", "m", "h", "day", "day_sidereal",
-                "week", "month", "year", "year_calendar", "year_sidereal", "g/(cms)", "F", "C", "e", "Fd", "Fr", "S", "A", "Gi", "H", "V", "Ω", "J",
-                "eV", "erg", "N", "dyn", "kgf", "lbf", "lx", "La", "W/m²", "m²/s", "cm²/s", "Å", "ua", "cm", "foot_survey_us", "ft", "in", "km", "ly",
+        listUnitSymbols.addAll("m/sÂ²",
+                "g", "mol", "atom", "rad", "bit", "%", "centiradian", "dB", "Â°", "'", "byte", "rev", "Â¨", "sphere", "sr", "rad/sÂ²", "rad/s", "Bq", "Ci", "Hz",
+                "mÂ²", "a", "ha", "cmÂ²", "kmÂ²", "kat", "â‚¬", "â‚¦", "\u20B9", "$", "*?*", "Â¥", "Hits/cmÂ²", "Hits/mÂ²", "Î©/cmÂ²", "bit/s", "-", "s", "m", "h", "day", "day_sidereal",
+                "week", "month", "year", "year_calendar", "year_sidereal", "g/(cms)", "F", "C", "e", "Fd", "Fr", "S", "A", "Gi", "H", "V", "Î©", "J",
+                "eV", "erg", "N", "dyn", "kgf", "lbf", "lx", "La", "W/mÂ²", "mÂ²/s", "cmÂ²/s", "Ã…", "ua", "cm", "foot_survey_us", "ft", "in", "km", "ly",
                 "mi", "mm", "nmi", "pc", "pixel", "pt", "yd", "W", "Wb", "Mx", "T", "G", "kg", "u", "me", "t", "oz", "lb", "ton_uk", "ton_us", "kg/s",
-                "cd", "hp", "lm", "var", "Pa", "atm", "bar", "in Hg", "mmHg", "Gy", "rem", "Sv", "rd", "Rd", "rev/s", "grade", "K", "℃", "°F", "°R",
-                "Nm", "Wh", "Ws", "m/s", "c", "km/h", "kn", "Mach", "mph", "m³", "in³", "gallon_dry_us", "gal", "gallon_uk", "l", "oz_uk", "kg/m³", "m³/s");
+                "cd", "hp", "lm", "var", "Pa", "atm", "bar", "in Hg", "mmHg", "Gy", "rem", "Sv", "rd", "Rd", "rev/s", "grade", "K", "â„ƒ", "Â°F", "Â°R",
+                "Nm", "Wh", "Ws", "m/s", "c", "km/h", "kn", "Mach", "mph", "mÂ³", "inÂ³", "gallon_dry_us", "gal", "gallon_uk", "l", "oz_uk", "kg/mÂ³", "mÂ³/s");
     }
 
     class CreateNewDataTable {
