@@ -687,20 +687,13 @@ public class ObjectTree extends TreeView<JEVisObject> {
                     JEVisObject childObject = null;
 
                     if (table.getSelectedClass().getName().equals("Data")) {
-//                        String objectName = table.getPairList().get(i).getKey();
-                        childObject = table.getListChildren().get(i);//parent.getChildren(table.getSelectedClass(), true).get(i);
+                        childObject = table.getListChildren().get(i);
 
-//                      if (!objectName.equals(childObject.getName())) {
-                        //FIXME
-//                        childObject.setName("");
                         childObject.commit();
-//                      }
 
                         JEVisAttribute attributeValue = childObject.getAttribute("Value");
 
                         //get objekt mit ID from Tabelle
-                        table.getPairList().get(i).getKey().equals(childObject.getID());
-
                         if (table.getPairList().get(i).getValue().get(0).isEmpty() && table.getPairList().get(i).getValue().get(1).isEmpty()) {
                             attributeValue.setDisplayUnit(new JEVisUnitImp("", "", JEVisUnit.Prefix.NONE));
                         } else {
@@ -741,12 +734,9 @@ public class ObjectTree extends TreeView<JEVisObject> {
 
                         attributeValue.commit();
                     } else {
-                        String objectName = table.getPairList().get(i).getKey();
-                        childObject = parent.getChildren(table.getSelectedClass(), true).get(i);
-                        if (!objectName.equals(childObject.getName())) {
-                            childObject.setName(objectName);
-                            childObject.commit();
-                        }
+                        childObject = table.getListChildren().get(i);
+
+                        childObject.commit();
 
                         List<JEVisAttribute> attributes = childObject.getAttributes();
                         for (int j = 0; j < attributes.size(); j++) {
@@ -756,17 +746,17 @@ public class ObjectTree extends TreeView<JEVisObject> {
                         }
                     }
                 }
-                //sort the list and reload tree
 
+                //sort the list and refresh the tree
                 final TreeItem<JEVisObject> parentItem = getObjectTreeItem(parent);
-//                parentItem.setExpanded(false);
+                //parentItem.setExpanded(false);
 
                 sortTheChildren(parentItem.getChildren());
 
                 for (int i = 0; i < table.getListChildren().size(); i++) {
                     getObjectGraphic(table.getListChildren().get(i)).update();
                 }
-//                parentItem.setExpanded(true);
+                //parentItem.setExpanded(true);
             }
         }
     }

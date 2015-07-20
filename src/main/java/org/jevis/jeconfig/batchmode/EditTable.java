@@ -77,7 +77,6 @@ public class EditTable {
     private ObservableList<String> listUnitSymbols = FXCollections.observableArrayList();
     private ObservableList<JEVisObject> listChildren = FXCollections.observableArrayList();
 
-//    private ObservableList<Pair<ArrayList<String>, ArrayList<String>>> listPairFromTable = FXCollections.observableArrayList();
     public EditTable() {
 
     }
@@ -106,9 +105,6 @@ public class EditTable {
         return listChildren;
     }
 
-//    public ObservableList<Pair<ArrayList<String>, ArrayList<String>>> getListPairFromTable() {
-//        return listPairFromTable;
-//    }
     public Response show(Stage owner, final JEVisClass jclass, final JEVisObject parent, boolean fixClass, Type type, String objName) {
         ObservableList<JEVisClass> options = FXCollections.observableArrayList();
         try {
@@ -241,16 +237,8 @@ public class EditTable {
                 stage.close();
                 for (int i = 0; i < grid.getRowCount(); i++) {
                     try {
-                        SpreadsheetCell spcObjectID = null;
-                        SpreadsheetCell spcObjectName;
-                        //TODO Remove if() Das ist nur gültig für Data
-                        if (selectedClass.getName().equals("Data")) {
-                            spcObjectID = rows.get(i).get(0);
-                            spcObjectName = rows.get(i).get(1);
-
-                        } else {
-                            spcObjectName = rows.get(i).get(0);
-                        }
+                        SpreadsheetCell spcObjectID = rows.get(i).get(0);
+                        SpreadsheetCell spcObjectName = rows.get(i).get(1);
 
                         if (!spcObjectName.getText().equals("")) {
                             ArrayList<String> attributes = new ArrayList<>();
@@ -259,17 +247,10 @@ public class EditTable {
                                 attributes.add(spcAttribut.getText());
                             }
 
-//                            if (listChildren.get(i).getID().equals(spcObjectID)) {
-                            System.out.println(listChildren.get(i).getID() + "<----->" + spcObjectID.getText());
-
-//                            }
                             pairList.add(new Pair(spcObjectID.getText(), attributes));
 
-                            //FIXME
-                            // set new name
+                            // set the new name from table
                             listChildren.get(i).setName(spcObjectName.getText());
-
-//                            listPairFromTable.add(new Pair(spcObjectID.getText(), pairList));
                         }
                     } catch (JEVisException ex) {
                         Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
@@ -299,7 +280,7 @@ public class EditTable {
                     pairList.clear();
                     listChildren.clear();
                     selectedClass = classComboBox.getSelectionModel().getSelectedItem();
-
+                    addListChildren(parent);
                     if (selectedClass.getName().equals("Data")) {
                         new CreateNewDataEditTable(parent, editBtn);
                         root.setCenter(spv);
@@ -317,7 +298,7 @@ public class EditTable {
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initOwner(owner);
         stage.setScene(scene);
-        stage.setWidth(1100);
+        stage.setWidth(1250);
         stage.setHeight(1000);
         stage.initStyle(StageStyle.UTILITY);
         stage.setResizable(true);
@@ -357,13 +338,12 @@ public class EditTable {
     // Class Edit Table
     class CreateNewEditTable {
 
-        private ObservableList<Pair<String, ObservableList<Pair<String, String>>>> listObjectAndSample = FXCollections.observableArrayList();
+        private ObservableList<Pair<JEVisObject, ObservableList<Pair<String, String>>>> listObjectAndSample = FXCollections.observableArrayList();
 
         public CreateNewEditTable(JEVisObject parent) {
             try {
-                //rowCount = parent.getChildren().size();
                 rowCount = getListChildren().size();
-                columnCount = selectedClass.getTypes().size() + 1;
+                columnCount = selectedClass.getTypes().size() + 2;
             } catch (JEVisException ex) {
                 Logger.getLogger(CreateNewEditTable.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -392,6 +372,7 @@ public class EditTable {
             spv.setEditable(true);
             spv.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
+            columnHeaderNames.add("Object ID");
             columnHeaderNames.add("Object Name");
             try {
                 //Get and set Typenames
@@ -407,10 +388,8 @@ public class EditTable {
             //Add to listObjectAndSample
             try {
                 for (int i = 0; i < grid.getRowCount(); i++) {
-                    //Get object name
-                    String spcObjectName = parent.getChildren(selectedClass, true).get(i).getName();
                     // Get attributes
-                    List<JEVisAttribute> attributes = parent.getChildren(selectedClass, true).get(i).getAttributes();
+                    List<JEVisAttribute> attributes = listChildren.get(i).getAttributes();
 
                     ObservableList<Pair<String, String>> listSample = FXCollections.observableArrayList();
 
@@ -424,19 +403,25 @@ public class EditTable {
                             listSample.add(new Pair(attributes.get(z).getName(), ""));
                         }
                     }
-                    listObjectAndSample.add(new Pair(spcObjectName, listSample));
+                    listObjectAndSample.add(new Pair(listChildren.get(i), listSample));
                 }
             } catch (JEVisException ex) {
                 Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
             }
 
             //Add to table
+            //sortiere die Liste genau wie Baum
+            sortTheChildren(listChildren);
+            sortTheAttribute(listObjectAndSample);
+
             for (int i = 0; i < grid.getRowCount(); i++) {
                 for (int j = 0; j < grid.getColumnCount(); j++) {
-                    if (columnHeaderNames.get(j).equals("Object Name")) {
-                        grid.setCellValue(i, columnHeaderNames.get(j).indexOf("Object Name"), listObjectAndSample.get(i).getKey());
+                    if (columnHeaderNames.get(j).equals("Object ID")) {
+                        grid.setCellValue(i, columnHeaderNames.get(j).indexOf("Object ID"), listObjectAndSample.get(i).getKey().getID());
+                    } else if (columnHeaderNames.get(j).equals("Object Name")) {
+                        grid.setCellValue(i, columnHeaderNames.get(j).indexOf("Object Name"), listObjectAndSample.get(i).getKey().getName());
                     } else {
-                        int counter = 1;
+                        int counter = 2;
                         for (int k = 0; k < listObjectAndSample.get(i).getValue().size(); k++) {
 //                            if (listObjectAndSample.get(i).getValue().get(k).getKey().equals("Password")) {
 //                                //TODO Password sonderfall ?
@@ -503,9 +488,6 @@ public class EditTable {
 
             try {
                 for (int i = 0; i < grid.getRowCount(); i++) {
-                    //Get object name
-                    // Remove it spcObjectID
-                    String spcObjectID = listChildren.get(i).getName();//parent.getChildren(selectedClass, true).get(i).getName();
                     // Get attributes
                     List<JEVisAttribute> attributes = listChildren.get(i).getAttributes();//parent.getChildren(selectedClass, true).get(i).getAttributes();
                     ObservableList<Pair<String, String>> listValueAttribute = FXCollections.observableArrayList();
