@@ -681,7 +681,7 @@ public class ObjectTree extends TreeView<JEVisObject> {
     public void fireEventEditTable(final JEVisObject parent) throws JEVisException {
         EditTable table = new EditTable();
         if (parent != null) {
-            if (table.show(JEConfig.getStage(), null, parent, false, EditTable.Type.NEW, null) == EditTable.Response.YES) {
+            if (table.show(JEConfig.getStage(), null, parent, false, EditTable.Type.EDIT, null) == EditTable.Response.YES) {
 
                 for (int i = 0; i < table.getListChildren().size(); i++) {
                     JEVisObject childObject = null;
@@ -735,15 +735,18 @@ public class ObjectTree extends TreeView<JEVisObject> {
                         attributeValue.commit();
                     } else {
                         childObject = table.getListChildren().get(i);
-
+                        System.out.println(childObject.getName());
+                      
                         childObject.commit();
 
                         List<JEVisAttribute> attributes = childObject.getAttributes();
+
                         for (int j = 0; j < attributes.size(); j++) {
                             if (!attributes.get(j).getLatestSample().getValueAsString().equals(table.getPairList().get(i).getValue().get(j))) {
                                 attributes.get(j).buildSample(new DateTime(), table.getPairList().get(i).getValue().get(j)).commit();
                             }
                         }
+
                     }
                 }
 
@@ -756,6 +759,7 @@ public class ObjectTree extends TreeView<JEVisObject> {
                 for (int i = 0; i < table.getListChildren().size(); i++) {
                     getObjectGraphic(table.getListChildren().get(i)).update();
                 }
+
                 //parentItem.setExpanded(true);
             }
         }

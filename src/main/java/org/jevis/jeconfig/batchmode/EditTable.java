@@ -91,10 +91,10 @@ public class EditTable {
         NO, YES, CANCEL
     };
 
-    private void addListChildren(JEVisObject parent) {
+    private void addListChildren(JEVisObject parent, JEVisClass selectedClass) {
         try {
             for (int i = 0; i < parent.getChildren(selectedClass, true).size(); i++) {
-                listChildren.add(parent.getChildren().get(i));
+                listChildren.add(parent.getChildren(selectedClass, true).get(i));
             }
         } catch (JEVisException ex) {
             Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
@@ -108,7 +108,7 @@ public class EditTable {
     public Response show(Stage owner, final JEVisClass jclass, final JEVisObject parent, boolean fixClass, Type type, String objName) {
         ObservableList<JEVisClass> options = FXCollections.observableArrayList();
         try {
-            if (type == Type.NEW) {
+            if (type == Type.EDIT) {
                 options = FXCollections.observableArrayList(parent.getAllowedChildrenClasses());
             }
         } catch (JEVisException ex) {
@@ -155,7 +155,7 @@ public class EditTable {
         classComboBox.getSelectionModel().selectFirst();
         selectedClass = classComboBox.getSelectionModel().getSelectedItem();
         //
-        addListChildren(parent);
+        addListChildren(parent, selectedClass);
         Button editBtn = new Button("Edit Structure");
         Button cancelBtn = new Button("Cancel");
 
@@ -240,18 +240,17 @@ public class EditTable {
                         SpreadsheetCell spcObjectID = rows.get(i).get(0);
                         SpreadsheetCell spcObjectName = rows.get(i).get(1);
 
-                        if (!spcObjectName.getText().equals("")) {
-                            ArrayList<String> attributes = new ArrayList<>();
-                            for (int j = 2; j < grid.getColumnCount(); j++) {
-                                SpreadsheetCell spcAttribut = rows.get(i).get(j);
-                                attributes.add(spcAttribut.getText());
-                            }
-
-                            pairList.add(new Pair(spcObjectID.getText(), attributes));
-
-                            // set the new name from table
-                            listChildren.get(i).setName(spcObjectName.getText());
+                        ArrayList<String> attributes = new ArrayList<>();
+                        for (int j = 2; j < grid.getColumnCount(); j++) {
+                            SpreadsheetCell spcAttribut = rows.get(i).get(j);
+                            attributes.add(spcAttribut.getText());
                         }
+
+                        pairList.add(new Pair(spcObjectName.getText(), attributes));
+
+                        // set the new name from table
+                        listChildren.get(i).setName(spcObjectName.getText());
+
                     } catch (JEVisException ex) {
                         Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -280,7 +279,7 @@ public class EditTable {
                     pairList.clear();
                     listChildren.clear();
                     selectedClass = classComboBox.getSelectionModel().getSelectedItem();
-                    addListChildren(parent);
+                    addListChildren(parent, selectedClass);
                     if (selectedClass.getName().equals("Data")) {
                         new CreateNewDataEditTable(parent, editBtn);
                         root.setCenter(spv);
@@ -417,9 +416,9 @@ public class EditTable {
             for (int i = 0; i < grid.getRowCount(); i++) {
                 for (int j = 0; j < grid.getColumnCount(); j++) {
                     if (columnHeaderNames.get(j).equals("Object ID")) {
-                        grid.setCellValue(i, columnHeaderNames.get(j).indexOf("Object ID"), listObjectAndSample.get(i).getKey().getID());
+                        grid.setCellValue(i, 0, listChildren.get(i).getID());
                     } else if (columnHeaderNames.get(j).equals("Object Name")) {
-                        grid.setCellValue(i, columnHeaderNames.get(j).indexOf("Object Name"), listObjectAndSample.get(i).getKey().getName());
+                        grid.setCellValue(i, 1, listChildren.get(i).getName());
                     } else {
                         int counter = 2;
                         for (int k = 0; k < listObjectAndSample.get(i).getValue().size(); k++) {
