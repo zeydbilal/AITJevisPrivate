@@ -692,12 +692,14 @@ public class ObjectTree extends TreeView<JEVisObject> {
 
 //                      if (!objectName.equals(childObject.getName())) {
                         //FIXME
-                        
-                        childObject.setName("");
+//                        childObject.setName("");
                         childObject.commit();
 //                      }
 
                         JEVisAttribute attributeValue = childObject.getAttribute("Value");
+
+                        //get objekt mit ID from Tabelle
+                        table.getPairList().get(i).getKey().equals(childObject.getID());
 
                         if (table.getPairList().get(i).getValue().get(0).isEmpty() && table.getPairList().get(i).getValue().get(1).isEmpty()) {
                             attributeValue.setDisplayUnit(new JEVisUnitImp("", "", JEVisUnit.Prefix.NONE));

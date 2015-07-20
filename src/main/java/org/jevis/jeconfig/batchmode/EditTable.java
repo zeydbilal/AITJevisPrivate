@@ -77,8 +77,7 @@ public class EditTable {
     private ObservableList<String> listUnitSymbols = FXCollections.observableArrayList();
     private ObservableList<JEVisObject> listChildren = FXCollections.observableArrayList();
 
-    private ObservableList<Pair<ArrayList<String>, ArrayList<String>>> listPairFromTable = FXCollections.observableArrayList();
-
+//    private ObservableList<Pair<ArrayList<String>, ArrayList<String>>> listPairFromTable = FXCollections.observableArrayList();
     public EditTable() {
 
     }
@@ -107,10 +106,9 @@ public class EditTable {
         return listChildren;
     }
 
-    public ObservableList<Pair<ArrayList<String>, ArrayList<String>>> getListPairFromTable() {
-        return listPairFromTable;
-    }
-
+//    public ObservableList<Pair<ArrayList<String>, ArrayList<String>>> getListPairFromTable() {
+//        return listPairFromTable;
+//    }
     public Response show(Stage owner, final JEVisClass jclass, final JEVisObject parent, boolean fixClass, Type type, String objName) {
         ObservableList<JEVisClass> options = FXCollections.observableArrayList();
         try {
@@ -265,14 +263,13 @@ public class EditTable {
                             System.out.println(listChildren.get(i).getID() + "<----->" + spcObjectID.getText());
 
 //                            }
-                            ArrayList<String> idAndName = new ArrayList<>();
-                            idAndName.add(spcObjectID.getText());
-                            idAndName.add(spcObjectName.getText());
+                            pairList.add(new Pair(spcObjectID.getText(), attributes));
 
-                            pairList.add(new Pair(spcObjectName.getText(), attributes));
-                            
                             //FIXME
-                            listPairFromTable.add(new Pair(idAndName, pairList));
+                            // set new name
+                            listChildren.get(i).setName(spcObjectName.getText());
+
+//                            listPairFromTable.add(new Pair(spcObjectID.getText(), pairList));
                         }
                     } catch (JEVisException ex) {
                         Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
@@ -365,7 +362,7 @@ public class EditTable {
         public CreateNewEditTable(JEVisObject parent) {
             try {
                 //rowCount = parent.getChildren().size();
-                rowCount = parent.getChildren(selectedClass, true).size();
+                rowCount = getListChildren().size();
                 columnCount = selectedClass.getTypes().size() + 1;
             } catch (JEVisException ex) {
                 Logger.getLogger(CreateNewEditTable.class.getName()).log(Level.SEVERE, null, ex);
@@ -464,13 +461,13 @@ public class EditTable {
     // Class Data Edit Table
     class CreateNewDataEditTable {
 
-        private ObservableList<Pair<String, ObservableList<Pair<String, String>>>> listObjectAndValueAttribute = FXCollections.observableArrayList();
+        private ObservableList<Pair<JEVisObject, ObservableList<Pair<String, String>>>> listObjectAndValueAttribute = FXCollections.observableArrayList();
 
         public CreateNewDataEditTable(JEVisObject parent, Button editBtn) {
 
             String[] colNames = {"Object ID", "Object Name", "Display Prefix", "Display Symbol", "Display Sample Rate", "Input Prefix", "Input Symbol", "Input Sample Rate"};
 //            try {
-            rowCount = listChildren.size();//parent.getChildren(selectedClass, true).size();
+            rowCount = getListChildren().size();//parent.getChildren(selectedClass, true).size();
             columnCount = colNames.length;
 //            } catch (JEVisException ex) {
 //                Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
@@ -507,6 +504,7 @@ public class EditTable {
             try {
                 for (int i = 0; i < grid.getRowCount(); i++) {
                     //Get object name
+                    // Remove it spcObjectID
                     String spcObjectID = listChildren.get(i).getName();//parent.getChildren(selectedClass, true).get(i).getName();
                     // Get attributes
                     List<JEVisAttribute> attributes = listChildren.get(i).getAttributes();//parent.getChildren(selectedClass, true).get(i).getAttributes();
@@ -561,7 +559,7 @@ public class EditTable {
                             listValueAttribute.add(new Pair(attributes.get(z).getName(), inputSampleRate));
                         }
                     }
-                    listObjectAndValueAttribute.add(new Pair(spcObjectID, listValueAttribute));
+                    listObjectAndValueAttribute.add(new Pair(listChildren.get(i), listValueAttribute));
                 }
             } catch (JEVisException ex) {
                 Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
@@ -569,7 +567,9 @@ public class EditTable {
 
             //Add to table
 //            try {
+            //sortiere die Liste genau wie Baum
             sortTheChildren(listChildren);
+            sortTheAttribute(listObjectAndValueAttribute);
             for (int i = 0; i < grid.getRowCount(); i++) {
                 for (int j = 0; j < grid.getColumnCount(); j++) {
                     if (columnHeaderNamesDataTable.get(j).equals("Object ID")) {
@@ -764,6 +764,18 @@ public class EditTable {
                 return o1.getName().compareTo(o2.getName());
             }
         };
+        FXCollections.sort(list, sort);
+    }
+
+    public static void sortTheAttribute(ObservableList<Pair<JEVisObject, ObservableList<Pair<String, String>>>> list) {
+        Comparator<Pair<JEVisObject, ObservableList<Pair<String, String>>>> sort = new Comparator<Pair<JEVisObject, ObservableList<Pair<String, String>>>>() {
+
+            @Override
+            public int compare(Pair<JEVisObject, ObservableList<Pair<String, String>>> o1, Pair<JEVisObject, ObservableList<Pair<String, String>>> o2) {
+                return o1.getKey().getName().compareTo(o2.getKey().getName());
+            }
+        };
+
         FXCollections.sort(list, sort);
     }
 }
