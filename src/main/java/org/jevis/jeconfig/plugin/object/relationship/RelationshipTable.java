@@ -109,7 +109,8 @@ public class RelationshipTable extends TableView {
                             setGraphic(box);
 //                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
                         } else {
-                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+//                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+                            setStyle("-fx-background-color: transparent; ");
                         }
                     }
                 };
@@ -138,7 +139,8 @@ public class RelationshipTable extends TableView {
                             setGraphic(box);
 //                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
                         } else {
-                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+//                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+                            setStyle("-fx-background-color: transparent; ");
                         }
                     }
                 };
@@ -167,7 +169,8 @@ public class RelationshipTable extends TableView {
                             setGraphic(box);
 //                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
                         } else {
-                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+//                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+                            setStyle("-fx-background-color: transparent; ");
                         }
                     }
                 };
@@ -190,7 +193,8 @@ public class RelationshipTable extends TableView {
                             setGraphic(box);
 //                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
                         } else {
-                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+//                            setStyle("-fx-background-color: " + Constants.Color.LIGHT_GREY2);
+                            setStyle("-fx-background-color: transparent; ");
                         }
                     }
                 };

@@ -147,7 +147,7 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
             int coloum = 0;
 
             if (obj.getAttributes().isEmpty()) {
-                Label emtyLabel = new Label("This object has no attributes.");
+                Label emtyLabel = new Label("");
                 gridPane.add(emtyLabel, 0, coloum);
             }
 
@@ -231,10 +231,17 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
         AnchorPane.setBottomAnchor(gridPane, 0.0);
 
         ScrollPane scroll = new ScrollPane();
-        scroll.setStyle("-fx-background-color: transparent");
         scroll.setMaxSize(10000, 10000);
         scroll.setContent(gridPane);
 //        _view.getChildren().setAll(scroll);
+
+//        gridPane.setStyle("-fx-background-color: blue;");
+        gridPane.setStyle("-fx-background-color: transparent;");
+//        scroll.setStyle("-fx-background-color: transparent");
+//        scroll.setStyle("-fx-background-color: white;");
+        scroll.getStylesheets().add("/styles/Styles.css");
+        _view.setStyle("-fx-background-color: transparent;");
+//        _view.setStyle("-fx-background-color: green;");
         _view.setCenter(scroll);
 
     }

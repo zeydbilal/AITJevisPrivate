@@ -4,7 +4,7 @@
 
     <groupId>org.jevis.jeconfig</groupId>
     <artifactId>JEConfig</artifactId>
-    <version>3.0.12</version>
+    <version>3.0.13</version>
     <packaging>jar</packaging>
 
     <name>JEConfig</name>
@@ -12,6 +12,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mainClass>org.jevis.jeconfig.JEConfig</mainClass>
+        <additionalparam>-Xdoclint:none</additionalparam>
     </properties>
 
     <organization>
