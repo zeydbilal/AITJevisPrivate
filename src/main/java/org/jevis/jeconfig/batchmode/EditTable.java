@@ -237,20 +237,20 @@ public class EditTable {
                 stage.close();
                 for (int i = 0; i < grid.getRowCount(); i++) {
                     try {
-                        SpreadsheetCell spcObjectID = rows.get(i).get(0);
-                        SpreadsheetCell spcObjectName = rows.get(i).get(1);
+                        
+                        String spcObjectName = rows.get(i).get(1).getText();
 
                         ArrayList<String> attributes = new ArrayList<>();
                         for (int j = 2; j < grid.getColumnCount(); j++) {
                             SpreadsheetCell spcAttribut = rows.get(i).get(j);
                             attributes.add(spcAttribut.getText());
                         }
-
-                        pairList.add(new Pair(spcObjectName.getText(), attributes));
+                        
+                        pairList.add(new Pair(spcObjectName, attributes));
 
                         // set the new name from table
-                        if (!listChildren.get(i).getName().equals(spcObjectName)) {
-                            listChildren.get(i).setName(spcObjectName.getText());
+                        if (!listChildren.get(i).getName().equals(spcObjectName) && !spcObjectName.equals("")) {
+                            listChildren.get(i).setName(spcObjectName);
                             listChildren.get(i).commit();
                         }
 

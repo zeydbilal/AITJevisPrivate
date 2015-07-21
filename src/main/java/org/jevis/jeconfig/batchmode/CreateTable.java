@@ -295,15 +295,15 @@ public class CreateTable {
             public void handle(ActionEvent t) {
                 stage.close();
                 for (int i = 0; i < grid.getRowCount(); i++) {
-                    SpreadsheetCell spcObjectName = rows.get(i).get(0);
+                    String spcObjectName = rows.get(i).get(0).getText();
 
-                    if (!spcObjectName.getText().equals("")) {
+                    if (!spcObjectName.equals("")) {
                         ArrayList<String> attributs = new ArrayList<>();
                         for (int j = 1; j < grid.getColumnCount(); j++) {
                             SpreadsheetCell spcAttribut = rows.get(i).get(j);
                             attributs.add(spcAttribut.getText());
                         }
-                        pairList.add(new Pair(spcObjectName.getText(), attributs));
+                        pairList.add(new Pair(spcObjectName, attributs));
                     }
                 }
                 response = Response.YES;
