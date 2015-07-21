@@ -154,7 +154,7 @@ public class EditTable {
         classComboBox.setMinWidth(250);
         classComboBox.getSelectionModel().selectFirst();
         selectedClass = classComboBox.getSelectionModel().getSelectedItem();
-        //
+        
         addListChildren(parent, selectedClass);
         Button editBtn = new Button("Edit Structure");
         Button cancelBtn = new Button("Cancel");
@@ -237,7 +237,7 @@ public class EditTable {
                 stage.close();
                 for (int i = 0; i < grid.getRowCount(); i++) {
                     try {
-                        
+
                         String spcObjectName = rows.get(i).get(1).getText();
 
                         ArrayList<String> attributes = new ArrayList<>();
@@ -245,7 +245,7 @@ public class EditTable {
                             SpreadsheetCell spcAttribut = rows.get(i).get(j);
                             attributes.add(spcAttribut.getText());
                         }
-                        
+
                         pairList.add(new Pair(spcObjectName, attributes));
 
                         // set the new name from table
@@ -425,10 +425,12 @@ public class EditTable {
                     } else {
                         int counter = 2;
                         for (int k = 0; k < listObjectAndSample.get(i).getValue().size(); k++) {
-//                            if (listObjectAndSample.get(i).getValue().get(k).getKey().equals("Password")) {
-//                                //TODO Password sonderfall ?
-//                                grid.setCellValue(i, counter, "*******");
-//                            }
+                            if (listObjectAndSample.get(i).getValue().get(k).getKey().equals("Password")) {
+                               //Password cell is not editable
+                                grid.setCellValue(i, counter, listObjectAndSample.get(i).getValue().get(k).getValue());
+                                SpreadsheetCell cellIndex = rows.get(i).get(counter);
+                                cellIndex.setEditable(false);
+                            }
 
                             if (listObjectAndSample.get(i).getValue().get(k).getValue().equals("true")) {
                                 grid.setCellValue(i, counter, "1");
@@ -453,12 +455,9 @@ public class EditTable {
         public CreateNewDataEditTable(JEVisObject parent, Button editBtn) {
 
             String[] colNames = {"Object ID", "Object Name", "Display Prefix", "Display Symbol", "Display Sample Rate", "Input Prefix", "Input Symbol", "Input Sample Rate"};
-//            try {
-            rowCount = getListChildren().size();//parent.getChildren(selectedClass, true).size();
+
+            rowCount = getListChildren().size();
             columnCount = colNames.length;
-//            } catch (JEVisException ex) {
-//                Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
-//            }
 
             grid = new GridBase(rowCount, columnCount);
 
@@ -550,33 +549,25 @@ public class EditTable {
             }
 
             //Add to table
-//            try {
-            //sortiere die Liste genau wie Baum
+            //sortiere die Liste
             sortTheChildren(listChildren);
             sortTheAttribute(listObjectAndValueAttribute);
             for (int i = 0; i < grid.getRowCount(); i++) {
                 for (int j = 0; j < grid.getColumnCount(); j++) {
                     if (columnHeaderNamesDataTable.get(j).equals("Object ID")) {
-                        // grid.setCellValue(i, 0, parent.getChildren(selectedClass, true).get(i).getID());
                         grid.setCellValue(i, 0, listChildren.get(i).getID());
                     } else if (columnHeaderNamesDataTable.get(j).equals("Object Name")) {
-//                        grid.setCellValue(i, 1, listObjectAndValueAttribute.get(i).getKey());
                         grid.setCellValue(i, 1, listChildren.get(i).getName());
                     } else {
                         //Attribute ab zweite spalte einsetzen!
                         int counter = 2;
                         for (int k = 0; k < listObjectAndValueAttribute.get(i).getValue().size(); k++) {
-//                            if (listChildren.get(i).getID().equals(listObjectAndValueAttribute.get(i).getKey())) {
                             grid.setCellValue(i, counter, listObjectAndValueAttribute.get(i).getValue().get(k).getValue());
                             counter++;
-//                            }
                         }
                     }
                 }
             }
-//            } catch (JEVisException ex) {
-//                Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
-//            }
 
             addUnits();
             addSymbols();
