@@ -689,8 +689,7 @@ public class ObjectTree extends TreeView<JEVisObject> {
                     if (table.getSelectedClass().getName().equals("Data")) {
                         childObject = table.getListChildren().get(i);
 
-                        childObject.commit();
-
+//                      childObject.commit();
                         JEVisAttribute attributeValue = childObject.getAttribute("Value");
 
                         //get objekt mit ID from Tabelle
@@ -735,14 +734,14 @@ public class ObjectTree extends TreeView<JEVisObject> {
                         attributeValue.commit();
                     } else {
                         childObject = table.getListChildren().get(i);
-                        System.out.println(childObject.getName());
-                      
-                        childObject.commit();
 
+//                      childObject.commit();
                         List<JEVisAttribute> attributes = childObject.getAttributes();
 
                         for (int j = 0; j < attributes.size(); j++) {
-                            if (!attributes.get(j).getLatestSample().getValueAsString().equals(table.getPairList().get(i).getValue().get(j))) {
+                            if (attributes.get(j).getLatestSample() == null) {
+                                attributes.get(j).buildSample(new DateTime(), table.getPairList().get(i).getValue().get(j)).commit();
+                            } else if (!attributes.get(j).getLatestSample().getValueAsString().equals(table.getPairList().get(i).getValue().get(j))) {
                                 attributes.get(j).buildSample(new DateTime(), table.getPairList().get(i).getValue().get(j)).commit();
                             }
                         }

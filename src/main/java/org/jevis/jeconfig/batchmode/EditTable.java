@@ -249,7 +249,10 @@ public class EditTable {
                         pairList.add(new Pair(spcObjectName.getText(), attributes));
 
                         // set the new name from table
-                        listChildren.get(i).setName(spcObjectName.getText());
+                        if (!listChildren.get(i).getName().equals(spcObjectName)) {
+                            listChildren.get(i).setName(spcObjectName.getText());
+                            listChildren.get(i).commit();
+                        }
 
                     } catch (JEVisException ex) {
                         Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
