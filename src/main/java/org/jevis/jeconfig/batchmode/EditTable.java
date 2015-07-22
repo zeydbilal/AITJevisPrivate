@@ -154,7 +154,7 @@ public class EditTable {
         classComboBox.setMinWidth(250);
         classComboBox.getSelectionModel().selectFirst();
         selectedClass = classComboBox.getSelectionModel().getSelectedItem();
-        
+
         addListChildren(parent, selectedClass);
         Button editBtn = new Button("Edit Structure");
         Button cancelBtn = new Button("Cancel");
@@ -426,7 +426,7 @@ public class EditTable {
                         int counter = 2;
                         for (int k = 0; k < listObjectAndSample.get(i).getValue().size(); k++) {
                             if (listObjectAndSample.get(i).getValue().get(k).getKey().equals("Password")) {
-                               //Password cell is not editable
+                                //Password cell is not editable
                                 grid.setCellValue(i, counter, listObjectAndSample.get(i).getValue().get(k).getValue());
                                 SpreadsheetCell cellIndex = rows.get(i).get(counter);
                                 cellIndex.setEditable(false);
