@@ -298,14 +298,13 @@ public class CreateTable {
 
                     }
 
-                    String[] newText = contentText.split("\n");
+                    String[] splitText = contentText.split("\n");
                     String clipText = "";
 
-                    for (int i = 0; i < newText.length; i++) {
-                        clipText += newText[i].trim();
+                    for (int i = 0; i < splitText.length; i++) {
+                        clipText += splitText[i].trim();
                         clipText += "\n";
                     }
-                    System.out.println("clipText :" + clipText);
 
                     content.putString(clipText);
                     clipboard.setContent(content);
