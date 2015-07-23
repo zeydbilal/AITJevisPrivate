@@ -30,6 +30,7 @@ import javafx.scene.control.TablePosition;
 import javafx.scene.control.TreeItem;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -189,7 +190,7 @@ public class EditTable {
         root.setCenter(spv);
         Scene scene = new Scene(root);
         scene.getStylesheets().add("styles/Table.css");
-
+        //FIXME KeyCombination.SHORTCUT_DOWN
         scene.getAccelerators().put(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_ANY), new Runnable() {
 
             @Override
@@ -225,6 +226,64 @@ public class EditTable {
                     } else {
                         spv.pasteClipboard();
                     }
+                } catch (NullPointerException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+        });
+
+        scene.getAccelerators().put(new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN), new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+
+                    Clipboard clipboard = Clipboard.getSystemClipboard();
+                    ClipboardContent content = new ClipboardContent();
+
+                    ObservableList<TablePosition> focusedCell = spv.getSelectionModel().getSelectedCells();
+
+                    int currentRow = 0;
+                    int currentColumn = 0;
+                    String contentText = "";
+
+                    int oldRow = currentRow;
+                    int oldColumn = currentColumn;
+
+                    for (final TablePosition<?, ?> p : focusedCell) {
+                        currentRow = p.getRow();
+                        currentColumn = p.getColumn();
+
+                        if (oldRow != currentRow) {
+                            contentText += "\n";
+
+                        }
+
+                        if (oldColumn != currentColumn) {
+                            contentText += "\t";
+                        }
+
+                        oldRow = currentRow;
+                        oldColumn = currentColumn;
+
+                        String spcText = rows.get(currentRow).get(currentColumn).getText();
+
+                        contentText += spcText;
+
+                    }
+
+                    String[] newText = contentText.split("\n");
+                    String clipText = "";
+
+                    for (int i = 0; i < newText.length; i++) {
+                        clipText += newText[i].trim();
+                        clipText += "\n";
+                    }
+                    System.out.println("clipText :" + clipText);
+
+                    content.putString(clipText);
+                    clipboard.setContent(content);
+
                 } catch (NullPointerException e) {
                     System.out.println(e.getMessage());
                 }
