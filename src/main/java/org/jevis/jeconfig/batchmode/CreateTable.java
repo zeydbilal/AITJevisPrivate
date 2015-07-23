@@ -217,7 +217,7 @@ public class CreateTable {
         root.setCenter(spv);
         Scene scene = new Scene(root);
         scene.getStylesheets().add("styles/Table.css");
-
+        //FIXME KeyCombination.SHORTCUT_DOWN
         scene.getAccelerators().put(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_ANY), new Runnable() {
 
             @Override
@@ -258,32 +258,58 @@ public class CreateTable {
                 }
             }
         });
-        //TODO copy
-        scene.getAccelerators().put(new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_ANY), new Runnable() {
+        scene.getAccelerators().put(new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN), new Runnable() {
 
             @Override
             public void run() {
                 try {
+
                     Clipboard clipboard = Clipboard.getSystemClipboard();
                     ClipboardContent content = new ClipboardContent();
 
-                    if (clipboard.hasString()) {
-                        ObservableList<TablePosition> focusedCell = spv.getSelectionModel().getSelectedCells();
+                    ObservableList<TablePosition> focusedCell = spv.getSelectionModel().getSelectedCells();
 
-                        int currentRow = 0;
-                        int currentColumn = 0;
+                    int currentRow = 0;
+                    int currentColumn = 0;
+                    String contentText = "";
 
-                        for (final TablePosition<?, ?> p : focusedCell) {
-                            currentRow = p.getRow();
-                            currentColumn = p.getColumn();
+                    int oldRow = currentRow;
+                    int oldColumn = currentColumn;
+
+                    for (final TablePosition<?, ?> p : focusedCell) {
+                        currentRow = p.getRow();
+                        currentColumn = p.getColumn();
+
+                        if (oldRow != currentRow) {
+                            contentText += "\n";
+
                         }
-                        StringBuilder strBuild = new StringBuilder();
 
-                        content.putString("Some text");
-                        clipboard.setContent(content);
-                    } else {
-                        spv.copyClipboard();
+                        if (oldColumn != currentColumn) {
+                            contentText += "\t";
+                        }
+
+                        oldRow = currentRow;
+                        oldColumn = currentColumn;
+
+                        String spcText = rows.get(currentRow).get(currentColumn).getText();
+
+                        contentText += spcText;
+
                     }
+
+                    String[] newText = contentText.split("\n");
+                    String clipText = "";
+
+                    for (int i = 0; i < newText.length; i++) {
+                        clipText += newText[i].trim();
+                        clipText += "\n";
+                    }
+                    System.out.println("clipText :" + clipText);
+
+                    content.putString(clipText);
+                    clipboard.setContent(content);
+
                 } catch (NullPointerException e) {
                     System.out.println(e.getMessage());
                 }
