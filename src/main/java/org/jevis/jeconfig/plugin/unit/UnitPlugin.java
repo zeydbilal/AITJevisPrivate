@@ -42,6 +42,7 @@ import org.jevis.jeconfig.GlobalToolBar;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.Plugin;
 import org.jevis.jeconfig.plugin.classes.ClassPlugin;
+import org.jevis.jeconfig.plugin.object.ObjectPlugin;
 
 /**
  *
@@ -174,7 +175,11 @@ public class UnitPlugin implements Plugin {
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(editTable);
             GlobalToolBar.BuildEventhandler(UnitPlugin.this, editTable, Constants.Plugin.Command.EDIT_TABLE);
 
-            toolBar.getItems().addAll(save, newB, delete, sep1, addTable, editTable);
+            ToggleButton createWizard = new ToggleButton("", JEConfig.getImage("create_wizard.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(createWizard);
+            GlobalToolBar.BuildEventhandler(UnitPlugin.this, createWizard, Constants.Plugin.Command.CREATE_WIZARD);
+
+            toolBar.getItems().addAll(save, newB, delete, sep1, addTable, editTable,createWizard);
 //            toolBar.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
             toolBar.setDisable(true);//the function are not implemente yet.
         }

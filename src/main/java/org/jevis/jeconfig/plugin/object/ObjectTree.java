@@ -68,6 +68,7 @@ import org.jevis.commons.CommonClasses;
 import org.jevis.commons.CommonObjectTasks;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.jeconfig.JEConfig;
+import org.jevis.jeconfig.batchmode.CreateWizard;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -762,6 +763,10 @@ public class ObjectTree extends TreeView<JEVisObject> {
                 //parentItem.setExpanded(true);
             }
         }
+    }
+
+    public void fireEventCreateWizard(final JEVisObject parent) throws JEVisException {
+        CreateWizard table = new CreateWizard();
     }
 
     //TODO i dont like this way

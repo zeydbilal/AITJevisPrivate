@@ -113,7 +113,7 @@ public class EditTable {
                 options = FXCollections.observableArrayList(parent.getAllowedChildrenClasses());
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         Callback<ListView<JEVisClass>, ListCell<JEVisClass>> cellFactory = new Callback<ListView<JEVisClass>, ListCell<JEVisClass>>() {
@@ -137,7 +137,7 @@ public class EditTable {
                                 box.getChildren().setAll(icon, cName);
 
                             } catch (JEVisException ex) {
-                                Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
+                                Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
                             }
 
                             setGraphic(box);
@@ -167,7 +167,7 @@ public class EditTable {
                 new CreateNewEditTable(parent);
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         BorderPane root = new BorderPane();
@@ -349,7 +349,7 @@ public class EditTable {
                         root.setCenter(spv);
                     }
                 } catch (JEVisException ex) {
-                    Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
@@ -413,9 +413,13 @@ public class EditTable {
             for (int row = 0; row < grid.getRowCount(); ++row) {
                 cells = FXCollections.observableArrayList();
                 for (int column = 0; column < grid.getColumnCount(); ++column) {
+//                    if (column == 0) {
+//                        SpreadsheetCell cellIndex = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, "");
+//                        cellIndex.setEditable(false);
+//                        cells.add(cellIndex);
+//                    }
                     cells.add(SpreadsheetCellType.STRING.createCell(row, column, 1, 1, ""));
                 }
-
                 rows.add(cells);
             }
             grid.setRows(rows);
@@ -522,6 +526,11 @@ public class EditTable {
             for (int row = 0; row < grid.getRowCount(); ++row) {
                 cells = FXCollections.observableArrayList();
                 for (int column = 0; column < grid.getColumnCount(); ++column) {
+//                    if (column == 0) {
+//                        SpreadsheetCell cellIndex = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, "");
+//                        cellIndex.setEditable(false);
+//                        cells.add(cellIndex);
+//                    }
                     cells.add(SpreadsheetCellType.STRING.createCell(row, column, 1, 1, ""));
                 }
                 rows.add(cells);

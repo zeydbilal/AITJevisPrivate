@@ -201,7 +201,11 @@ public class ObjectPlugin implements Plugin {
             GlobalToolBar.changeBackgroundOnHoverUsingBinding(editTable);
             GlobalToolBar.BuildEventhandler(ObjectPlugin.this, editTable, Constants.Plugin.Command.EDIT_TABLE);
 
-            toolBar.getItems().addAll(save, newB, delete, sep1, addTable, editTable);
+            ToggleButton createWizard = new ToggleButton("", JEConfig.getImage("create_wizard.png", iconSize, iconSize));
+            GlobalToolBar.changeBackgroundOnHoverUsingBinding(createWizard);
+            GlobalToolBar.BuildEventhandler(ObjectPlugin.this, createWizard, Constants.Plugin.Command.CREATE_WIZARD);
+
+            toolBar.getItems().addAll(save, newB, delete, sep1, addTable, editTable,createWizard);
         }
 
         return toolBar;
@@ -242,6 +246,9 @@ public class ObjectPlugin implements Plugin {
                     break;
                 case Constants.Plugin.Command.EDIT_TABLE:
                     tree.fireEventEditTable(tree.getSelectedObject());
+                    break;
+                case Constants.Plugin.Command.CREATE_WIZARD:
+                    tree.fireEventCreateWizard(tree.getSelectedObject());
                     break;
                 default:
                     System.out.println("Unknows command ignore...");
