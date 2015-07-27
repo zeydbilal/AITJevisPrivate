@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
+ * Copyright (C) 2014-2015 Envidatec GmbH <info@envidatec.com>
  *
  * This file is part of JEConfig.
  *
@@ -22,13 +22,12 @@ package org.jevis.jeconfig;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Map;
 import javafx.application.Application;
-import javafx.scene.paint.Color;
 
 /**
  * This class holds the configutraion for the JEConfig.
  *
+ * TODO: replace this with the JEVisOption
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
@@ -87,23 +86,22 @@ public class Configuration {
     }
 
     public void parseParameters(Application.Parameters args) {
-//        System.out.println("\nnamedParameters -");
-        for (Map.Entry<String, String> entry : args.getNamed().entrySet()) {
-            System.out.println(entry.getKey() + " : " + entry.getValue());
-        }
+//        for (Map.Entry<String, String> entry : args.getNamed().entrySet()) {
+//            System.out.println(entry.getKey() + " : " + entry.getValue());
+//        }
 
         if (args.getNamed().containsKey("loginbanner")) {
-            System.out.println("LoginIcon: " + args.getNamed().get("loginbanner"));
+//            System.out.println("LoginIcon: " + args.getNamed().get("loginbanner"));
             _loginIcon = args.getNamed().get("loginbanner");
         }
 
         if (args.getNamed().containsKey("welcomeurl")) {
-            System.out.println("welcomeurl: " + args.getNamed().get("welcomeurl"));
+//            System.out.println("welcomeurl: " + args.getNamed().get("welcomeurl"));
             _welcomeURL = args.getNamed().get("welcomeurl");
         }
 
         if (args.getNamed().containsKey("watermark")) {
-            System.out.println("watermark: " + args.getNamed().get("watermark"));
+//            System.out.println("watermark: " + args.getNamed().get("watermark"));
             _watermark = args.getNamed().get("watermark");
         }
 
