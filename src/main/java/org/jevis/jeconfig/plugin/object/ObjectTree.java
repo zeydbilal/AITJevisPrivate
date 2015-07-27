@@ -765,8 +765,15 @@ public class ObjectTree extends TreeView<JEVisObject> {
         }
     }
 
+    //@AITBilal - Create a new Wizard-Table!
     public void fireEventCreateWizard(final JEVisObject parent) throws JEVisException {
         CreateWizard table = new CreateWizard();
+        if (parent != null) {
+
+            if (table.show(JEConfig.getStage(), null, parent, false, CreateWizard.Type.NEW, null) == CreateWizard.Response.YES) {
+
+            }
+        }
     }
 
     //TODO i dont like this way
