@@ -40,6 +40,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.api.sql.RelationsManagment;
 import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.application.type.GUIConstants;
 import org.jevis.jeconfig.Constants;
@@ -138,6 +139,13 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
         _needSave = false;
 
+        boolean readOnly = true;
+        try {
+            readOnly = !RelationsManagment.canWrite(obj.getDataSource().getCurrentUser(), obj);
+        } catch (JEVisException ex) {
+//            Logger.getLogger(GenericAttributeExtension.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(5, 0, 20, 20));
         gridPane.setHgap(7);
@@ -193,6 +201,10 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
                         editor = new StringValueEditor(att);
                         break;
 
+                }
+
+                if (editor != null) {
+                    editor.setReadOnly(readOnly);
                 }
 
                 _attributesEditor.add(editor);

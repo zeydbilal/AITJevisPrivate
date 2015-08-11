@@ -41,6 +41,7 @@ public class FileEdior implements AttributeEditor {
     private boolean _hasChanged = false;
     private Button _downloadButton;
     private Button _uploadButton;
+    private boolean _readOnly = true;
 
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
 
@@ -52,6 +53,11 @@ public class FileEdior implements AttributeEditor {
     public boolean hasChanged() {
 //        System.out.println(_attribute.getName() + " changed: " + _hasChanged);
         return _hasChanged;
+    }
+
+    @Override
+    public void setReadOnly(boolean canRead) {
+        _readOnly = canRead;
     }
 
     @Override
@@ -104,7 +110,7 @@ public class FileEdior implements AttributeEditor {
             @Override
             public void handle(ActionEvent t) {
                 FileChooser fileChooser = new FileChooser();
-                fileChooser.setTitle("Open Resource File");
+                fileChooser.setTitle("Upload File");
                 fileChooser.getExtensionFilters().addAll(
                         //                            new ExtensionFilter("Text Files", "*.txt"),
                         //                            new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"),
@@ -116,12 +122,13 @@ public class FileEdior implements AttributeEditor {
                         System.out.println("add new file: " + selectedFile);
                         JEVisFile jfile = new JEVisFileImp(selectedFile.getName(), selectedFile);
                         JEVisSample sample = _attribute.buildSample(new DateTime(), jfile);
+                        jfile.saveToFile(new File("/tmp/bob_+" + jfile.getFilename()));
                         sample.commit();//normaly the user need to press save
 
                         try {
                             if (_attribute.hasSample()) {
                                 JEVisFile lasTFile = _attribute.getLatestSample().getValueAsFile();
-                                _downloadButton.setText("Download");//+ lasTFile.getFilename());
+                                _downloadButton.setText("Download " + lasTFile.getFilename());
                             } else {
                                 _downloadButton.setDisable(true);
                             }
@@ -165,6 +172,8 @@ public class FileEdior implements AttributeEditor {
                 }
             }
         });
+
+        _uploadButton.setDisable(_readOnly);
 
     }
 

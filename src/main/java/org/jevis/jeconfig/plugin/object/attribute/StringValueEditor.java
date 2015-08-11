@@ -45,12 +45,13 @@ import org.joda.time.DateTime;
  */
 public class StringValueEditor implements AttributeEditor {
 
-    HBox box = new HBox();
+    private HBox box = new HBox();
     public JEVisAttribute _attribute;
     private TextField _field;
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
+    private boolean _readOnly = true;
 
     public StringValueEditor(JEVisAttribute att) {
         _attribute = att;
@@ -65,6 +66,11 @@ public class StringValueEditor implements AttributeEditor {
     @Override
     public BooleanProperty getValueChangedProperty() {
         return _changed;
+    }
+
+    @Override
+    public void setReadOnly(boolean canRead) {
+        _readOnly = canRead;
     }
 
 //    @Override
@@ -83,7 +89,7 @@ public class StringValueEditor implements AttributeEditor {
     @Override
     public Node getEditor() {
         try {
-            buildTextFild();
+            buildEditor();
         } catch (Exception ex) {
 
         }
@@ -92,10 +98,12 @@ public class StringValueEditor implements AttributeEditor {
 //        return _field;
     }
 
-    private void buildTextFild() throws JEVisException {
+    private void buildEditor() throws JEVisException {
         if (_field == null) {
             _field = new TextField();
             _field.setPrefWidth(500);//TODO: remove this workaround
+//            _field.setDisable(_readOnly);
+            _field.setEditable(!_readOnly);
 
             if (_attribute.getLatestSample() != null) {
                 _field.setText(_attribute.getLatestSample().getValueAsString());

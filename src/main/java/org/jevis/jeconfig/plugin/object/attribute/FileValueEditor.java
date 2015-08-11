@@ -46,6 +46,7 @@ public class FileValueEditor implements AttributeEditor {
     private JEVisSample _lastSample;
     private boolean _hasChanged = false;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
+    private boolean _readOnly = true;
 
     public FileValueEditor(JEVisAttribute att) {
         _attribute = att;
@@ -60,6 +61,11 @@ public class FileValueEditor implements AttributeEditor {
     @Override
     public BooleanProperty getValueChangedProperty() {
         return _changed;
+    }
+
+    @Override
+    public void setReadOnly(boolean canRead) {
+        _readOnly = canRead;
     }
 
 //    @Override
@@ -116,6 +122,8 @@ public class FileValueEditor implements AttributeEditor {
                             }
                         }
                     });
+
+            upload.setDisable(_readOnly);
 
             _field.getChildren().addAll(downlaod, upload);
 

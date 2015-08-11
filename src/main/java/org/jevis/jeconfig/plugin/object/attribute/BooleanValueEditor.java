@@ -44,9 +44,15 @@ public class BooleanValueEditor implements AttributeEditor {
     private JEVisSample _lastSample;
     private boolean _hasChanged = false;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
+    private boolean _canRead = true;
 
     public BooleanValueEditor(JEVisAttribute att) {
         _attribute = att;
+    }
+
+    @Override
+    public void setReadOnly(boolean canRead) {
+        _canRead = canRead;
     }
 
     @Override
@@ -72,7 +78,7 @@ public class BooleanValueEditor implements AttributeEditor {
     @Override
     public Node getEditor() {
         try {
-            buildTextFild();
+            buildEditor();
         } catch (Exception ex) {
 
         }
@@ -80,7 +86,7 @@ public class BooleanValueEditor implements AttributeEditor {
 
     }
 
-    private void buildTextFild() throws JEVisException {
+    private void buildEditor() throws JEVisException {
         if (_field == null) {
             _field = new CheckBox();
             _field.setPrefWidth(500);//TODO: hmm workaround remove
@@ -108,6 +114,8 @@ public class BooleanValueEditor implements AttributeEditor {
 
             _field.setPrefWidth(500);
             _field.setId("attributelabel");
+
+            _field.setDisable(_canRead);
 
         }
     }

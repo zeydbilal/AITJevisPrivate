@@ -59,7 +59,8 @@ public class NumberWithUnit implements AttributeEditor {
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
-    String preOKValue;
+    private String preOKValue;
+    private boolean _readOnly = true;
 
     public NumberWithUnit(JEVisAttribute att) {
         _attribute = att;
@@ -74,6 +75,11 @@ public class NumberWithUnit implements AttributeEditor {
     @Override
     public BooleanProperty getValueChangedProperty() {
         return _changed;
+    }
+
+    @Override
+    public void setReadOnly(boolean canRead) {
+        _readOnly = canRead;
     }
 
 //    @Override
@@ -225,6 +231,8 @@ public class NumberWithUnit implements AttributeEditor {
             _field.setPrefWidth(500);
             _field.setId("attributelabel");
             _field.setAlignment(Pos.CENTER_RIGHT);
+//            _field.setDisable(_readOnly);
+            _field.setEditable(!_readOnly);
 
             if (_attribute.getType().getDescription() != null && !_attribute.getType().getDescription().isEmpty()) {
                 Tooltip tooltip = new Tooltip();
@@ -251,6 +259,7 @@ public class NumberWithUnit implements AttributeEditor {
             unitb.setPrefHeight(height);
             unitb.setStyle("-fx-background-radius: 0 10 10 0; -fx-base: rgba(75, 106, 139, 0.89);");
             unitb.setAlignment(Pos.BOTTOM_LEFT);
+            unitb.setDisable(_readOnly);
 
             _field.setStyle("-fx-background-radius: 3 0 0 3;");
 

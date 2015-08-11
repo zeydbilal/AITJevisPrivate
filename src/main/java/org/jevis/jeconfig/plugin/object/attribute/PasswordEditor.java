@@ -46,6 +46,7 @@ public class PasswordEditor implements AttributeEditor {
     private boolean _hasChanged = false;
     private Button _setPW;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
+    private boolean _readOnly = true;
 
     public PasswordEditor(JEVisAttribute att) {
         _attribute = att;
@@ -60,6 +61,11 @@ public class PasswordEditor implements AttributeEditor {
     @Override
     public BooleanProperty getValueChangedProperty() {
         return _changed;
+    }
+
+    @Override
+    public void setReadOnly(boolean canRead) {
+        _readOnly = canRead;
     }
 
 //    @Override
@@ -90,6 +96,7 @@ public class PasswordEditor implements AttributeEditor {
     private void buildTextFild() throws JEVisException {
         if (_setPW == null) {
             _setPW = new Button("Change Password", JEConfig.getImage("1415303685_lock-s1.png", 18, 18));
+            _setPW.setDisable(_readOnly);
             _setPW.setOnAction(new EventHandler<ActionEvent>() {
 
                 @Override
