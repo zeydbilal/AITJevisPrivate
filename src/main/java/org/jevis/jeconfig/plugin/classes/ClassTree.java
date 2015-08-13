@@ -421,7 +421,6 @@ public class ClassTree extends TreeView<JEVisClass> {
 
     public void fireEventNew(TreeItem<JEVisClass> item) {
         try {
-            System.out.println("fire new class:" + item);
             NewClassDialog dia = new NewClassDialog();
 
             JEVisClass currentClass = null;
@@ -441,8 +440,6 @@ public class ClassTree extends TreeView<JEVisClass> {
             if (dia.show(JEConfig.getStage(), currentClass, _ds) == NewClassDialog.Response.YES
                     && dia.getClassName() != null
                     && !dia.getClassName().equals("")) {
-//                System.out.println("dia end");
-                System.out.println("-----build class: " + dia.getClassName());
 
                 JEVisClass newClass = _ds.buildClass(dia.getClassName());
 
@@ -453,21 +450,17 @@ public class ClassTree extends TreeView<JEVisClass> {
 
                 final TreeItem<JEVisClass> treeItem = buildItem(newClass);
 
-                System.out.println("-----dia.getInheritance(): " + dia.getInheritance());
                 if (dia.getInheritance() != null) {
-                    System.out.println("-----Class in inherit of: " + dia.getInheritance());
-                    JEVisClassRelationship cr = RelationshipFactory.buildInheritance(dia.getInheritance(), newClass);
-                    System.out.println("-----new relationship: " + cr);
-                    getChildrenList(getObjectTreeItem(dia.getInheritance())).add(getObjectTreeItem(newClass));
-                    System.out.println("-----new Class end");
 
-//  sout
-//                    TreeItem<JEVisClass> parentItem = _itemCache.get(dia.getInheritance().getName());
-//                    System.out.println("------->parent: " + parentItem.getValue().getName());
-//                    parentItem.expandedProperty().setValue(false);
-//
-//                    parentItem.getChildren().add(treeItem);
-//                    parentItem.expandedProperty().setValue(true);
+                    //reload workaround, loading the relationship befor creation ein will execute the getFixedRelationships() function
+                    newClass.getRelationships();
+
+                    JEVisClassRelationship cr = RelationshipFactory.buildInheritance(dia.getInheritance(), newClass);
+
+//                    newClass = null;
+//                    newClass = _ds.getJEVisClass(dia.getClassName());
+//                    System.out.println("fixfix: " + newClass.getName());
+                    getChildrenList(getObjectTreeItem(dia.getInheritance())).add(getObjectTreeItem(newClass));
                 } else {
                     getChildrenList(getObjectTreeItem(getRoot().getValue())).add(getObjectTreeItem(newClass));
                 }
