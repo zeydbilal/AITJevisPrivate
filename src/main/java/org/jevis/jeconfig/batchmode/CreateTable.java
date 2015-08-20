@@ -69,6 +69,7 @@ public class CreateTable {
     private ObservableList<String> listUnits = FXCollections.observableArrayList();
     private ObservableList<String> listUnitSymbols = FXCollections.observableArrayList();
 
+    // Erstelle eine neue Tabelle
     class CreateNewTable {
 
         public CreateNewTable() {
@@ -217,47 +218,42 @@ public class CreateTable {
         root.setCenter(spv);
         Scene scene = new Scene(root);
         scene.getStylesheets().add("styles/Table.css");
-        //FIXME KeyCombination.SHORTCUT_DOWN
-        scene.getAccelerators().put(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_ANY), new Runnable() {
+
+        //paste from clipboard
+        scene.getAccelerators().put(new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN), new Runnable() {
 
             @Override
             public void run() {
-                try {
-                    Clipboard clipboard = Clipboard.getSystemClipboard();
 
-                    if (clipboard.hasString()) {
+                Clipboard clipboard = Clipboard.getSystemClipboard();
 
-                        String[] words = clipboard.getString().split("\n");
+                String[] words = clipboard.getString().split("\n");
 
-                        ObservableList<TablePosition> focusedCell = spv.getSelectionModel().getSelectedCells();
+                ObservableList<TablePosition> focusedCell = spv.getSelectionModel().getSelectedCells();
 
-                        int currentRow = 0;
-                        int currentColumn = 0;
+                int currentRow = 0;
+                int currentColumn = 0;
 
-                        for (final TablePosition<?, ?> p : focusedCell) {
-                            currentRow = p.getRow();
-                            currentColumn = p.getColumn();
-                        }
-
-                        for (String word : words) {
-                            String[] parseWord = word.split("\t");
-                            int col = currentColumn;
-                            for (int i = 0; i < parseWord.length; i++) {
-                                SpreadsheetCell spc = rows.get(currentRow).get(col);
-                                grid.setCellValue(currentRow, col, spc.getCellType().convertValue(parseWord[i].trim()));
-                                col++;
-                            }
-                            currentRow++;
-                        }
-
-                    } else {
-                        spv.pasteClipboard();
-                    }
-                } catch (NullPointerException e) {
-                    System.out.println(e.getMessage());
+                for (final TablePosition<?, ?> p : focusedCell) {
+                    currentRow = p.getRow();
+                    currentColumn = p.getColumn();
                 }
+
+                for (String word : words) {
+                    String[] parseWord = word.split("\t");
+                    int col = currentColumn;
+                    for (int i = 0; i < parseWord.length; i++) {
+                        SpreadsheetCell spc = rows.get(currentRow).get(col);
+                        grid.setCellValue(currentRow, col, spc.getCellType().convertValue(parseWord[i]));
+                        col++;
+                    }
+                    currentRow++;
+                }
+
             }
         });
+
+        //copy from clipboard
         scene.getAccelerators().put(new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN), new Runnable() {
 
             @Override
@@ -265,48 +261,34 @@ public class CreateTable {
                 try {
 
                     Clipboard clipboard = Clipboard.getSystemClipboard();
+
                     ClipboardContent content = new ClipboardContent();
 
                     ObservableList<TablePosition> focusedCell = spv.getSelectionModel().getSelectedCells();
 
-                    int currentRow = 0;
-                    int currentColumn = 0;
                     String contentText = "";
 
-                    int oldRow = currentRow;
-                    int oldColumn = currentColumn;
+                    int oldRow = -1;
 
                     for (final TablePosition<?, ?> p : focusedCell) {
-                        currentRow = p.getRow();
-                        currentColumn = p.getColumn();
+                        int currentRow = p.getRow();
+                        int currentColumn = p.getColumn();
 
-                        if (oldRow != currentRow) {
-                            contentText += "\n";
-
-                        }
-
-                        if (oldColumn != currentColumn) {
+                        if (oldRow == currentRow) {
                             contentText += "\t";
+                        } else if (oldRow != -1) {
+                            contentText += "\n";
                         }
-
-                        oldRow = currentRow;
-                        oldColumn = currentColumn;
 
                         String spcText = rows.get(currentRow).get(currentColumn).getText();
 
                         contentText += spcText;
 
+                        oldRow = currentRow;
+
                     }
 
-                    String[] splitText = contentText.split("\n");
-                    String clipText = "";
-
-                    for (int i = 0; i < splitText.length; i++) {
-                        clipText += splitText[i].trim();
-                        clipText += "\n";
-                    }
-
-                    content.putString(clipText);
+                    content.putString(contentText);
                     clipboard.setContent(content);
 
                 } catch (NullPointerException e) {
@@ -424,6 +406,7 @@ public class CreateTable {
                 "Nm", "Wh", "Ws", "m/s", "c", "km/h", "kn", "Mach", "mph", "mÂ³", "inÂ³", "gallon_dry_us", "gal", "gallon_uk", "l", "oz_uk", "kg/mÂ³", "mÂ³/s");
     }
 
+    // Erstelle eine neue Data-Tabelle
     class CreateNewDataTable {
 
         public CreateNewDataTable(Button createBtn) {
