@@ -16,7 +16,6 @@ import javafx.stage.Stage;
  *
  * @author Bilal
  */
-
 //WebBrowser for help.html file
 public class WebBrowser {
 
@@ -38,7 +37,7 @@ class Browser extends Region {
 
     public Browser() {
         // load the web page
-        webEngine.load(getClass().getResource("/html/bulk_mode_help.html").toExternalForm());
+        webEngine.load(getClass().getResource("/html/batch_mode_help.html").toExternalForm());
         //add the web view to the scene
         getChildren().add(browser);
 
