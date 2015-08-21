@@ -573,6 +573,22 @@ public class ClassEditor {
             }
         });
 
+        fName.visibleProperty().addListener(new ChangeListener<Boolean>() {
+
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (newValue) {
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            fName.requestFocus();
+                        }
+                    });
+                }
+            }
+        });
+
 //        ChoiceBox guiType = new ChoiceBox();
 //        guiType.setItems(FXCollections.observableArrayList(
 //                "Text", "IP-Address", "Number", "File Selector", "Check Box", "PASSWORD Field"));
@@ -618,7 +634,6 @@ public class ClassEditor {
 //            System.out.println("new pos for new Type: " + newType.getGUIPosition());
 
             t2.setContent(buildTypeNode());
-            fName.requestFocus();
 
         } catch (Exception ex) {
             Logger.getLogger(ClassEditor.class.getName()).log(Level.SEVERE, null, ex);
