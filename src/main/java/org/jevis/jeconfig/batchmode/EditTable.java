@@ -27,7 +27,6 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TablePosition;
-import javafx.scene.control.TreeItem;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -390,19 +389,28 @@ public class EditTable {
 
             grid = new GridBase(rowCount, columnCount);
 
+            //sortiere die Liste genau wie Baum
+//            sortTheChildren(listChildren);
             for (int row = 0; row < grid.getRowCount(); ++row) {
                 cells = FXCollections.observableArrayList();
                 for (int column = 0; column < grid.getColumnCount(); ++column) {
-                    //FIXME Objektnamen dürfen nicht editiert werden.
+//                    //Objektnamen dürfen nicht editiert werden.
+//                    //Wenn die Spaltennummer 0 ist,setze setEditable(false).
 //                    if (column == 0) {
-//                        SpreadsheetCell cellIndex = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, "");
+//                        SpreadsheetCell cellIndex = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, "" + listChildren.get(row).getID());
+//                        //set CSS Style
+//                        cellIndex.getStyleClass().add("spreadsheet-cell-objectId");
+//
 //                        cellIndex.setEditable(false);
 //                        cells.add(cellIndex);
-//                    }
+//                    } else {
                     cells.add(SpreadsheetCellType.STRING.createCell(row, column, 1, 1, ""));
+//                    }
+
                 }
                 rows.add(cells);
             }
+
             grid.setRows(rows);
             grid.setRowHeightCallback(new GridBase.MapBasedRowHeightFactory(generateRowHeight()));
             spv = new SpreadsheetView();
@@ -462,7 +470,11 @@ public class EditTable {
             for (int i = 0; i < grid.getRowCount(); i++) {
                 for (int j = 0; j < grid.getColumnCount(); j++) {
                     if (columnHeaderNames.get(j).equals("Object ID")) {
+                        //Object ID is not editable
                         grid.setCellValue(i, 0, listChildren.get(i).getID());
+                        SpreadsheetCell cellIndex = rows.get(i).get(0);
+                        cellIndex.getStyleClass().add("spreadsheet-cell-objectId");
+                        cellIndex.setEditable(false);
                     } else if (columnHeaderNames.get(j).equals("Object Name")) {
                         grid.setCellValue(i, 1, listChildren.get(i).getName());
                     } else {
@@ -504,18 +516,29 @@ public class EditTable {
 
             grid = new GridBase(rowCount, columnCount);
 
+            //sortiere die Liste genau wie Baum
+//            sortTheChildren(listChildren);
             for (int row = 0; row < grid.getRowCount(); ++row) {
                 cells = FXCollections.observableArrayList();
                 for (int column = 0; column < grid.getColumnCount(); ++column) {
+                    //Objektnamen dürfen nicht editiert werden.
+                    //Wenn die Spaltennummer 0 ist,setze setEditable(false).
 //                    if (column == 0) {
-//                        SpreadsheetCell cellIndex = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, "");
+//                        SpreadsheetCell cellIndex = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, "" + listChildren.get(row).getID());
+//                        //set CSS Style
+//                        cellIndex.getStyleClass().add("spreadsheet-cell-objectId");
+//
 //                        cellIndex.setEditable(false);
+//
 //                        cells.add(cellIndex);
-//                    }
+//                    } else {
                     cells.add(SpreadsheetCellType.STRING.createCell(row, column, 1, 1, ""));
+//                    }
+
                 }
                 rows.add(cells);
             }
+
             grid.setRows(rows);
             grid.setRowHeightCallback(new GridBase.MapBasedRowHeightFactory(generateRowHeight()));
             spv = new SpreadsheetView();
@@ -604,6 +627,9 @@ public class EditTable {
                 for (int j = 0; j < grid.getColumnCount(); j++) {
                     if (columnHeaderNamesDataTable.get(j).equals("Object ID")) {
                         grid.setCellValue(i, 0, listChildren.get(i).getID());
+                        SpreadsheetCell cellIndex = rows.get(i).get(0);
+                        cellIndex.getStyleClass().add("spreadsheet-cell-objectId");
+                        cellIndex.setEditable(false);
                     } else if (columnHeaderNamesDataTable.get(j).equals("Object Name")) {
                         grid.setCellValue(i, 1, listChildren.get(i).getName());
                     } else {
