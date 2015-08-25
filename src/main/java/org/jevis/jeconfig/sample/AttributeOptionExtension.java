@@ -45,6 +45,9 @@ import org.jevis.commons.config.BasicOption;
 /**
  * Attribute editor extension to configure JEVIsOptions in an generic way.
  *
+ * @TODO: The current JEVisAttributeSQL implementation is limited to 10240 chars
+ * but that does not have to be the case for all implementations.
+ *
  * @author Florian Simon
  */
 public class AttributeOptionExtension implements SampleEditorExtension {
@@ -72,6 +75,8 @@ public class AttributeOptionExtension implements SampleEditorExtension {
                     TreeItem<JEVisOption> treeItem = treeview.getSelectionModel().getSelectedItem();
                     JEVisOption newOption = new BasicOption();
                     newOption.setKey("New Option");
+
+                    treeItem.getValue().addOption(newOption, true);
 
                     TreeItem<JEVisOption> newItem = new TreeItem<>(newOption);
                     treeItem.getChildren().add(newItem);
@@ -138,33 +143,41 @@ public class AttributeOptionExtension implements SampleEditorExtension {
         TreeTableColumn<JEVisOption, String> descriptColumn = new TreeTableColumn<>("Description");
         tree.getColumns().add(descriptColumn);
         descriptColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getValue().getDescription()));
+        descriptColumn.setEditable(true);
+        descriptColumn.setCellFactory(TextFieldTreeTableCell.forTreeTableColumn());
+        descriptColumn.setOnEditCommit(new EventHandler<TreeTableColumn.CellEditEvent<JEVisOption, String>>() {
+
+            @Override
+            public void handle(TreeTableColumn.CellEditEvent<JEVisOption, String> event) {
+                final JEVisOption item = event.getRowValue().getValue();
+                item.setDescription(event.getNewValue());
+            }
+        });
 
         tree.setColumnResizePolicy(TreeTableView.CONSTRAINED_RESIZE_POLICY);
 
-        TreeTableColumn<JEVisOption, String> ccountColumn = new TreeTableColumn<>("Children");
+//        TreeTableColumn<JEVisOption, String> ccountColumn = new TreeTableColumn<>("Children");
         //Disabled for the moment
 //        tree.getColumns().add(ccountColumn);
 //        ccountColumn.setCellValueFactory(param -> new ReadOnlyObjectProperty<Integer>(param.getValue().getValue().getChildren().size())   );
-
-        ccountColumn.setCellValueFactory((TreeTableColumn.CellDataFeatures<JEVisOption, String> p) -> {
-            try {
-                if (p != null && p.getValue() != null && p.getValue().getValue() != null) {
-                    TreeItem<JEVisOption> item = p.getValue();
-                    JEVisOption selectionObject = item.getValue();
-
-                    return new ReadOnlyObjectWrapper<String>(selectionObject.getChildren().size() + "");
-
-                } else {
-                    return new ReadOnlyObjectWrapper<String>("Emty");
-                }
-
-            } catch (Exception ex) {
-                System.out.println("Error in Column Fatory: " + ex);
-                return new ReadOnlyObjectWrapper<String>("Error");
-            }
-
-        });
-
+//        ccountColumn.setCellValueFactory((TreeTableColumn.CellDataFeatures<JEVisOption, String> p) -> {
+//            try {
+//                if (p != null && p.getValue() != null && p.getValue().getValue() != null) {
+//                    TreeItem<JEVisOption> item = p.getValue();
+//                    JEVisOption selectionObject = item.getValue();
+//
+//                    return new ReadOnlyObjectWrapper<String>(selectionObject.getChildren().size() + "");
+//
+//                } else {
+//                    return new ReadOnlyObjectWrapper<String>("Emty");
+//                }
+//
+//            } catch (Exception ex) {
+//                System.out.println("Error in Column Fatory: " + ex);
+//                return new ReadOnlyObjectWrapper<String>("Error");
+//            }
+//
+//        });
         tree.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         tree.setEditable(true);
 
@@ -180,83 +193,7 @@ public class AttributeOptionExtension implements SampleEditorExtension {
 //        System.out.println("buildTreeItems: " + att.getName() + "    " + att.getOptions().size());
 
         //we need an new fake root option for the tree, this on will be hidden
-        JEVisOption rootOption = new JEVisOption() {
-
-            private List<JEVisOption> children = new ArrayList<>();
-
-            @Override
-            public void removeOption(JEVisOption option) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public List<JEVisOption> getChildren() {
-                return children;
-            }
-
-            @Override
-            public JEVisOption getOption(String optionName) {
-                throw new UnsupportedOperationException("Not supported yet.");
-            }
-
-            @Override
-            public boolean hasOption(String optionName) {
-                return !children.isEmpty();
-            }
-
-            @Override
-            public void addOption(JEVisOption option, boolean overwrite) {
-                //TODO: check if this oprion allready exists?
-                children.add(option);
-            }
-
-            @Override
-            public String getValue() {
-                return "";
-            }
-
-            @Override
-            public void setValue(String value) {
-            }
-
-            @Override
-            public String getKey() {
-                return "Options";
-            }
-
-            @Override
-            public void setKey(String key) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public boolean isRequired() {
-                return false;
-            }
-
-            @Override
-            public void setRequired(boolean required) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public String getDescription() {
-                return "Fake root element to show a tree hierarchy";
-            }
-
-            @Override
-            public void setDescription(String description) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-        };
-
-        for (JEVisOption opt : att.getOptions()) {
-//            System.out.println("add new option to fake: " + opt.getKey());
-            rootOption.addOption(opt, true);
-//            fakeRoot.getValue().addChildren(opt, true);
-        }
-
-        TreeItem<JEVisOption> fakeRoot = new OptionTreeItem(rootOption);
+        TreeItem<JEVisOption> fakeRoot = new OptionTreeItem(new JEVisOptionTreeRoot(att));
 
         fakeRoot.setExpanded(true);
 
@@ -286,7 +223,6 @@ public class AttributeOptionExtension implements SampleEditorExtension {
 
     @Override
     public void update() {
-        System.out.println("update tree");
         buildView();
     }
 

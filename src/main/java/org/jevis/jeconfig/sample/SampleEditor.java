@@ -473,7 +473,6 @@ public class SampleEditor {
      * @param extensions
      */
     private void updateSamples(final JEVisAttribute att, final DateTime from, final DateTime until, List<SampleEditorExtension> extensions) {
-        System.out.println("update samples");
         try {
             samples.clear();
 
