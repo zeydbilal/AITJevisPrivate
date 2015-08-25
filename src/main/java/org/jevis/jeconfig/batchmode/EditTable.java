@@ -389,24 +389,10 @@ public class EditTable {
 
             grid = new GridBase(rowCount, columnCount);
 
-            //sortiere die Liste genau wie Baum
-//            sortTheChildren(listChildren);
             for (int row = 0; row < grid.getRowCount(); ++row) {
                 cells = FXCollections.observableArrayList();
                 for (int column = 0; column < grid.getColumnCount(); ++column) {
-//                    //Objektnamen dürfen nicht editiert werden.
-//                    //Wenn die Spaltennummer 0 ist,setze setEditable(false).
-//                    if (column == 0) {
-//                        SpreadsheetCell cellIndex = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, "" + listChildren.get(row).getID());
-//                        //set CSS Style
-//                        cellIndex.getStyleClass().add("spreadsheet-cell-objectId");
-//
-//                        cellIndex.setEditable(false);
-//                        cells.add(cellIndex);
-//                    } else {
                     cells.add(SpreadsheetCellType.STRING.createCell(row, column, 1, 1, ""));
-//                    }
-
                 }
                 rows.add(cells);
             }
@@ -463,7 +449,7 @@ public class EditTable {
             }
 
             //Add to table
-            //sortiere die Liste genau wie Baum
+            //sortiere die Liste! Die Reihenfolge genau wie Baumsreihenfolge
             sortTheChildren(listChildren);
             sortTheAttribute(listObjectAndSample);
 
@@ -516,25 +502,10 @@ public class EditTable {
 
             grid = new GridBase(rowCount, columnCount);
 
-            //sortiere die Liste genau wie Baum
-//            sortTheChildren(listChildren);
             for (int row = 0; row < grid.getRowCount(); ++row) {
                 cells = FXCollections.observableArrayList();
                 for (int column = 0; column < grid.getColumnCount(); ++column) {
-                    //Objektnamen dürfen nicht editiert werden.
-                    //Wenn die Spaltennummer 0 ist,setze setEditable(false).
-//                    if (column == 0) {
-//                        SpreadsheetCell cellIndex = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, "" + listChildren.get(row).getID());
-//                        //set CSS Style
-//                        cellIndex.getStyleClass().add("spreadsheet-cell-objectId");
-//
-//                        cellIndex.setEditable(false);
-//
-//                        cells.add(cellIndex);
-//                    } else {
                     cells.add(SpreadsheetCellType.STRING.createCell(row, column, 1, 1, ""));
-//                    }
-
                 }
                 rows.add(cells);
             }
@@ -620,7 +591,7 @@ public class EditTable {
             }
 
             //Add to table
-            //sortiere die Liste
+            //sortiere die Liste! Die Reihenfolge genau wie Baumsreihenfolge
             sortTheChildren(listChildren);
             sortTheAttribute(listObjectAndValueAttribute);
             for (int i = 0; i < grid.getRowCount(); i++) {
