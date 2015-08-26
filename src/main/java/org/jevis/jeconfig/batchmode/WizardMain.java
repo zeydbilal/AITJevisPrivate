@@ -9,22 +9,24 @@ import org.controlsfx.dialog.Wizard;
 
 /**
  *
- * @author Bilal
+ * @author CalisZ
  */
-public class WizardMain {
+public class WizardMain extends Wizard {
 
     public WizardMain() {
-        Wizard wizard = new Wizard();
+        initWizard();
+    }
 
+    public void initWizard() {
         WizardStartPane wizardStartPane = new WizardStartPane();
 
         WizardStep1 step1 = new WizardStep1();
+        WizardStep2 step2 = new WizardStep2();
+        WizardStep3 step3 = new WizardStep3();
 
         wizardStartPane.setContent(wizardStartPane.getInit());
 
-        wizard.setFlow(new Wizard.LinearFlow(wizardStartPane, step1));
+        setFlow(new Wizard.LinearFlow(wizardStartPane, step1));
 
-        wizard.showAndWait();
     }
-
 }

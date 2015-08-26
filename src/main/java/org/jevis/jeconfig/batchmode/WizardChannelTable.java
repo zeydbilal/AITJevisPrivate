@@ -48,7 +48,7 @@ import org.jevis.jeconfig.tool.ImageConverter;
  *
  * @author Bilal
  */
-public class WizardTable {
+public class WizardChannelTable {
 
     private final ObservableList<ObservableList<SpreadsheetCell>> rows = FXCollections.observableArrayList();
     private ObservableList<SpreadsheetCell> cells;
@@ -79,7 +79,7 @@ public class WizardTable {
 
     private Response response = Response.CANCEL;
 
-    public WizardTable() {
+    public WizardChannelTable() {
     }
 
     public Response show(Stage owner, final JEVisClass jclass, final JEVisObject parent, boolean fixClass, Type type, String objName) {
@@ -89,7 +89,7 @@ public class WizardTable {
                 options = FXCollections.observableArrayList(parent.getAllowedChildrenClasses());
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(WizardTable.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(WizardChannelTable.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         Callback<ListView<JEVisClass>, ListCell<JEVisClass>> cellFactory = new Callback<ListView<JEVisClass>, ListCell<JEVisClass>>() {
@@ -137,7 +137,7 @@ public class WizardTable {
                     createDataPointIndex = i;
                 }
             } catch (JEVisException ex) {
-                Logger.getLogger(WizardTable.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(WizardChannelTable.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
 

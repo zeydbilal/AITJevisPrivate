@@ -68,7 +68,7 @@ import org.jevis.commons.CommonClasses;
 import org.jevis.commons.CommonObjectTasks;
 import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.jeconfig.JEConfig;
-import org.jevis.jeconfig.batchmode.WizardTable;
+import org.jevis.jeconfig.batchmode.WizardMain;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
 
@@ -767,13 +767,8 @@ public class ObjectTree extends TreeView<JEVisObject> {
 
     //@AITBilal - Create a new Wizard-Table!
     public void fireEventCreateWizard(final JEVisObject parent) throws JEVisException {
-        WizardTable table = new WizardTable();
-        if (parent != null) {
-
-            if (table.show(JEConfig.getStage(), null, parent, false, WizardTable.Type.NEW, null) == WizardTable.Response.YES) {
-
-            }
-        }
+        WizardMain wizardmain = new WizardMain();
+        wizardmain.showAndWait();
     }
 
     //TODO i dont like this way
