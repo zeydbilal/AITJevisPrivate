@@ -114,8 +114,6 @@ public class DateValueEditor implements AttributeEditor {
                 try {
                     _datePicker.setValue(LocalDate.parse(_attribute.getLatestSample().getValueAsString(), DateTimeFormatter.ISO_DATE));
                 } catch (Exception ex) {
-                    System.out.println("Warning cannot parse");
-//                    ex.printStackTrace();
                 }
 //                _field.setText(_attribute.getLatestSample().getValueAsString());
                 _lastSample = _attribute.getLatestSample();
@@ -134,7 +132,6 @@ public class DateValueEditor implements AttributeEditor {
                             System.out.println("new Value");
                             _newSample = _attribute.buildSample(new DateTime(), _datePicker.getValue().format(DateTimeFormatter.ISO_DATE));
                             _changed.setValue(true);
-                            System.out.println("value changed");
                         } else {
                             System.out.println("change existing value");
                             _newSample.setValue(_datePicker.getValue().format(DateTimeFormatter.ISO_DATE));
