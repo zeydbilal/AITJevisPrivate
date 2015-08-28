@@ -11,22 +11,47 @@ import org.controlsfx.dialog.Wizard;
  *
  * @author CalisZ
  */
+//192.71.247.119
 public class WizardMain extends Wizard {
 
+//    private ObservableList<WizardPane> listPages = FXCollections.observableArrayList();
     public WizardMain() {
+        setTitle("JEVIS Wizard");
         initWizard();
     }
 
     public void initWizard() {
+
         WizardStartPane wizardStartPane = new WizardStartPane();
+//        listPages.add(wizardStartPane);
+//
+//        LinearFlow fl = new LinearFlow(listPages);
+//        setFlow(fl);
 
-        WizardStep1 step1 = new WizardStep1();
-        WizardStep2 step2 = new WizardStep2();
-        WizardStep3 step3 = new WizardStep3();
-
-        wizardStartPane.setContent(wizardStartPane.getInit());
-
-        setFlow(new Wizard.LinearFlow(wizardStartPane, step1));
+        LinearFlow fl = new LinearFlow(wizardStartPane);
+        setFlow(fl);
+        
+        // Wie funktioniert wizardAdvance
+//        ManualWizardStep1 manualStep1 = new ManualWizardStep1();
+//        fl.advance(wizardStartPane);
+        
+        
+//        //ManualSteps
+//        if (wizardStartPane.getControl().equals("Manual")) {
+//            ManualWizardStep1 manualStep1 = new ManualWizardStep1();
+//            ManualWizardStep2 manualStep2 = new ManualWizardStep2();
+//            ManualWizardStep3 manualStep3 = new ManualWizardStep3();
+//            listPages.add(manualStep1);
+//            fl = new LinearFlow(listPages);
+//            setFlow(fl);
+//            //AutomatedSteps
+//        } else if (wizardStartPane.getControl().equals("Automated")) {
+//            //FIXME
+//            AutomatedWizardStep1 automatedStep1 = new AutomatedWizardStep1();
+//            //TemplatebasedSteps   
+//        } else if (wizardStartPane.getControl().equals("Template Based")) {
+//            //TODO
+//        }
 
     }
 }

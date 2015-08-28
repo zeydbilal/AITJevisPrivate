@@ -16,9 +16,9 @@ import org.controlsfx.dialog.WizardPane;
  *
  * @author CalisZ
  */
-public class WizardStep1 extends WizardPane {
+public class ManualWizardStep1 extends WizardPane {
 
-    public WizardStep1() {
+    public ManualWizardStep1() {
         setMinSize(500, 500);
     }
 

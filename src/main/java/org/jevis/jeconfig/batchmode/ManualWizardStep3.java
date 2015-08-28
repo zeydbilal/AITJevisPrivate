@@ -11,6 +11,6 @@ import org.controlsfx.dialog.WizardPane;
  *
  * @author CalisZ
  */
-public class WizardStep3 extends WizardPane{
+public class ManualWizardStep3 extends WizardPane{
     
 }
