@@ -767,7 +767,7 @@ public class EditTable {
         listPrefix.clear();
         listSampleRateControl.clear();
     }
-
+    // Hier wird die Zellenhöhe anpasst
     private Map<Integer, Double> generateRowHeight() {
         Map<Integer, Double> rowHeight = new HashMap<>();
         for (int i = 0; i < grid.getRowCount(); i++) {

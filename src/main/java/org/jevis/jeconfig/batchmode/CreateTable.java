@@ -1,7 +1,9 @@
 package org.jevis.jeconfig.batchmode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -91,6 +93,7 @@ public class CreateTable {
                 rows.add(cells);
             }
             grid.setRows(rows);
+            grid.setRowHeightCallback(new GridBase.MapBasedRowHeightFactory(generateRowHeight()));
             spv = new SpreadsheetView();
             spv.setGrid(grid);
 
@@ -105,7 +108,7 @@ public class CreateTable {
 
             columnHeaderNames.add("Object Name");
             try {
-                //Get and set Typenames :)
+                //Get and set Typenames
                 for (int i = 0; i < createClass.getTypes().size(); i++) {
                     columnHeaderNames.add(createClass.getTypes().get(i).getName());
                 }
@@ -424,6 +427,7 @@ public class CreateTable {
                 rows.add(cells);
             }
             grid.setRows(rows);
+            grid.setRowHeightCallback(new GridBase.MapBasedRowHeightFactory(generateRowHeight()));
             spv = new SpreadsheetView();
             spv.setGrid(grid);
 
@@ -592,5 +596,14 @@ public class CreateTable {
         listSymbols.clear();
         listPrefix.clear();
         listSampleRateControl.clear();
+    }
+
+    // Hier wird die Zellenhöhe anpasst
+    private Map<Integer, Double> generateRowHeight() {
+        Map<Integer, Double> rowHeight = new HashMap<>();
+        for (int i = 0; i < grid.getRowCount(); i++) {
+            rowHeight.put(i, 30.0);
+        }
+        return rowHeight;
     }
 }

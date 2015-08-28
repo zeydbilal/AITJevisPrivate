@@ -18,6 +18,7 @@ public class WizardMain extends Wizard {
     public WizardMain() {
         setTitle("JEVIS Wizard");
         initWizard();
+        
     }
 
     public void initWizard() {
@@ -29,13 +30,13 @@ public class WizardMain extends Wizard {
 //        setFlow(fl);
 
         LinearFlow fl = new LinearFlow(wizardStartPane);
-        setFlow(fl);
         
         // Wie funktioniert wizardAdvance
-//        ManualWizardStep1 manualStep1 = new ManualWizardStep1();
-//        fl.advance(wizardStartPane);
+        ManualWizardStep1 manualStep1 = new ManualWizardStep1();
+        fl.advance(manualStep1);
         
-        
+        setFlow(fl);
+
 //        //ManualSteps
 //        if (wizardStartPane.getControl().equals("Manual")) {
 //            ManualWizardStep1 manualStep1 = new ManualWizardStep1();
@@ -52,6 +53,5 @@ public class WizardMain extends Wizard {
 //        } else if (wizardStartPane.getControl().equals("Template Based")) {
 //            //TODO
 //        }
-
     }
 }
