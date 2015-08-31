@@ -24,7 +24,6 @@ import org.jevis.jeconfig.JEConfig;
 public class WizardStartPane extends WizardPane {
 
     private VBox vbox;
-    private GridPane gridPane;
     private RadioButton button1 = new RadioButton("Manual");
     private RadioButton button2 = new RadioButton("Automated");
     private RadioButton button3 = new RadioButton("Template Based");
@@ -41,6 +40,7 @@ public class WizardStartPane extends WizardPane {
 
     }
 
+    //or private ? 
     public VBox getInit() {
         vbox = new VBox();
 

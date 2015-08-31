@@ -53,8 +53,11 @@ import org.jevis.jeconfig.tool.ImageConverter;
  *
  * @author Bilal
  */
+// CreateTable ist für die eine neue Tabelle zu erzeugen.
+// CreateTable hat zwei Unterklasse die erste ist CreateNewTable und die zweite ist CreateNewDataTable.
 public class CreateTable {
 
+    // Private declarations
     private final ObservableList<ObservableList<SpreadsheetCell>> rows = FXCollections.observableArrayList();
     private ObservableList<SpreadsheetCell> cells;
     private ObservableList<String> listAttribute = FXCollections.observableArrayList();
@@ -398,6 +401,7 @@ public class CreateTable {
         }
     }
 
+    // JEVIS Unit symbols
     public void addSymbols() {
         listUnitSymbols.addAll("m/sÂ²",
                 "g", "mol", "atom", "rad", "bit", "%", "centiradian", "dB", "Â°", "'", "byte", "rev", "Â¨", "sphere", "sr", "rad/sÂ²", "rad/s", "Bq", "Ci", "Hz",
@@ -457,6 +461,7 @@ public class CreateTable {
         }
     }
 
+    //Hier wird die Eingaben überprüft für diese Spalten (Prefix,Symbol und Sample Rate ).
     public void inputControl(Button createBtn) {
         ObservableList<String> listPrefix = FXCollections.observableArrayList();
         ObservableList<String> listSymbols = FXCollections.observableArrayList();
@@ -598,7 +603,7 @@ public class CreateTable {
         listSampleRateControl.clear();
     }
 
-    // Hier wird die Zellenhöhe anpasst
+    // Hier wird die Zellenhöhe anpasst.
     private Map<Integer, Double> generateRowHeight() {
         Map<Integer, Double> rowHeight = new HashMap<>();
         for (int i = 0; i < grid.getRowCount(); i++) {

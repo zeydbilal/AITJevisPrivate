@@ -26,6 +26,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.Separator;
 import javafx.scene.control.TablePosition;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
@@ -53,6 +54,7 @@ import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisSample;
 import org.jevis.api.JEVisUnit;
+import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.ImageConverter;
 
 /**
@@ -176,7 +178,9 @@ public class EditTable {
         hBoxTop.setSpacing(10);
 //        hBoxTop.setPadding(new Insets(3, 3, 3, 3));
         Label lClass = new Label("Class:");
-        hBoxTop.getChildren().addAll(lClass, classComboBox);
+        Button help = new Button("Help", JEConfig.getImage("quick_help_icon.png", 22, 22));
+        Separator sep1 = new Separator();
+        hBoxTop.getChildren().addAll(lClass, classComboBox, sep1, help);
         root.setTop(hBoxTop);
 
         HBox hBoxBottom = new HBox();
@@ -333,6 +337,13 @@ public class EditTable {
             }
         });
 
+        help.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                WebBrowser webBrowser = new WebBrowser();
+            }
+        });
+        
         stage.setTitle("Bulk Edit");
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initOwner(owner);
@@ -767,7 +778,9 @@ public class EditTable {
         listPrefix.clear();
         listSampleRateControl.clear();
     }
+
     // Hier wird die Zellenhöhe anpasst
+
     private Map<Integer, Double> generateRowHeight() {
         Map<Integer, Double> rowHeight = new HashMap<>();
         for (int i = 0; i < grid.getRowCount(); i++) {
