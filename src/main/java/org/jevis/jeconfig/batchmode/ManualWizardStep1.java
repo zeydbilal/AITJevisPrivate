@@ -5,6 +5,9 @@
  */
 package org.jevis.jeconfig.batchmode;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonBar;
@@ -14,6 +17,7 @@ import javafx.stage.Stage;
 import org.controlsfx.dialog.Wizard;
 import org.controlsfx.dialog.WizardPane;
 import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 
 /**
@@ -63,6 +67,15 @@ public class ManualWizardStep1 extends WizardPane {
     }
 
     public Response show(Stage owner, final JEVisClass jclass, final JEVisObject parent, boolean fixClass, Type type, String objName) {
+        ObservableList<JEVisClass> options = FXCollections.observableArrayList();
+
+        try {
+            if (type == Type.NEW) {
+                options = FXCollections.observableArrayList(parent.getAllowedChildrenClasses());
+            }
+        } catch (JEVisException ex) {
+            Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
         return response;
     }
