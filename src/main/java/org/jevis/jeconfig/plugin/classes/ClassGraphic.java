@@ -43,15 +43,15 @@ public class ClassGraphic {
     private ImageView icon = new ImageView();
     private final Label nameLabel = new Label("*Missing*");
     private final JEVisClass _jclass;
-    private final ObjectContextMenu _menu;
+    private final ClassContextMenu _menu;
     private final ClassTree _tree;
     private Tooltip _tip;
 
     public ClassGraphic(JEVisClass obj, ClassTree tree) {
         _jclass = obj;
         _tree = tree;
-//        _menu = new ObjectContextMenu(obj, tree);
-        _menu = null;
+        _menu = new ClassContextMenu(obj, tree);
+//        _menu = null;
         try {
             _tip = new Tooltip(String.format(""));
         } catch (Exception ex) {
@@ -72,7 +72,7 @@ public class ClassGraphic {
         return _view;
     }
 
-    public ObjectContextMenu getContexMenu() {
+    public ClassContextMenu getContexMenu() {
         return _menu;
     }
 

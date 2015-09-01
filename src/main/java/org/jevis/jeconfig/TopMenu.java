@@ -19,15 +19,25 @@
  */
 package org.jevis.jeconfig;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.prefs.Preferences;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.stage.FileChooser;
 import org.jevis.application.dialog.AboutDialog;
+import org.jevis.commons.drivermanagment.ClassImporter;
 import org.jevis.jeconfig.csv.CSVImportDialog;
 
 /**
@@ -113,7 +123,67 @@ public class TopMenu extends MenuBar {
 
             }
         });
+        MenuItem classImport = new MenuItem("Install Driver");
+        Menu system = new Menu("System");
+        system.getItems().add(classImport);
 
-        getMenus().addAll(menuFile, menuEdit, menuView, options, help);
+        //TODO: replace this very simple driver import
+        classImport.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent event) {
+
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Open Driver file install");
+                fileChooser.getExtensionFilters().addAll(
+                        new FileChooser.ExtensionFilter("JEVis Files", "*.jev"),
+                        new FileChooser.ExtensionFilter("All Files", "*.*"));
+
+                File selectedFile = fileChooser.showOpenDialog(JEConfig.getStage());
+                if (selectedFile != null) {
+                    List<File> files = new ArrayList<>();
+                    String tmpdir = System.getProperty("java.io.tmpdir");
+                    ClassImporter ci = new ClassImporter(JEConfig.getDataSource());
+                    files = ci.unZipIt(tmpdir, selectedFile);
+
+                    Alert alert = new Alert(AlertType.CONFIRMATION);
+                    alert.setTitle("Install Driver");
+                    alert.setHeaderText("Install Drivers in " + selectedFile.getName());
+                    alert.setContentText("Choose the installation mode");
+
+                    ButtonType updateButton = new ButtonType("Update");
+                    ButtonType overwriteButton = new ButtonType("Overwrite");
+                    ButtonType calcelButton = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+
+                    alert.getButtonTypes().setAll(updateButton, overwriteButton, calcelButton);
+
+                    Optional<ButtonType> result = alert.showAndWait();
+                    boolean success = true;//dirty solution
+                    if (result.get() == updateButton) {
+                        ci.setDeleteExisting(false);
+                        ci.importFiles(files);
+                    } else if (result.get() == overwriteButton) {
+                        ci.setDeleteExisting(true);
+                        ci.importFiles(files);
+                    } else if (result.get() == calcelButton) {
+                        success = false;
+                    }
+
+                    if (success) {
+                        Alert finish = new Alert(AlertType.INFORMATION);
+                        finish.setTitle("Driver Import Finished");
+                        finish.setHeaderText(null);
+                        finish.setContentText("The installtion of the drivers are done. Restart JEConfig to use the new driver");
+
+                        finish.showAndWait();
+                    }
+
+                }
+
+            }
+        });
+        classImport.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
+
+        getMenus().addAll(menuFile, menuEdit, menuView, options, system, help);
     }
 }

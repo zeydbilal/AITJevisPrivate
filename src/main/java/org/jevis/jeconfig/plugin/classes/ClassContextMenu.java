@@ -37,24 +37,38 @@ import org.jevis.jeconfig.tool.ImageConverter;
  */
 public class ClassContextMenu extends ContextMenu {
 
-    private JEVisClass _obj;
+    private JEVisClass _jclass;
     private TreeItem<JEVisClass> _item;
     private ClassTree _tree;
 
-    public ClassContextMenu(TreeItem<JEVisClass> item, ClassTree tree) {
+    public ClassContextMenu(JEVisClass item, ClassTree tree) {
         super();
-        System.out.println("build Contex menu");
-        _obj = item.getValue();
-        _item = item;
+        _jclass = item;
         _tree = tree;
-
-        getItems().add(buildMenuNew());
-
+        getItems().add(buildMenuExport());
+//        getItems().add(buildMenuNew());
 //        getItems().add(new SeparatorMenuItem());
 //        getItems().add(buildDelete());
 //        getItems().add(buildRename());
 //        getItems().add(buildProperties())
-        getItems().setAll(buildMenuNew(), new SeparatorMenuItem(), buildDelete(), buildRename());
+//        getItems().setAll(buildMenuNew(), new SeparatorMenuItem(), buildDelete(), buildRename());
+
+    }
+
+    public Menu buildMenuExport() {
+        Menu addMenu = new Menu("Export", JEConfig.getImage("save.gif", 20, 20));
+        addMenu.setOnAction(new EventHandler<ActionEvent>() {
+
+            @Override
+            public void handle(ActionEvent t) {
+                _tree.fireEventExport(_tree.getSelectionModel().getSelectedItems());
+            }
+        });
+
+//        System.out.println("Disable menu: " + !JEConfig.getCurrentUser().isSysAdmin());
+        addMenu.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
+
+        return addMenu;
 
     }
 
@@ -68,7 +82,7 @@ public class ClassContextMenu extends ContextMenu {
             }
         });
 
-        System.out.println("Disable menu: " + !JEConfig.getCurrentUser().isSysAdmin());
+//        System.out.println("Disable menu: " + !JEConfig.getCurrentUser().isSysAdmin());
         addMenu.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
 
         return addMenu;
@@ -124,7 +138,7 @@ public class ClassContextMenu extends ContextMenu {
 
             @Override
             public void handle(ActionEvent t) {
-                _tree.fireDelete(_obj);
+                _tree.fireDelete(_jclass);
             }
         });
         menu.setDisable(!JEConfig.getCurrentUser().isSysAdmin());
