@@ -5,7 +5,9 @@
  */
 package org.jevis.jeconfig.batchmode;
 
+import java.util.Optional;
 import org.controlsfx.dialog.Wizard;
+import org.controlsfx.dialog.WizardPane;
 
 /**
  *
@@ -14,41 +16,53 @@ import org.controlsfx.dialog.Wizard;
 //192.71.247.119
 public class WizardMain extends Wizard {
 
-//    private ObservableList<WizardPane> listPages = FXCollections.observableArrayList();
+    private WizardStartPane wizardStartPane = new WizardStartPane();
+
+    private ManualWizardStep1 manualStep1 = new ManualWizardStep1();
+    private ManualWizardStep2 manualStep2 = new ManualWizardStep2();
+    private ManualWizardStep3 manualStep3 = new ManualWizardStep3();
+
+    private AutomatedWizardStep1 automatedWizardStep1 = new AutomatedWizardStep1();
+
     public WizardMain() {
         setTitle("JEVIS Wizard");
         initWizard();
-
     }
 
-    public void initWizard() {
+    private void initWizard() {
 
-        WizardStartPane wizardStartPane = new WizardStartPane();
-//        listPages.add(wizardStartPane);
-//
-//        LinearFlow fl = new LinearFlow(listPages);
-//        setFlow(fl);
+        Wizard.Flow flow = new Wizard.Flow() {
 
-        ManualWizardStep1 manualStep1 = new ManualWizardStep1();
+            @Override
+            public Optional<WizardPane> advance(WizardPane currentPage) {
+                return Optional.of(getNext(currentPage));
+            }
 
-        setFlow(new LinearFlow(wizardStartPane, manualStep1));
+            @Override
+            public boolean canAdvance(WizardPane currentPage) {
+                //FIXME
+                return currentPage != manualStep3 && currentPage != automatedWizardStep1;
 
-        //FIXME
-//        //ManualSteps
-//        if (wizardStartPane.getControl().equals("Manual")) {
-//            ManualWizardStep1 manualStep1 = new ManualWizardStep1();
-//            ManualWizardStep2 manualStep2 = new ManualWizardStep2();
-//            ManualWizardStep3 manualStep3 = new ManualWizardStep3();
-//            listPages.add(manualStep1);
-//            fl = new LinearFlow(listPages);
-//            setFlow(fl);
-//            //AutomatedSteps
-//        } else if (wizardStartPane.getControl().equals("Automated")) {
-//            //FIXME
-//            AutomatedWizardStep1 automatedStep1 = new AutomatedWizardStep1();
-//            //TemplatebasedSteps   
-//        } else if (wizardStartPane.getControl().equals("Template Based")) {
-//            //TODO
-//        }
+            }
+
+            private WizardPane getNext(WizardPane currentPage) {
+                if (currentPage == null) {
+                    return wizardStartPane;
+                } else if (currentPage.equals(wizardStartPane) && wizardStartPane.getControl().equals("Manual")) {
+                    return manualStep1;
+                } else if (currentPage.equals(manualStep1)) {
+                    return manualStep2;
+                } else if (currentPage.equals(manualStep2)) {
+                    return manualStep3;
+                } else if (currentPage.equals(wizardStartPane) && wizardStartPane.getControl().equals("Automated")) {
+                    return automatedWizardStep1;
+                } else {
+                    return null;
+                }
+            }
+        };
+
+        setFlow(flow);
+
     }
 }

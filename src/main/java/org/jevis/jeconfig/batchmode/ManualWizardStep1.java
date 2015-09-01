@@ -9,9 +9,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.controlsfx.dialog.Wizard;
@@ -59,9 +61,17 @@ public class ManualWizardStep1 extends WizardPane {
         }
     }
 
-    //or private ? 
-    public VBox getInit() {
+    //TODO
+    private VBox getInit() {
         vbox = new VBox();
+
+        Label index = new Label();
+        index.setText("ManualWizardStep1");
+
+        vbox.setSpacing(30);
+
+        vbox.getChildren().addAll(index);
+        vbox.setPadding(new Insets(200, 10, 10, 20));
 
         return vbox;
     }
