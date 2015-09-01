@@ -5,9 +5,6 @@
  */
 package org.jevis.jeconfig.batchmode;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -15,11 +12,8 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import org.controlsfx.dialog.Wizard;
 import org.controlsfx.dialog.WizardPane;
-import org.jevis.api.JEVisClass;
-import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 
 /**
@@ -28,20 +22,11 @@ import org.jevis.api.JEVisObject;
  */
 public class ManualWizardStep1 extends WizardPane {
 
-    public static enum Type {
-
-        NEW, RENAME
-    };
-
-    public static enum Response {
-
-        NO, YES, CANCEL
-    };
-
-    private Response response = Response.CANCEL;
     private VBox vbox;
+    private JEVisObject parentObject;
 
-    public ManualWizardStep1() {
+    public ManualWizardStep1(JEVisObject parentObject) {
+        setParentObject(parentObject);
         setMinSize(500, 500);
         setContent(getInit());
         setGraphic(null);
@@ -56,7 +41,6 @@ public class ManualWizardStep1 extends WizardPane {
             if (type.getButtonData().equals(ButtonBar.ButtonData.BACK_PREVIOUS)) {
                 Node prev = lookupButton(type);
                 prev.visibleProperty().setValue(Boolean.FALSE);
-
             }
         }
     }
@@ -66,7 +50,7 @@ public class ManualWizardStep1 extends WizardPane {
         vbox = new VBox();
 
         Label index = new Label();
-        index.setText("ManualWizardStep1");
+        index.setText("Object id " + getParentObject().getID());
 
         vbox.setSpacing(30);
 
@@ -76,18 +60,11 @@ public class ManualWizardStep1 extends WizardPane {
         return vbox;
     }
 
-    public Response show(Stage owner, final JEVisClass jclass, final JEVisObject parent, boolean fixClass, Type type, String objName) {
-        ObservableList<JEVisClass> options = FXCollections.observableArrayList();
-
-        try {
-            if (type == Type.NEW) {
-                options = FXCollections.observableArrayList(parent.getAllowedChildrenClasses());
-            }
-        } catch (JEVisException ex) {
-            Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        return response;
+    public JEVisObject getParentObject() {
+        return this.parentObject;
     }
 
+    public void setParentObject(JEVisObject parentObject) {
+        this.parentObject = parentObject;
+    }
 }

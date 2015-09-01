@@ -766,8 +766,9 @@ public class ObjectTree extends TreeView<JEVisObject> {
     }
 
     //@AITBilal - Create a new Wizard-Table!
+    //parent kommt von --> tree.fireEventCreateWizard(tree.getSelectedObject());
     public void fireEventCreateWizard(final JEVisObject parent) throws JEVisException {
-        WizardMain wizardmain = new WizardMain();
+        WizardMain wizardmain = new WizardMain(parent);
         wizardmain.showAndWait();
     }
 

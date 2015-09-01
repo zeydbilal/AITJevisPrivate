@@ -14,6 +14,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import org.controlsfx.dialog.Wizard;
 import org.controlsfx.dialog.WizardPane;
+import org.jevis.api.JEVisObject;
 
 /**
  *
@@ -22,8 +23,10 @@ import org.controlsfx.dialog.WizardPane;
 public class ManualWizardStep3 extends WizardPane {
 
     private VBox vbox;
+    private JEVisObject parentObject;
 
-    public ManualWizardStep3() {
+    public ManualWizardStep3(JEVisObject parentObject) {
+        setParentObject(parentObject);
         setMinSize(500, 500);
         setContent(getInit());
         setGraphic(null);
@@ -53,5 +56,13 @@ public class ManualWizardStep3 extends WizardPane {
                 prev.visibleProperty().setValue(Boolean.FALSE);
             }
         }
+    }
+
+    public JEVisObject getParentObject() {
+        return this.parentObject;
+    }
+
+    public void setParentObject(JEVisObject parentObject) {
+        this.parentObject = parentObject;
     }
 }

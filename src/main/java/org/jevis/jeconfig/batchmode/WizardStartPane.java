@@ -19,6 +19,7 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.VBox;
 import org.controlsfx.dialog.Wizard;
 import org.controlsfx.dialog.WizardPane;
+import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.JEConfig;
 
 /**
@@ -27,13 +28,15 @@ import org.jevis.jeconfig.JEConfig;
  */
 public class WizardStartPane extends WizardPane {
 
+    private JEVisObject parentObject;
     private VBox vbox;
     private String control = "Manual";
     private RadioButton manual;
     private RadioButton automated;
     private RadioButton templateBased;
 
-    public WizardStartPane() {
+    public WizardStartPane(JEVisObject parentObject) {
+        setParentObject(parentObject);
         setMinSize(500, 500);
         //INFO
         //Stage stage = (Stage) this.getScene().getWindow();
@@ -105,5 +108,13 @@ public class WizardStartPane extends WizardPane {
 
     public String getControl() {
         return control;
+    }
+
+    public JEVisObject getParentObject() {
+        return this.parentObject;
+    }
+
+    public void setParentObject(JEVisObject parentObject) {
+        this.parentObject = parentObject;
     }
 }
