@@ -38,10 +38,11 @@ public class WizardMain extends Wizard {
 
     private AutomatedWizardStep1 automatedWizardStep1 = new AutomatedWizardStep1();
 
-    public WizardMain(JEVisObject parentObject) {
+    public WizardMain(JEVisObject parentObject,ObjectTree tree) {
         setParentObject(parentObject);
+        this.tree=tree;
         wizardStartPane = new WizardStartPane(parentObject);
-        manualStep1 = new ManualWizardStep1(parentObject);
+        manualStep1 = new ManualWizardStep1(parentObject,tree);
         manualStep2 = new ManualWizardStep2(parentObject);
         manualStep3 = new ManualWizardStep3(parentObject);
         manualStep4 = new ManualWizardStep4(parentObject);

@@ -8,6 +8,7 @@ package org.jevis.jeconfig.batchmode;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -15,6 +16,7 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TreeItem;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.controlsfx.dialog.Wizard;
@@ -35,7 +37,8 @@ public class ManualWizardStep1 extends WizardPane {
     private TextField nameTextField;
     private ObjectTree tree;
 
-    public ManualWizardStep1(JEVisObject parentObject) {
+    public ManualWizardStep1(JEVisObject parentObject,ObjectTree tree) {
+        this.tree=tree;
         setParentObject(parentObject);
         setMinSize(500, 500);
         setContent(getInit());
@@ -101,6 +104,18 @@ public class ManualWizardStep1 extends WizardPane {
             }
             JEVisObject newObject = getParentObject().buildObject(nameTextField.getText(), buildingClass);
             newObject.commit();
+
+            final TreeItem<JEVisObject> newTreeItem = tree.buildItem(newObject);
+            TreeItem<JEVisObject> parentItem = tree.getObjectTreeItem(getParentObject());
+
+            parentItem.getChildren().add(newTreeItem);
+
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    tree.getSelectionModel().select(newTreeItem);
+                }
+            });
         } catch (JEVisException ex) {
             Logger.getLogger(ManualWizardStep1.class.getName()).log(Level.SEVERE, null, ex);
         }
