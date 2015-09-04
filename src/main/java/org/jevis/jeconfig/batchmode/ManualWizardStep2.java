@@ -147,11 +147,8 @@ public class ManualWizardStep2 extends WizardPane {
             Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        if (getParentObject().getName().equals("Data Source Directory")) {
-            serverName.setText("Object Name " + getParentObject().getName());
-        } else {
-            serverName.setText("This is not Data Source Directory");
-        }
+        serverName.setText("Name : " + getParentObject().getName());
+
         //Servername and ComboBox
         HBox hBoxTop = new HBox();
         hBoxTop.setSpacing(10);
@@ -161,14 +158,6 @@ public class ManualWizardStep2 extends WizardPane {
         root.setTop(hBoxTop);
         root.setCenter(getAttributNames());
         return root;
-    }
-
-    public JEVisObject getParentObject() {
-        return this.parentObject;
-    }
-
-    public void setParentObject(JEVisObject parentObject) {
-        this.parentObject = parentObject;
     }
 
     //Attribute names 
@@ -212,5 +201,13 @@ public class ManualWizardStep2 extends WizardPane {
         gridpane.setPadding(new Insets(10, 10, 10, 10));////margins around the whole grid
 
         return gridpane;
+    }
+
+    public JEVisObject getParentObject() {
+        return this.parentObject;
+    }
+
+    public void setParentObject(JEVisObject parentObject) {
+        this.parentObject = parentObject;
     }
 }

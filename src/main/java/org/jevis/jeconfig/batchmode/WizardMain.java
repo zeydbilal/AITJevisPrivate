@@ -27,6 +27,7 @@ public class WizardMain extends Wizard {
 //
 //        NO, YES, CANCEL
 //    };
+    private JEVisObject selectedObject;
     private JEVisObject parentObject;
     private ObjectTree tree;
 //    private Response response = Response.CANCEL;
@@ -38,20 +39,20 @@ public class WizardMain extends Wizard {
 
     private AutomatedWizardStep1 automatedWizardStep1 = new AutomatedWizardStep1();
 
-    public WizardMain(JEVisObject parentObject,ObjectTree tree) {
+    public WizardMain(JEVisObject parentObject, ObjectTree tree) {
         setParentObject(parentObject);
-        this.tree=tree;
+        this.tree = tree;
         wizardStartPane = new WizardStartPane(parentObject);
-        manualStep1 = new ManualWizardStep1(parentObject,tree);
+        manualStep1 = new ManualWizardStep1(parentObject, tree);
         manualStep2 = new ManualWizardStep2(parentObject);
         manualStep3 = new ManualWizardStep3(parentObject);
         manualStep4 = new ManualWizardStep4(parentObject);
-
         setTitle("JEVIS Wizard");
         initWizard();
     }
 
     private void initWizard() {
+
         Wizard.Flow flow = new Wizard.Flow() {
 
             @Override
@@ -69,8 +70,16 @@ public class WizardMain extends Wizard {
                 if (currentPage == null) {
                     return wizardStartPane;
                 } else if (currentPage.equals(wizardStartPane) && wizardStartPane.getControl().equals("Manual")) {
+                    // On the page ManualWizardStep1
+                    System.out.println("manualStep1.getSelectedObject()1 : " + manualStep1.getSelectedObject());
                     return manualStep1;
                 } else if (currentPage.equals(manualStep1)) {
+                    // On the page ManualWizardStep2
+//                    selectedObject = manualStep1.getSelectedObject();
+                    System.out.println("manualStep1.getSelectedObject()2 : " + manualStep1.getSelectedObject());
+                    //manualStep2.setParentObject(selectedObject);
+//                    System.out.println("selectedObject : " + selectedObject);
+//                    System.out.println(manualStep2.getParentObject().getName());
                     return manualStep2;
                 } else if (currentPage.equals(manualStep2)) {
                     return manualStep3;

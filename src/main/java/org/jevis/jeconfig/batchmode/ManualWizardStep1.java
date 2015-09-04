@@ -36,9 +36,10 @@ public class ManualWizardStep1 extends WizardPane {
     private JEVisObject parentObject;
     private TextField nameTextField;
     private ObjectTree tree;
+    private JEVisObject selectedObject;
 
-    public ManualWizardStep1(JEVisObject parentObject,ObjectTree tree) {
-        this.tree=tree;
+    public ManualWizardStep1(JEVisObject parentObject, ObjectTree tree) {
+        this.tree = tree;
         setParentObject(parentObject);
         setMinSize(500, 500);
         setContent(getInit());
@@ -80,14 +81,7 @@ public class ManualWizardStep1 extends WizardPane {
     @Override
     public void onExitingPage(Wizard wizard) {
         commitObject();
-    }
-
-    public JEVisObject getParentObject() {
-        return this.parentObject;
-    }
-
-    public void setParentObject(JEVisObject parentObject) {
-        this.parentObject = parentObject;
+        System.out.println("SelectedObject :::::::: " + getSelectedObject().getName());
     }
 
     public void commitObject() {
@@ -114,10 +108,31 @@ public class ManualWizardStep1 extends WizardPane {
                 @Override
                 public void run() {
                     tree.getSelectionModel().select(newTreeItem);
+
                 }
             });
+            //Set the new parent!
+            setSelectedObject(newTreeItem.getValue());
+
         } catch (JEVisException ex) {
             Logger.getLogger(ManualWizardStep1.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public JEVisObject getParentObject() {
+        return this.parentObject;
+    }
+
+    public void setParentObject(JEVisObject parentObject) {
+        this.parentObject = parentObject;
+    }
+
+    //New parent object for second step
+    public JEVisObject getSelectedObject() {
+        return selectedObject;
+    }
+
+    public void setSelectedObject(JEVisObject selectedObject) {
+        this.selectedObject = selectedObject;
     }
 }
