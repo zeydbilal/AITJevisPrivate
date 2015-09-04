@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.jevis.jeconfig.batchmode;
 
 import javafx.beans.value.ChangeListener;
@@ -29,7 +24,7 @@ import org.jevis.jeconfig.JEConfig;
 public class WizardStartPane extends WizardPane {
 
     private JEVisObject parentObject;
-    private VBox vbox;
+
     private String control = "Manual";
     private RadioButton manual;
     private RadioButton automated;
@@ -38,16 +33,35 @@ public class WizardStartPane extends WizardPane {
     public WizardStartPane(JEVisObject parentObject) {
         setParentObject(parentObject);
         setMinSize(500, 500);
+
+//        try {
+//            List<JEVisObject> list = getParentObject().getChildren();
+//            for (int i = 0; i < list.size(); i++) {
+//                System.out.println(list.get(i));
+//            }
+//
+//            for (int i = 0; i < list.size(); i++) {
+//                System.out.println("getChildren  :  "+list.get(i));
+//            }
+//            
+//            ObservableList<JEVisClass> options = FXCollections.observableArrayList(getParentObject().getAllowedChildrenClasses());
+//            System.out.println("getAllowedChildrenClasses size : "+options.size());
+//            for (int i = 0; i < options.size(); i++) {
+//                System.out.println("getAllowedChildrenClasses  :  "+options.get(i));
+//            }
+//
+//        } catch (JEVisException ex) {
+//            Logger.getLogger(WizardStartPane.class.getName()).log(Level.SEVERE, null, ex);
+//        }
         //INFO
         //Stage stage = (Stage) this.getScene().getWindow();
         //stage.setTitle("JEVIS Wizard");
-
         setContent(getInit());
         setGraphic(JEConfig.getImage("create_wizard.png", 100, 100));
     }
 
     private VBox getInit() {
-        vbox = new VBox();
+        VBox vbox = new VBox();
 
         Label index = new Label();
         index.setText("JEVIS setup ");

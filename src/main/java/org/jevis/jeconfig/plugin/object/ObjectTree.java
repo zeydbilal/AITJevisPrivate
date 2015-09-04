@@ -36,6 +36,8 @@ import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
@@ -769,7 +771,17 @@ public class ObjectTree extends TreeView<JEVisObject> {
     //parent kommt von --> tree.fireEventCreateWizard(tree.getSelectedObject());
     public void fireEventCreateWizard(final JEVisObject parent) throws JEVisException {
         WizardMain wizardmain = new WizardMain(parent);
-        wizardmain.showAndWait();
+        if (parent != null) {
+            if (parent.getName().equals("Monitored Object Directory")) {
+                wizardmain.showAndWait();
+            } else {
+                Alert alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("Information Dialog");
+                alert.setHeaderText(null);
+                alert.setContentText("This is not a Monitored Object Directory!");
+                alert.showAndWait();
+            }
+        }
     }
 
     //TODO i dont like this way

@@ -111,7 +111,9 @@ public class CreateTable {
 
             columnHeaderNames.add("Object Name");
             try {
-                //Get and set Typenames
+
+                //Get and set the typenames from a class.
+                //Typenames werden von der Ausgewählte Klasse aufgerufen.Diese Namen werden in der columnHeaderNames Liste verwendet.
                 for (int i = 0; i < createClass.getTypes().size(); i++) {
                     columnHeaderNames.add(createClass.getTypes().get(i).getName());
                 }

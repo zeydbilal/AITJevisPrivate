@@ -20,11 +20,11 @@ import org.jevis.api.JEVisObject;
  *
  * @author CalisZ
  */
-public class ManualWizardStep3 extends WizardPane {
+public class ManualWizardStep4 extends WizardPane {
 
     private JEVisObject parentObject;
 
-    public ManualWizardStep3(JEVisObject parentObject) {
+    public ManualWizardStep4(JEVisObject parentObject) {
         setParentObject(parentObject);
         setMinSize(500, 500);
         setContent(getInit());
@@ -34,7 +34,7 @@ public class ManualWizardStep3 extends WizardPane {
     private VBox getInit() {
         VBox vbox = new VBox();
         Label index = new Label();
-        index.setText("ManualWizardStep3");
+        index.setText("ManualWizardStep4");
 
         vbox.setSpacing(30);
 
@@ -53,7 +53,6 @@ public class ManualWizardStep3 extends WizardPane {
             if (type.getButtonData().equals(ButtonBar.ButtonData.BACK_PREVIOUS)) {
                 Node prev = lookupButton(type);
                 prev.visibleProperty().setValue(Boolean.FALSE);
-
             }
         }
     }
