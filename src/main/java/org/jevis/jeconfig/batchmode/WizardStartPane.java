@@ -14,7 +14,6 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.VBox;
 import org.controlsfx.dialog.Wizard;
 import org.controlsfx.dialog.WizardPane;
-import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.JEConfig;
 
 /**
@@ -23,36 +22,14 @@ import org.jevis.jeconfig.JEConfig;
  */
 public class WizardStartPane extends WizardPane {
 
-    private JEVisObject parentObject;
-
     private String control = "Manual";
     private RadioButton manual;
     private RadioButton automated;
     private RadioButton templateBased;
 
-    public WizardStartPane(JEVisObject parentObject) {
-        setParentObject(parentObject);
+    public WizardStartPane() {
         setMinSize(500, 500);
 
-//        try {
-//            List<JEVisObject> list = getParentObject().getChildren();
-//            for (int i = 0; i < list.size(); i++) {
-//                System.out.println(list.get(i));
-//            }
-//
-//            for (int i = 0; i < list.size(); i++) {
-//                System.out.println("getChildren  :  "+list.get(i));
-//            }
-//            
-//            ObservableList<JEVisClass> options = FXCollections.observableArrayList(getParentObject().getAllowedChildrenClasses());
-//            System.out.println("getAllowedChildrenClasses size : "+options.size());
-//            for (int i = 0; i < options.size(); i++) {
-//                System.out.println("getAllowedChildrenClasses  :  "+options.get(i));
-//            }
-//
-//        } catch (JEVisException ex) {
-//            Logger.getLogger(WizardStartPane.class.getName()).log(Level.SEVERE, null, ex);
-//        }
         //INFO
         //Stage stage = (Stage) this.getScene().getWindow();
         //stage.setTitle("JEVIS Wizard");
@@ -122,13 +99,5 @@ public class WizardStartPane extends WizardPane {
 
     public String getControl() {
         return control;
-    }
-
-    public JEVisObject getParentObject() {
-        return this.parentObject;
-    }
-
-    public void setParentObject(JEVisObject parentObject) {
-        this.parentObject = parentObject;
     }
 }

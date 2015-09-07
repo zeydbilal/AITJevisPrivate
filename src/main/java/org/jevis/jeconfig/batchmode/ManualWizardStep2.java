@@ -32,7 +32,6 @@ import org.controlsfx.dialog.Wizard;
 import org.controlsfx.dialog.WizardPane;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
-import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.tool.ImageConverter;
 
 /**
@@ -41,20 +40,19 @@ import org.jevis.jeconfig.tool.ImageConverter;
  */
 public class ManualWizardStep2 extends WizardPane {
 
-    private JEVisObject parentObject;
     private JEVisClass createClass;
     private ObservableList<String> typeNames = FXCollections.observableArrayList();
+    private WizardSelectedObject wizardSelectedObject;
 
-    public ManualWizardStep2(JEVisObject parentObject) {
-        setParentObject(parentObject);
+    public ManualWizardStep2(WizardSelectedObject wizardSelectedObject) {
+        this.wizardSelectedObject = wizardSelectedObject;
         setMinSize(500, 500);
-        setContent(getInit());
         setGraphic(null);
     }
 
     @Override
     public void onEnteringPage(Wizard wizard) {
-
+        setContent(getInit());
         ObservableList<ButtonType> list = getButtonTypes();
 
         for (ButtonType type : list) {
@@ -63,16 +61,16 @@ public class ManualWizardStep2 extends WizardPane {
                 prev.visibleProperty().setValue(Boolean.FALSE);
             }
         }
-    }
 
-    //TODO
+    }
+    
     private BorderPane getInit() {
         BorderPane root = new BorderPane();
 
         ObservableList<JEVisClass> options = FXCollections.observableArrayList();
 
         try {
-            options = FXCollections.observableArrayList(getParentObject().getAllowedChildrenClasses());
+            options = FXCollections.observableArrayList(wizardSelectedObject.getSelectedObject().getAllowedChildrenClasses());
         } catch (JEVisException ex) {
             Logger.getLogger(ManualWizardStep2.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -147,7 +145,7 @@ public class ManualWizardStep2 extends WizardPane {
             Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        serverName.setText("Name : " + getParentObject().getName());
+        serverName.setText("Name : " + wizardSelectedObject.getSelectedObject().getName());
 
         //Servername and ComboBox
         HBox hBoxTop = new HBox();
@@ -202,12 +200,5 @@ public class ManualWizardStep2 extends WizardPane {
 
         return gridpane;
     }
-
-    public JEVisObject getParentObject() {
-        return this.parentObject;
-    }
-
-    public void setParentObject(JEVisObject parentObject) {
-        this.parentObject = parentObject;
-    }
+    
 }

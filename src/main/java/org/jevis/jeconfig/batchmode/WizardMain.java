@@ -18,35 +18,27 @@ import org.jevis.jeconfig.plugin.object.ObjectTree;
 //192.71.247.119
 public class WizardMain extends Wizard {
 
-//    public static enum Type {
-//
-//        NEW, RENAME
-//    };
-//
-//    public static enum Response {
-//
-//        NO, YES, CANCEL
-//    };
-    private JEVisObject selectedObject;
     private JEVisObject parentObject;
     private ObjectTree tree;
-//    private Response response = Response.CANCEL;
     private WizardStartPane wizardStartPane;
     private ManualWizardStep1 manualStep1;
     private ManualWizardStep2 manualStep2;
     private ManualWizardStep3 manualStep3;
     private ManualWizardStep4 manualStep4;
+    private WizardSelectedObject wizardSelectedObject = new WizardSelectedObject();
 
     private AutomatedWizardStep1 automatedWizardStep1 = new AutomatedWizardStep1();
 
     public WizardMain(JEVisObject parentObject, ObjectTree tree) {
         setParentObject(parentObject);
         this.tree = tree;
-        wizardStartPane = new WizardStartPane(parentObject);
-        manualStep1 = new ManualWizardStep1(parentObject, tree);
-        manualStep2 = new ManualWizardStep2(parentObject);
+
+        wizardStartPane = new WizardStartPane();
+        manualStep1 = new ManualWizardStep1(parentObject, tree, wizardSelectedObject);
+        manualStep2 = new ManualWizardStep2(wizardSelectedObject);
         manualStep3 = new ManualWizardStep3(parentObject);
         manualStep4 = new ManualWizardStep4(parentObject);
+
         setTitle("JEVIS Wizard");
         initWizard();
     }
@@ -71,15 +63,9 @@ public class WizardMain extends Wizard {
                     return wizardStartPane;
                 } else if (currentPage.equals(wizardStartPane) && wizardStartPane.getControl().equals("Manual")) {
                     // On the page ManualWizardStep1
-                    System.out.println("manualStep1.getSelectedObject()1 : " + manualStep1.getSelectedObject());
                     return manualStep1;
                 } else if (currentPage.equals(manualStep1)) {
                     // On the page ManualWizardStep2
-//                    selectedObject = manualStep1.getSelectedObject();
-                    System.out.println("manualStep1.getSelectedObject()2 : " + manualStep1.getSelectedObject());
-                    //manualStep2.setParentObject(selectedObject);
-//                    System.out.println("selectedObject : " + selectedObject);
-//                    System.out.println(manualStep2.getParentObject().getName());
                     return manualStep2;
                 } else if (currentPage.equals(manualStep2)) {
                     return manualStep3;
@@ -95,19 +81,6 @@ public class WizardMain extends Wizard {
         setFlow(flow);
     }
 
-//    public Response show(Stage owner, final JEVisClass jclass, final JEVisObject parent, boolean fixClass, Type type, String objName) {
-//        ObservableList<JEVisClass> options = FXCollections.observableArrayList();
-//
-//        try {
-//            if (type == Type.NEW) {
-//                options = FXCollections.observableArrayList(parent.getAllowedChildrenClasses());
-//            }
-//        } catch (JEVisException ex) {
-//            Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//
-//        return response;
-//    }
     public JEVisObject getParentObject() {
         return this.parentObject;
     }
