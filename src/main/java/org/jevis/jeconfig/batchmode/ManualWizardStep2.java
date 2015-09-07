@@ -5,8 +5,12 @@
  */
 package org.jevis.jeconfig.batchmode;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -28,10 +32,13 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
+import javafx.util.Pair;
 import org.controlsfx.dialog.Wizard;
 import org.controlsfx.dialog.WizardPane;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.tool.ImageConverter;
 
 /**
@@ -41,13 +48,18 @@ import org.jevis.jeconfig.tool.ImageConverter;
 public class ManualWizardStep2 extends WizardPane {
 
     private JEVisClass createClass;
+    private TextField serverNameTextField;
+
     private ObservableList<String> typeNames = FXCollections.observableArrayList();
+    private ObservableList<String> attributeIndex = FXCollections.observableArrayList();
     private WizardSelectedObject wizardSelectedObject;
+    private ObservableList<Pair<String, ArrayList<String>>> pairList = FXCollections.observableArrayList();
 
     public ManualWizardStep2(WizardSelectedObject wizardSelectedObject) {
         this.wizardSelectedObject = wizardSelectedObject;
         setMinSize(500, 500);
         setGraphic(null);
+
     }
 
     @Override
@@ -61,9 +73,32 @@ public class ManualWizardStep2 extends WizardPane {
                 prev.visibleProperty().setValue(Boolean.FALSE);
             }
         }
-
     }
-    
+
+    @Override
+    public void onExitingPage(Wizard wizard) {
+        try {
+            JEVisObject newObject = wizardSelectedObject.getSelectedObject().buildObject(serverNameTextField.getText(), createClass);
+            newObject.commit();
+            commitAttributes(newObject);
+        } catch (JEVisException ex) {
+            Logger.getLogger(ManualWizardStep2.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void commitAttributes(JEVisObject newObject) {
+        try {
+            List<JEVisAttribute> attribut = newObject.getAttributes();
+            for (int i = 0; i < attribut.size(); i++) {
+                //attribut.get(i).buildSample(new DateTime(), Object).commit();
+                //TODO
+
+            }
+        } catch (JEVisException ex) {
+            Logger.getLogger(ManualWizardStep2.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     private BorderPane getInit() {
         BorderPane root = new BorderPane();
 
@@ -109,6 +144,9 @@ public class ManualWizardStep2 extends WizardPane {
         };
 
         Label serverName = new Label();
+        serverNameTextField = new TextField();
+        serverNameTextField.setPrefWidth(200);
+        serverNameTextField.setPromptText("Server Name");
 
         ComboBox<JEVisClass> classComboBox = new ComboBox<JEVisClass>(options);
         classComboBox.setCellFactory(cellFactory);
@@ -132,7 +170,7 @@ public class ManualWizardStep2 extends WizardPane {
                     Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
-                root.setCenter(getAttributNames());
+                root.setCenter(getTypes());
             }
         });
 
@@ -145,49 +183,46 @@ public class ManualWizardStep2 extends WizardPane {
             Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        serverName.setText("Name : " + wizardSelectedObject.getSelectedObject().getName());
+        serverName.setText("Name : ");
 
         //Servername and ComboBox
         HBox hBoxTop = new HBox();
         hBoxTop.setSpacing(10);
-        hBoxTop.getChildren().addAll(serverName, classComboBox);
+        hBoxTop.getChildren().addAll(serverName, serverNameTextField, classComboBox);
         hBoxTop.setPadding(new Insets(10, 10, 10, 10));
 
         root.setTop(hBoxTop);
-        root.setCenter(getAttributNames());
+        root.setCenter(getTypes());
+
         return root;
     }
 
-    //Attribute names 
-//    public VBox getAttributNames() {
-//        Label indexTypeNames = new Label();
-//
-//        String str = "";
-//        for (int i = 0; i < typeNames.size(); i++) {
-//            str += typeNames.get(i) + "\n";
-//            indexTypeNames.setText(str);
-//        }
-//
-//        VBox vBoxCenter = new VBox();
-//        vBoxCenter.setSpacing(10);
-//        vBoxCenter.getChildren().addAll(indexTypeNames);
-//        vBoxCenter.setPadding(new Insets(10, 10, 10, 10));
-//
-//        return vBoxCenter;
-//    }
-    public GridPane getAttributNames() {
+    //Erzeuge Label,TextField und CheckBox für Gridpane
+    public GridPane getTypes() {
         GridPane gridpane = new GridPane();
 
         for (int i = 0; i < typeNames.size(); i++) {
             Label label = new Label(typeNames.get(i) + " : ");
             try {
-                System.out.println(createClass.getTypes().get(i).getName() + " : " + createClass.getTypes().get(i).getGUIDisplayType());
+                System.out.println("->" + createClass.getTypes().get(i).getName() + " : " + createClass.getTypes().get(i).getGUIDisplayType());
                 if (createClass.getTypes().get(i).getGUIDisplayType() == null || createClass.getTypes().get(i).getGUIDisplayType().equals("Text")) {
+
                     TextField textField = new TextField();
+                    textField.setId(createClass.getTypes().get(i).getName());
                     textField.setPrefWidth(400);
+//                    attributeIndex.add(textField.getText());
+                    textField.textProperty().addListener(new ChangeListener<String>() {
+                        @Override
+                        public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                            System.out.println("Control id :  " + textField.getId() + " : " + textField.getText());
+                        }
+                    });
                     gridpane.addRow(i, label, textField);
                 } else {
                     CheckBox checkBox = new CheckBox();
+                    //TODO 
+                    //checkBox.setOnAction();
+//                    attributeIndex.add(checkBox.getText());
                     gridpane.addRow(i, label, checkBox);
                 }
             } catch (JEVisException ex) {
@@ -200,5 +235,4 @@ public class ManualWizardStep2 extends WizardPane {
 
         return gridpane;
     }
-    
 }
