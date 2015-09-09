@@ -6,7 +6,15 @@
 package org.jevis.jeconfig.batchmode;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.value.ChangeListener;
@@ -40,6 +48,7 @@ import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.tool.ImageConverter;
+import org.joda.time.DateTime;
 
 /**
  *
@@ -51,9 +60,9 @@ public class ManualWizardStep2 extends WizardPane {
     private TextField serverNameTextField;
 
     private ObservableList<String> typeNames = FXCollections.observableArrayList();
-    private ObservableList<String> attributeIndex = FXCollections.observableArrayList();
+    private ObservableList<String> listBuildSample = FXCollections.observableArrayList();
     private WizardSelectedObject wizardSelectedObject;
-    private ObservableList<Pair<String, ArrayList<String>>> pairList = FXCollections.observableArrayList();
+    private Map<String, String> map = new TreeMap<String, String>();
 
     public ManualWizardStep2(WizardSelectedObject wizardSelectedObject) {
         this.wizardSelectedObject = wizardSelectedObject;
@@ -81,6 +90,12 @@ public class ManualWizardStep2 extends WizardPane {
             JEVisObject newObject = wizardSelectedObject.getSelectedObject().buildObject(serverNameTextField.getText(), createClass);
             newObject.commit();
             commitAttributes(newObject);
+
+//            for (Map.Entry<String, String> entrySet : map.entrySet()) {
+//                String key = entrySet.getKey();
+//                String value = entrySet.getValue();
+//                System.out.println("map : " + key + "  " + value);
+//            }
         } catch (JEVisException ex) {
             Logger.getLogger(ManualWizardStep2.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -89,14 +104,30 @@ public class ManualWizardStep2 extends WizardPane {
     public void commitAttributes(JEVisObject newObject) {
         try {
             List<JEVisAttribute> attribut = newObject.getAttributes();
-            for (int i = 0; i < attribut.size(); i++) {
-                //attribut.get(i).buildSample(new DateTime(), Object).commit();
-                //TODO
+            ObservableList<JEVisAttribute> mylist = FXCollections.observableArrayList(attribut);
+            sortTheChildren(mylist);
 
+            for (Map.Entry<String, String> entrySet : map.entrySet()) {
+                listBuildSample.add(entrySet.getValue());
             }
+
+            for (int i = 0; i < mylist.size(); i++) {
+                mylist.get(i).buildSample(new DateTime(), listBuildSample.get(i)).commit();
+            }
+
         } catch (JEVisException ex) {
             Logger.getLogger(ManualWizardStep2.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public static void sortTheChildren(ObservableList<JEVisAttribute> list) {
+        Comparator<JEVisAttribute> sort = new Comparator<JEVisAttribute>() {
+            @Override
+            public int compare(JEVisAttribute o1, JEVisAttribute o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        };
+        FXCollections.sort(list, sort);
     }
 
     private BorderPane getInit() {
@@ -159,12 +190,14 @@ public class ManualWizardStep2 extends WizardPane {
             @Override
             public void handle(ActionEvent event) {
                 typeNames.clear();
+                map.clear();
+                listBuildSample.clear();
                 createClass = classComboBox.getSelectionModel().getSelectedItem();
                 try {
                     for (int i = 0; i < createClass.getTypes().size(); i++) {
                         typeNames.add(createClass.getTypes().get(i).getName());
 
-                        System.out.println(createClass.getTypes().get(i).getName() + " : " + createClass.getTypes().get(i).getGUIDisplayType());
+//                        System.out.println(createClass.getTypes().get(i).getName() + " : " + createClass.getTypes().get(i).getGUIDisplayType());
                     }
                 } catch (JEVisException ex) {
                     Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
@@ -197,32 +230,43 @@ public class ManualWizardStep2 extends WizardPane {
         return root;
     }
 
-    //Erzeuge Label,TextField und CheckBox für Gridpane
+    //Erzeuge Label,TextField und CheckBox fuer Gridpane
     public GridPane getTypes() {
         GridPane gridpane = new GridPane();
 
         for (int i = 0; i < typeNames.size(); i++) {
             Label label = new Label(typeNames.get(i) + " : ");
             try {
-                System.out.println("->" + createClass.getTypes().get(i).getName() + " : " + createClass.getTypes().get(i).getGUIDisplayType());
+//                System.out.println("->" + createClass.getTypes().get(i).getName() + " : " + createClass.getTypes().get(i).getGUIDisplayType());
                 if (createClass.getTypes().get(i).getGUIDisplayType() == null || createClass.getTypes().get(i).getGUIDisplayType().equals("Text")) {
 
                     TextField textField = new TextField();
                     textField.setId(createClass.getTypes().get(i).getName());
                     textField.setPrefWidth(400);
-//                    attributeIndex.add(textField.getText());
                     textField.textProperty().addListener(new ChangeListener<String>() {
                         @Override
                         public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                            System.out.println("Control id :  " + textField.getId() + " : " + textField.getText());
+//                            System.out.println("Control id :  " + textField.getId() + " : " + textField.getText());
+                            map.put(textField.getId(), textField.getText());
                         }
                     });
                     gridpane.addRow(i, label, textField);
                 } else {
                     CheckBox checkBox = new CheckBox();
+
+                    checkBox.setId(createClass.getTypes().get(i).getName());
                     //TODO 
-                    //checkBox.setOnAction();
-//                    attributeIndex.add(checkBox.getText());
+                    checkBox.setOnAction(new EventHandler<ActionEvent>() {
+                        @Override
+                        public void handle(ActionEvent event) {
+                            if (checkBox.isSelected() == true) {
+                                map.put(checkBox.getId(), "1");
+                            } else {
+                                map.put(checkBox.getId(), "0");
+                            }
+                        }
+                    });
+
                     gridpane.addRow(i, label, checkBox);
                 }
             } catch (JEVisException ex) {

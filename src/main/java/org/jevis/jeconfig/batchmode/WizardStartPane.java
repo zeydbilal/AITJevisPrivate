@@ -60,13 +60,13 @@ public class WizardStartPane extends WizardPane {
                     Toggle old_toggle, Toggle new_toggle) {
                 if (manual.isSelected()) {
                     setControl(manual.getText());
-                    System.out.println(manual.getText());
+//                    System.out.println(manual.getText());
                 } else if (automated.isSelected()) {
                     setControl(automated.getText());
-                    System.out.println(automated.getText());
+//                    System.out.println(automated.getText());
                 } else if (templateBased.isSelected()) {
                     setControl(templateBased.getText());
-                    System.out.println(templateBased.getText());
+//                    System.out.println(templateBased.getText());
                 }
             }
         });

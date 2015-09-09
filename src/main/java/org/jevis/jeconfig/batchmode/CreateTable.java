@@ -252,7 +252,7 @@ public class CreateTable {
                     int col = currentColumn;
                     for (int i = 0; i < parseWord.length; i++) {
                         SpreadsheetCell spc = rows.get(currentRow).get(col);
-                        grid.setCellValue(currentRow, col, spc.getCellType().convertValue(parseWord[i]));
+                        grid.setCellValue(currentRow, col, spc.getCellType().convertValue(parseWord[i].trim()));
                         col++;
                     }
                     currentRow++;

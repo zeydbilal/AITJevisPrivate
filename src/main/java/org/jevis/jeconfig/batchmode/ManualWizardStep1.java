@@ -83,7 +83,7 @@ public class ManualWizardStep1 extends WizardPane {
     @Override
     public void onExitingPage(Wizard wizard) {
         commitObject();
-        System.out.println("SelectedWizardObject ManualStep1 onExitingPage :::::::: " + wizardSelectedObject.getSelectedObject().getName());
+//        System.out.println("SelectedWizardObject ManualStep1 onExitingPage :::::::: " + wizardSelectedObject.getSelectedObject().getName());
     }
 
     public void commitObject() {
