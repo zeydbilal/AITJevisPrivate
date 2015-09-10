@@ -5,18 +5,13 @@
  */
 package org.jevis.jeconfig.batchmode;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -34,19 +29,20 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TreeItem;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
-import javafx.util.Pair;
 import org.controlsfx.dialog.Wizard;
 import org.controlsfx.dialog.WizardPane;
 import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.jeconfig.plugin.object.ObjectTree;
 import org.jevis.jeconfig.tool.ImageConverter;
 import org.joda.time.DateTime;
 
@@ -58,14 +54,15 @@ public class ManualWizardStep2 extends WizardPane {
 
     private JEVisClass createClass;
     private TextField serverNameTextField;
-
+    private ObjectTree tree;
     private ObservableList<String> typeNames = FXCollections.observableArrayList();
     private ObservableList<String> listBuildSample = FXCollections.observableArrayList();
     private WizardSelectedObject wizardSelectedObject;
     private Map<String, String> map = new TreeMap<String, String>();
 
-    public ManualWizardStep2(WizardSelectedObject wizardSelectedObject) {
+    public ManualWizardStep2(ObjectTree tree, WizardSelectedObject wizardSelectedObject) {
         this.wizardSelectedObject = wizardSelectedObject;
+        this.tree = tree;
         setMinSize(500, 500);
         setGraphic(null);
 
@@ -90,12 +87,21 @@ public class ManualWizardStep2 extends WizardPane {
             JEVisObject newObject = wizardSelectedObject.getSelectedObject().buildObject(serverNameTextField.getText(), createClass);
             newObject.commit();
             commitAttributes(newObject);
+            //FIXME
+            //wizardSelectedObject lezte objekt : Data Source Directory ???
+            final TreeItem<JEVisObject> newTreeItem = tree.buildItem(newObject);
+            TreeItem<JEVisObject> parentItem = tree.getObjectTreeItem(wizardSelectedObject.getSelectedObject());
 
-//            for (Map.Entry<String, String> entrySet : map.entrySet()) {
-//                String key = entrySet.getKey();
-//                String value = entrySet.getValue();
-//                System.out.println("map : " + key + "  " + value);
-//            }
+            parentItem.getChildren().add(newTreeItem);
+
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    tree.getSelectionModel().select(newTreeItem);
+                }
+            });
+            wizardSelectedObject.setSelectedObject(newObject);
+
         } catch (JEVisException ex) {
             Logger.getLogger(ManualWizardStep2.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -164,9 +170,7 @@ public class ManualWizardStep2 extends WizardPane {
                             } catch (JEVisException ex) {
                                 Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
                             }
-
                             setGraphic(box);
-
                         }
                     }
                 };
@@ -230,14 +234,13 @@ public class ManualWizardStep2 extends WizardPane {
         return root;
     }
 
-    //Erzeuge Label,TextField und CheckBox fuer Gridpane
+    //Erzeuge Label,TextField und CheckBox variablen von schon definierter Typen.
     public GridPane getTypes() {
         GridPane gridpane = new GridPane();
 
         for (int i = 0; i < typeNames.size(); i++) {
             Label label = new Label(typeNames.get(i) + " : ");
             try {
-//                System.out.println("->" + createClass.getTypes().get(i).getName() + " : " + createClass.getTypes().get(i).getGUIDisplayType());
                 if (createClass.getTypes().get(i).getGUIDisplayType() == null || createClass.getTypes().get(i).getGUIDisplayType().equals("Text")) {
 
                     TextField textField = new TextField();
@@ -246,7 +249,6 @@ public class ManualWizardStep2 extends WizardPane {
                     textField.textProperty().addListener(new ChangeListener<String>() {
                         @Override
                         public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-//                            System.out.println("Control id :  " + textField.getId() + " : " + textField.getText());
                             map.put(textField.getId(), textField.getText());
                         }
                     });
@@ -255,7 +257,6 @@ public class ManualWizardStep2 extends WizardPane {
                     CheckBox checkBox = new CheckBox();
 
                     checkBox.setId(createClass.getTypes().get(i).getName());
-                    //TODO 
                     checkBox.setOnAction(new EventHandler<ActionEvent>() {
                         @Override
                         public void handle(ActionEvent event) {
