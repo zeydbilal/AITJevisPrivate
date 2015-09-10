@@ -93,6 +93,10 @@ public class AttributeOptionExtension implements SampleEditorExtension {
                 for (TreeItem<JEVisOption> treeItem : treeview.getSelectionModel().getSelectedItems()) {
                     try {
                         if (!treeItem.equals(treeview.getRoot())) {
+
+                            JEVisOption delOption = treeItem.getValue();
+                            treeItem.getParent().getValue().removeOption(delOption);
+
                             treeItem.getParent().getChildren().remove(treeItem);
                         }
                     } catch (Exception ex) {

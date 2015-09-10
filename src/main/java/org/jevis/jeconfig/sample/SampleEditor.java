@@ -109,7 +109,7 @@ public class SampleEditor {
 //    final Label confirmL = new Label("Comfirm Password:");
 //    final PasswordField pass = new PasswordField();
 //    final PasswordField comfirm = new PasswordField();
-    final Button ok = new Button("OK");
+    final Button ok = new Button("Save");
 
     /**
      *

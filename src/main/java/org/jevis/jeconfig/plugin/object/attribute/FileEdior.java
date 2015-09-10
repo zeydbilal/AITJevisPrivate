@@ -122,7 +122,7 @@ public class FileEdior implements AttributeEditor {
                         System.out.println("add new file: " + selectedFile);
                         JEVisFile jfile = new JEVisFileImp(selectedFile.getName(), selectedFile);
                         JEVisSample sample = _attribute.buildSample(new DateTime(), jfile);
-                        jfile.saveToFile(new File("/tmp/bob_+" + jfile.getFilename()));
+//                        jfile.saveToFile(new File("/tmp/bob_+" + jfile.getFilename()));
                         sample.commit();//normaly the user need to press save
 
                         try {
