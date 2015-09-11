@@ -29,8 +29,10 @@ import org.controlsfx.dialog.Wizard;
 import org.controlsfx.dialog.WizardPane;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.plugin.object.ObjectTree;
 
+//TODO commitAttributes
 /**
  *
  * @author CalisZ
@@ -55,6 +57,7 @@ public class ManualWizardStep3 extends WizardPane {
 
     @Override
     public void onEnteringPage(Wizard wizard) {
+        System.out.println("wizardSelectedObject lezte objekt : " + wizardSelectedObject.getCurrentSelectedObject().getName());
         setContent(getInit());
         ObservableList<ButtonType> list = getButtonTypes();
 
@@ -70,8 +73,7 @@ public class ManualWizardStep3 extends WizardPane {
     @Override
     public void onExitingPage(Wizard wizard) {
         //TODO
-        System.out.println("wizardSelectedObject lezte objekt : " + wizardSelectedObject.getSelectedObject().getName());
-
+        commitObjects();
     }
 
     private BorderPane getInit() {
@@ -80,7 +82,7 @@ public class ManualWizardStep3 extends WizardPane {
         Label serverName = new Label("File Name : ");
         csvFileNameTextField = new TextField();
         csvFileNameTextField.setPrefWidth(200);
-        csvFileNameTextField.setPromptText("Server Name");
+        csvFileNameTextField.setPromptText("File Name");
 
         //File Name
         HBox hBoxTop = new HBox();
@@ -88,24 +90,53 @@ public class ManualWizardStep3 extends WizardPane {
         hBoxTop.getChildren().addAll(serverName, csvFileNameTextField);
         hBoxTop.setPadding(new Insets(10, 10, 10, 10));
 
-        //TODO initialisiere createClass 
         ObservableList<JEVisClass> childrenList = FXCollections.observableArrayList();
-
         try {
-            childrenList = FXCollections.observableArrayList(wizardSelectedObject.getSelectedObject().getAllowedChildrenClasses());
+            childrenList = FXCollections.observableArrayList(wizardSelectedObject.getCurrentSelectedObject().getAllowedChildrenClasses());
+            for (JEVisClass child : childrenList) {
+                if (child.getName().equals("CSV Parser")) {
+                    // createClass wurde initialisiert
+                    createClass = child;
+                }
+            }
         } catch (JEVisException ex) {
             Logger.getLogger(ManualWizardStep2.class.getName()).log(Level.SEVERE, null, ex);
         }
-        //TODO 
-        for (JEVisClass child : childrenList) {
-            
+
+        //Get and set the typenames from a class. Typenames are for the columnnames.
+        try {
+            for (int i = 0; i < createClass.getTypes().size(); i++) {
+                typeNames.add(createClass.getTypes().get(i).getName());
+            }
+        } catch (JEVisException ex) {
+            Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-//createClass = childrenList.
         root.setTop(hBoxTop);
         root.setCenter(getTypes());
 
         return root;
+    }
+
+    public void commitObjects() {
+        ObservableList<JEVisClass> childrenList = FXCollections.observableArrayList();
+
+        try {
+            childrenList = FXCollections.observableArrayList(wizardSelectedObject.getCurrentSelectedObject().getAllowedChildrenClasses());
+
+            for (JEVisClass child : childrenList) {
+                if (child.getName().equals("CSV Parser")) {
+                    JEVisObject newObject = wizardSelectedObject.getCurrentSelectedObject().buildObject(csvFileNameTextField.getText(), child);
+                    newObject.commit();
+
+                } else if (child.getName().equals("Data Point Directory")) {
+                    JEVisObject newObject = wizardSelectedObject.getCurrentSelectedObject().buildObject(child.getName(), child);
+                    newObject.commit();
+                }
+            }
+        } catch (JEVisException ex) {
+            Logger.getLogger(ManualWizardStep3.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     //Erzeuge Label,TextField und CheckBox variablen von schon definierter Typen.

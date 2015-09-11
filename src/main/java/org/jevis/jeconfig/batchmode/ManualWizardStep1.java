@@ -83,7 +83,7 @@ public class ManualWizardStep1 extends WizardPane {
     @Override
     public void onExitingPage(Wizard wizard) {
         commitObject();
-//        System.out.println("SelectedWizardObject ManualStep1 onExitingPage :::::::: " + wizardSelectedObject.getSelectedObject().getName());
+//        System.out.println("SelectedWizardObject ManualStep1 onExitingPage :::::::: " + wizardSelectedObject.getCurrentSelectedObject().getName());
     }
 
     public void commitObject() {
@@ -112,9 +112,13 @@ public class ManualWizardStep1 extends WizardPane {
                     tree.getSelectionModel().select(newTreeItem);
                 }
             });
+            //We need this object name for the last step. -> tree.expandSelected(true); 
+
+            wizardSelectedObject.setCurrentSelectedBuildingObject(newObject);
 
             ObservableList<JEVisClass> allowedChildrenClasses = FXCollections.observableArrayList(newTreeItem.getValue().getAllowedChildrenClasses());
 
+            //Erzeuge Data Source Directory and Data Directory
             if (allowedChildrenClasses.size() > 0) {
                 for (int i = 0; i < allowedChildrenClasses.size(); i++) {
                     JEVisObject newChildObject = newTreeItem.getValue().buildObject(allowedChildrenClasses.get(i).getName(), allowedChildrenClasses.get(i));
@@ -127,7 +131,7 @@ public class ManualWizardStep1 extends WizardPane {
             List<JEVisObject> listChildren = newTreeItem.getValue().getChildren();
             for (int i = 0; i < listChildren.size(); i++) {
                 if (listChildren.get(i).getName().equals("Data Source Directory")) {
-                    wizardSelectedObject.setSelectedObject(listChildren.get(i));
+                    wizardSelectedObject.setCurrentSelectedObject(listChildren.get(i));
                 }
             }
 

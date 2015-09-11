@@ -83,25 +83,30 @@ public class ManualWizardStep2 extends WizardPane {
 
     @Override
     public void onExitingPage(Wizard wizard) {
+        commitServerObject();
+    }
+
+    public void commitServerObject() {
         try {
-            JEVisObject newObject = wizardSelectedObject.getSelectedObject().buildObject(serverNameTextField.getText(), createClass);
+            JEVisObject newObject = wizardSelectedObject.getCurrentSelectedObject().buildObject(serverNameTextField.getText(), createClass);
             newObject.commit();
             commitAttributes(newObject);
-            //FIXME
-            //wizardSelectedObject lezte objekt : Data Source Directory ???
-            final TreeItem<JEVisObject> newTreeItem = tree.buildItem(newObject);
-            TreeItem<JEVisObject> parentItem = tree.getObjectTreeItem(wizardSelectedObject.getSelectedObject());
 
-            parentItem.getChildren().add(newTreeItem);
-
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    tree.getSelectionModel().select(newTreeItem);
-                }
-            });
-            wizardSelectedObject.setSelectedObject(newObject);
-
+//            final TreeItem<JEVisObject> newTreeItem = tree.buildItem(newObject);
+//            TreeItem<JEVisObject> parentItem = tree.getObjectTreeItem(wizardSelectedObject.getCurrentSelectedObject());
+//
+//            parentItem.getChildren().add(newTreeItem);
+//
+//            Platform.runLater(new Runnable() {
+//                @Override
+//                public void run() {
+//                    tree.getSelectionModel().select(newTreeItem);
+//                }
+//            });
+//          wähle den Server als neue Objekt!
+            wizardSelectedObject.setCurrentSelectedObject(newObject);
+//            Use me in last step
+//            tree.expandSelected(true);
         } catch (JEVisException ex) {
             Logger.getLogger(ManualWizardStep2.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -142,7 +147,7 @@ public class ManualWizardStep2 extends WizardPane {
         ObservableList<JEVisClass> options = FXCollections.observableArrayList();
 
         try {
-            options = FXCollections.observableArrayList(wizardSelectedObject.getSelectedObject().getAllowedChildrenClasses());
+            options = FXCollections.observableArrayList(wizardSelectedObject.getCurrentSelectedObject().getAllowedChildrenClasses());
         } catch (JEVisException ex) {
             Logger.getLogger(ManualWizardStep2.class.getName()).log(Level.SEVERE, null, ex);
         }

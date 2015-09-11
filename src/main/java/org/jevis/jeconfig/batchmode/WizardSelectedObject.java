@@ -12,18 +12,29 @@ import org.jevis.api.JEVisObject;
  * @author CalisZ
  */
 //New parent and new child object
+//This is a help class for selected objects
 public class WizardSelectedObject {
 
-    private JEVisObject selectedObject;
+    // Selected objects from tree
+    private JEVisObject currentSelectedObject;
+    private JEVisObject currentSelectedBuildingObject;
 
     public WizardSelectedObject() {
     }
 
-    public JEVisObject getSelectedObject() {
-        return selectedObject;
+    public JEVisObject getCurrentSelectedObject() {
+        return currentSelectedObject;
     }
 
-    public void setSelectedObject(JEVisObject selectedObject) {
-        this.selectedObject = selectedObject;
+    public void setCurrentSelectedObject(JEVisObject currentSelectedObject) {
+        this.currentSelectedObject = currentSelectedObject;
+    }
+
+    public JEVisObject getCurrentSelectedBuildingObject() {
+        return currentSelectedBuildingObject;
+    }
+
+    public void setCurrentSelectedBuildingObject(JEVisObject currentSelectedBuildingObject) {
+        this.currentSelectedBuildingObject = currentSelectedBuildingObject;
     }
 }
