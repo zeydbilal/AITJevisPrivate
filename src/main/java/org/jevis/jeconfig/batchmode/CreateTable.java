@@ -60,12 +60,10 @@ public class CreateTable {
     // Private declarations
     private final ObservableList<ObservableList<SpreadsheetCell>> rows = FXCollections.observableArrayList();
     private ObservableList<SpreadsheetCell> cells;
-    private ObservableList<String> listAttribute = FXCollections.observableArrayList();
     private SpreadsheetView spv;
     private GridBase grid;
     private Stage stage = new Stage();
     private JEVisClass createClass;
-    private LinkedList<String> listObjectNames = new LinkedList<>();
     private int rowCount;
     private int columnCount;
     private ObservableList<String> columnHeaderNames = FXCollections.observableArrayList();
@@ -376,10 +374,6 @@ public class CreateTable {
         stage.showAndWait();
 
         return response;
-    }
-
-    public LinkedList<String> getlistObjectNames() {
-        return listObjectNames;
     }
 
     public ObservableList<Pair<String, ArrayList<String>>> getPairList() {

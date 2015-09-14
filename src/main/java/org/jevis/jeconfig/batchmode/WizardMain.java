@@ -37,7 +37,7 @@ public class WizardMain extends Wizard {
         manualStep1 = new ManualWizardStep1(parentObject, tree, wizardSelectedObject);
         manualStep2 = new ManualWizardStep2(tree, wizardSelectedObject);
         manualStep3 = new ManualWizardStep3(tree, wizardSelectedObject);
-        manualStep4 = new ManualWizardStep4(parentObject);
+        manualStep4 = new ManualWizardStep4(tree, wizardSelectedObject);
 
         setTitle("JEVIS Wizard");
         initWizard();

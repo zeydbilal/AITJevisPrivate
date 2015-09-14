@@ -772,6 +772,8 @@ public class ObjectTree extends TreeView<JEVisObject> {
     public void fireEventCreateWizard(final JEVisObject parent) throws JEVisException {
         WizardMain wizardmain = new WizardMain(parent, this);
         if (parent != null) {
+            //TODO
+            // parent.getJEVisClass().getName().equals("Monitored Object Directory")
             if (parent.getName().equals("Monitored Object Directory")) {
                 wizardmain.showAndWait();
             } else {

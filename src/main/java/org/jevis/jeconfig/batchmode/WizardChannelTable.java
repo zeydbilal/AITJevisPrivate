@@ -52,13 +52,11 @@ public class WizardChannelTable {
 
     private final ObservableList<ObservableList<SpreadsheetCell>> rows = FXCollections.observableArrayList();
     private ObservableList<SpreadsheetCell> cells;
-    private ObservableList<String> listAttribute = FXCollections.observableArrayList();
     private SpreadsheetView spv;
     private GridBase grid;
     private Stage stage = new Stage();
     private JEVisClass createDataClass;
     private JEVisClass createDataPoint;
-    private LinkedList<String> listObjectNames = new LinkedList<>();
     private int rowCount;
     private int columnCount;
     private ObservableList<String> columnHeaderNames = FXCollections.observableArrayList();
@@ -174,8 +172,8 @@ public class WizardChannelTable {
         root.setCenter(spv);
         Scene scene = new Scene(root);
         scene.getStylesheets().add("styles/Table.css");
-        //FIXME KeyCombination.SHORTCUT_DOWN
-        scene.getAccelerators().put(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_ANY), new Runnable() {
+
+        scene.getAccelerators().put(new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN), new Runnable() {
 
             @Override
             public void run() {
@@ -319,10 +317,6 @@ public class WizardChannelTable {
         stage.showAndWait();
 
         return response;
-    }
-
-    public LinkedList<String> getlistObjectNames() {
-        return listObjectNames;
     }
 
     public ObservableList<Pair<String, ArrayList<String>>> getPairList() {

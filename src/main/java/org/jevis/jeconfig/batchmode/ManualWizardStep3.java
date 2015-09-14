@@ -5,6 +5,8 @@
  */
 package org.jevis.jeconfig.batchmode;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -27,10 +29,12 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import org.controlsfx.dialog.Wizard;
 import org.controlsfx.dialog.WizardPane;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.plugin.object.ObjectTree;
+import org.joda.time.DateTime;
 
 //TODO commitAttributes
 /**
@@ -72,7 +76,6 @@ public class ManualWizardStep3 extends WizardPane {
 
     @Override
     public void onExitingPage(Wizard wizard) {
-        //TODO
         commitObjects();
     }
 
@@ -128,15 +131,47 @@ public class ManualWizardStep3 extends WizardPane {
                 if (child.getName().equals("CSV Parser")) {
                     JEVisObject newObject = wizardSelectedObject.getCurrentSelectedObject().buildObject(csvFileNameTextField.getText(), child);
                     newObject.commit();
+                    //Commit attributes for CSV Parser
+                    commitAttributes(newObject);
 
                 } else if (child.getName().equals("Data Point Directory")) {
                     JEVisObject newObject = wizardSelectedObject.getCurrentSelectedObject().buildObject(child.getName(), child);
                     newObject.commit();
+                    wizardSelectedObject.setCurrentDataPointDirectory(newObject);
                 }
             }
         } catch (JEVisException ex) {
             Logger.getLogger(ManualWizardStep3.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public void commitAttributes(JEVisObject newObject) {
+        try {
+            List<JEVisAttribute> attribut = newObject.getAttributes();
+            ObservableList<JEVisAttribute> mylist = FXCollections.observableArrayList(attribut);
+            sortTheChildren(mylist);
+
+            for (Map.Entry<String, String> entrySet : map.entrySet()) {
+                listBuildSample.add(entrySet.getValue());
+            }
+
+            for (int i = 0; i < mylist.size(); i++) {
+                mylist.get(i).buildSample(new DateTime(), listBuildSample.get(i)).commit();
+            }
+
+        } catch (JEVisException ex) {
+            Logger.getLogger(ManualWizardStep2.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public static void sortTheChildren(ObservableList<JEVisAttribute> list) {
+        Comparator<JEVisAttribute> sort = new Comparator<JEVisAttribute>() {
+            @Override
+            public int compare(JEVisAttribute o1, JEVisAttribute o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        };
+        FXCollections.sort(list, sort);
     }
 
     //Erzeuge Label,TextField und CheckBox variablen von schon definierter Typen.

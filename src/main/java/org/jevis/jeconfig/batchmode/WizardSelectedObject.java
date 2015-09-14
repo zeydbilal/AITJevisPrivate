@@ -18,6 +18,8 @@ public class WizardSelectedObject {
     // Selected objects from tree
     private JEVisObject currentSelectedObject;
     private JEVisObject currentSelectedBuildingObject;
+    private JEVisObject currentDataDirectory;
+    private JEVisObject currentDataPointDirectory;
 
     public WizardSelectedObject() {
     }
@@ -36,5 +38,21 @@ public class WizardSelectedObject {
 
     public void setCurrentSelectedBuildingObject(JEVisObject currentSelectedBuildingObject) {
         this.currentSelectedBuildingObject = currentSelectedBuildingObject;
+    }
+
+    public JEVisObject getCurrentDataDirectory() {
+        return currentDataDirectory;
+    }
+
+    public void setCurrentDataDirectory(JEVisObject currentDataDirectory) {
+        this.currentDataDirectory = currentDataDirectory;
+    }
+
+    public JEVisObject getCurrentDataPointDirectory() {
+        return currentDataPointDirectory;
+    }
+
+    public void setCurrentDataPointDirectory(JEVisObject currentDataPointDirectory) {
+        this.currentDataPointDirectory = currentDataPointDirectory;
     }
 }

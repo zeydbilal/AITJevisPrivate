@@ -98,6 +98,7 @@ public class ManualWizardStep1 extends WizardPane {
                     buildingClass = element;
                 }
             }
+
             JEVisObject newObject = getParentObject().buildObject(nameTextField.getText(), buildingClass);
             newObject.commit();
 
@@ -123,6 +124,9 @@ public class ManualWizardStep1 extends WizardPane {
                 for (int i = 0; i < allowedChildrenClasses.size(); i++) {
                     JEVisObject newChildObject = newTreeItem.getValue().buildObject(allowedChildrenClasses.get(i).getName(), allowedChildrenClasses.get(i));
                     newChildObject.commit();
+                    if (allowedChildrenClasses.get(i).getName().equals("Data Directory")) {
+                        wizardSelectedObject.setCurrentDataDirectory(newChildObject);
+                    }
                 }
             }
 
