@@ -7,6 +7,9 @@ package org.jevis.jeconfig.batchmode;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -26,6 +29,9 @@ import org.controlsfx.control.spreadsheet.SpreadsheetColumn;
 import org.controlsfx.control.spreadsheet.SpreadsheetView;
 import org.controlsfx.dialog.Wizard;
 import org.controlsfx.dialog.WizardPane;
+import org.jevis.api.JEVisClass;
+import org.jevis.api.JEVisException;
+import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisUnit;
 import org.jevis.jeconfig.plugin.object.ObjectTree;
 
@@ -95,34 +101,65 @@ public class ManualWizardStep4 extends WizardPane {
                         }
 
                         //TODO Erzeuge Data Object
-                        
-                        //TODO Ließ alles von der pairList ab und erzeuge die Objekte.
-                        for (Pair<String, ArrayList<String>> pair : pairList) {
-                            for (String value : pair.getValue()) {
-                                System.out.println(pair.getKey() + value);
-                            }
-                        }
+                        //Data Class
+                        JEVisClass dataClass = null;
+                        List<JEVisClass> listDataDirectoryClasses = null;
+                        // Data Point Class
+                        JEVisClass dataPointClass = null;
+                        List<JEVisClass> listDataPointClasses = null;
 
+                        try {
+                            listDataDirectoryClasses = wizardSelectedObject.getCurrentDataDirectory().getAllowedChildrenClasses();
+                            listDataPointClasses = wizardSelectedObject.getCurrentDataPointDirectory().getAllowedChildrenClasses();
+
+                            for (JEVisClass classElement : listDataDirectoryClasses) {
+                                if (classElement.getName().equals("Data")) {
+                                    dataClass = classElement;
+                                }
+                            }
+
+                            for (JEVisClass classElement : listDataPointClasses) {
+                                if (classElement.getName().equals("Data Point")) {
+                                    dataPointClass = classElement;
+                                }
+                            }
+                            //FIXME 3 mal committed!!!
+                            //TODO Ließ alles von der pairList ab und erzeuge die Objekte.
+                            for (Pair<String, ArrayList<String>> pair : pairList) {
+                                for (String value : pair.getValue()) {
+                                    //Commit Data Object
+                                    System.out.println(pair.getKey() + value);
+                                    JEVisObject newDataObject = wizardSelectedObject.getCurrentDataDirectory().buildObject(pair.getKey(), dataClass);
+                                    newDataObject.commit();
+                                    //Commit Data Point Object
+                                    JEVisObject newDataPointObject = wizardSelectedObject.getCurrentDataPointDirectory().buildObject(pair.getKey(), dataPointClass);
+                                    newDataPointObject.commit();
+                                }
+                            }
+                        } catch (JEVisException ex) {
+                            Logger.getLogger(ManualWizardStep1.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                         //Expand the building Object.
                         tree.expandSelected(true);
                     }
-                });
+                }
+                );
             }
         }
         setContent(getInit());
     }
-//Remove this !!
-//    @Override
-//    public void onExitingPage(Wizard wizard) {
-//
-//        ObservableList<ButtonType> list = getButtonTypes();
-//        for (ButtonType type : list) {
-//            if (type.getButtonData().equals(ButtonBar.ButtonData.FINISH)) {
-//                System.out.println("SelectedObject Tree : " + tree.getSelectedObject().getName());
-//                tree.expandSelected(true);
-//            }
-//        }
-//    }
+    //Remove this !!
+    //    @Override
+    //    public void onExitingPage(Wizard wizard) {
+    //
+    //        ObservableList<ButtonType> list = getButtonTypes();
+    //        for (ButtonType type : list) {
+    //            if (type.getButtonData().equals(ButtonBar.ButtonData.FINISH)) {
+    //                System.out.println("SelectedObject Tree : " + tree.getSelectedObject().getName());
+    //                tree.expandSelected(true);
+    //            }
+    //        }
+    //    }
 
     private BorderPane getInit() {
         new CreateNewWizardTable(finish);
