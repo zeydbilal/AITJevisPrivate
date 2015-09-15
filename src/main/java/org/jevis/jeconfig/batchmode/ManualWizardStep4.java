@@ -88,9 +88,7 @@ public class ManualWizardStep4 extends WizardPane {
                 finish.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent event) {
-                        //TODO Exiting Step 4........!!!!!!!!!!
-
-                        //TODO Speichere alles in die pairList ab.
+                        //Speichere alles in die pairList ab.
                         for (int i = 0; i < grid.getRowCount(); i++) {
                             String spcObjectName = rows.get(i).get(0).getText();
 
@@ -104,7 +102,7 @@ public class ManualWizardStep4 extends WizardPane {
                             }
                         }
 
-                        //TODO Erzeuge Data Object
+                        //Erzeuge Data Object
                         //Data Class
                         JEVisClass dataClass = null;
                         List<JEVisClass> listDataDirectoryClasses = null;
@@ -128,7 +126,7 @@ public class ManualWizardStep4 extends WizardPane {
                                 }
                             }
 
-                            //TODO Lies alles von der pairList ab und erzeuge die Objekte.
+                            //Lies alles von der pairList ab und erzeuge die Objekte.
                             for (Pair<String, ArrayList<String>> pair : pairList) {
                                 //Commit Data Object
                                 JEVisObject newDataObject = wizardSelectedObject.getCurrentDataDirectory().buildObject(pair.getKey(), dataClass);
@@ -167,9 +165,12 @@ public class ManualWizardStep4 extends WizardPane {
                                 JEVisObject newDataPointObject = wizardSelectedObject.getCurrentDataPointDirectory().buildObject(pair.getKey(), dataPointClass);
                                 newDataPointObject.commit();
 
-                                // Set attribute for Target
+                                // Set attribute for Target // Value Identifier
                                 JEVisAttribute attributeTarget = newDataPointObject.getAttribute("Target");
                                 attributeTarget.buildSample(new DateTime(), newDataObject.getID()).commit();
+
+                                JEVisAttribute attributeValueIdentifier = newDataPointObject.getAttribute("Value Identifier");
+                                attributeValueIdentifier.buildSample(new DateTime(), pair.getValue().get(2)).commit();
 
                             }
                         } catch (JEVisException ex) {
@@ -218,7 +219,7 @@ public class ManualWizardStep4 extends WizardPane {
     class CreateNewWizardTable {
 
         public CreateNewWizardTable(Button finish) {
-            String[] colNames = {"Object Name", "Prefix", "Symbol", "Channel/Target"};
+            String[] colNames = {"Object Name", "Prefix", "Symbol", "Channel"};
             rowCount = 1000;
             columnCount = colNames.length;
 
