@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -29,7 +28,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TreeItem;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -92,21 +90,9 @@ public class ManualWizardStep2 extends WizardPane {
             newObject.commit();
             commitAttributes(newObject);
 
-//            final TreeItem<JEVisObject> newTreeItem = tree.buildItem(newObject);
-//            TreeItem<JEVisObject> parentItem = tree.getObjectTreeItem(wizardSelectedObject.getCurrentSelectedObject());
-//
-//            parentItem.getChildren().add(newTreeItem);
-//
-//            Platform.runLater(new Runnable() {
-//                @Override
-//                public void run() {
-//                    tree.getSelectionModel().select(newTreeItem);
-//                }
-//            });
 //          wähle den Server als neue Objekt!
             wizardSelectedObject.setCurrentSelectedObject(newObject);
-//            Use me in last step
-//            tree.expandSelected(true);
+
         } catch (JEVisException ex) {
             Logger.getLogger(ManualWizardStep2.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -123,7 +109,9 @@ public class ManualWizardStep2 extends WizardPane {
             }
 
             for (int i = 0; i < mylist.size(); i++) {
-                mylist.get(i).buildSample(new DateTime(), listBuildSample.get(i)).commit();
+                if (!listBuildSample.get(i).isEmpty()) {
+                    mylist.get(i).buildSample(new DateTime(), listBuildSample.get(i)).commit();
+                }
             }
 
         } catch (JEVisException ex) {
@@ -251,6 +239,9 @@ public class ManualWizardStep2 extends WizardPane {
                     TextField textField = new TextField();
                     textField.setId(createClass.getTypes().get(i).getName());
                     textField.setPrefWidth(400);
+
+                    map.put(textField.getId(), textField.getText());
+
                     textField.textProperty().addListener(new ChangeListener<String>() {
                         @Override
                         public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -262,6 +253,16 @@ public class ManualWizardStep2 extends WizardPane {
                     CheckBox checkBox = new CheckBox();
 
                     checkBox.setId(createClass.getTypes().get(i).getName());
+                    checkBox.setSelected(false);
+
+                    if (checkBox.isSelected() == true) {
+                        map.put(checkBox.getId(), "1");
+                    } else {
+                        map.put(checkBox.getId(), "0");
+                    }
+
+                    map.put(checkBox.getId(), checkBox.getText());
+
                     checkBox.setOnAction(new EventHandler<ActionEvent>() {
                         @Override
                         public void handle(ActionEvent event) {

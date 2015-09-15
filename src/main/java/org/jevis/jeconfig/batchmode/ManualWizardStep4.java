@@ -21,6 +21,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.layout.BorderPane;
 import javafx.util.Pair;
+import javax.measure.unit.Unit;
 import org.controlsfx.control.spreadsheet.GridBase;
 import org.controlsfx.control.spreadsheet.GridChange;
 import org.controlsfx.control.spreadsheet.SpreadsheetCell;
@@ -29,11 +30,14 @@ import org.controlsfx.control.spreadsheet.SpreadsheetColumn;
 import org.controlsfx.control.spreadsheet.SpreadsheetView;
 import org.controlsfx.dialog.Wizard;
 import org.controlsfx.dialog.WizardPane;
+import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.api.JEVisUnit;
+import org.jevis.commons.unit.JEVisUnitImp;
 import org.jevis.jeconfig.plugin.object.ObjectTree;
+import org.joda.time.DateTime;
 
 /**
  *
@@ -123,18 +127,50 @@ public class ManualWizardStep4 extends WizardPane {
                                     dataPointClass = classElement;
                                 }
                             }
-                            //FIXME 3 mal committed!!!
-                            //TODO Ließ alles von der pairList ab und erzeuge die Objekte.
+
+                            //TODO Lies alles von der pairList ab und erzeuge die Objekte.
                             for (Pair<String, ArrayList<String>> pair : pairList) {
-                                for (String value : pair.getValue()) {
-                                    //Commit Data Object
-                                    System.out.println(pair.getKey() + value);
-                                    JEVisObject newDataObject = wizardSelectedObject.getCurrentDataDirectory().buildObject(pair.getKey(), dataClass);
-                                    newDataObject.commit();
-                                    //Commit Data Point Object
-                                    JEVisObject newDataPointObject = wizardSelectedObject.getCurrentDataPointDirectory().buildObject(pair.getKey(), dataPointClass);
-                                    newDataPointObject.commit();
+                                //Commit Data Object
+                                JEVisObject newDataObject = wizardSelectedObject.getCurrentDataDirectory().buildObject(pair.getKey(), dataClass);
+                                newDataObject.commit();
+
+                                // Set attribute for DisplayUnit and InputUnit
+                                JEVisAttribute attributeValue = newDataObject.getAttribute("Value");
+
+                                if (pair.getValue().get(0).isEmpty() && pair.getValue().get(1).isEmpty()) {
+                                    attributeValue.setDisplayUnit(new JEVisUnitImp("", "", JEVisUnit.Prefix.NONE));
+                                } else {
+                                    String displaySymbol = pair.getValue().get(1);
+                                    if (pair.getValue().get(0).isEmpty() && !pair.getValue().get(1).isEmpty()) {
+                                        attributeValue.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", JEVisUnit.Prefix.NONE));
+                                    } else {
+                                        JEVisUnit.Prefix prefixDisplayUnit = JEVisUnit.Prefix.valueOf(pair.getValue().get(0));
+                                        attributeValue.setDisplayUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", prefixDisplayUnit));
+                                    }
                                 }
+
+                                if (pair.getValue().get(0).isEmpty() && pair.getValue().get(1).isEmpty()) {
+                                    attributeValue.setInputUnit(new JEVisUnitImp("", "", JEVisUnit.Prefix.NONE));
+                                } else {
+                                    String displaySymbol = pair.getValue().get(1);
+                                    if (pair.getValue().get(0).isEmpty() && !pair.getValue().get(1).isEmpty()) {
+                                        attributeValue.setInputUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", JEVisUnit.Prefix.NONE));
+                                    } else {
+                                        JEVisUnit.Prefix prefixDisplayUnit = JEVisUnit.Prefix.valueOf(pair.getValue().get(0));
+                                        attributeValue.setInputUnit(new JEVisUnitImp(Unit.valueOf(displaySymbol), "", prefixDisplayUnit));
+                                    }
+                                }
+
+                                attributeValue.commit();
+
+                                //Commit Data Point Object
+                                JEVisObject newDataPointObject = wizardSelectedObject.getCurrentDataPointDirectory().buildObject(pair.getKey(), dataPointClass);
+                                newDataPointObject.commit();
+
+                                // Set attribute for Target
+                                JEVisAttribute attributeTarget = newDataPointObject.getAttribute("Target");
+                                attributeTarget.buildSample(new DateTime(), newDataObject.getID()).commit();
+
                             }
                         } catch (JEVisException ex) {
                             Logger.getLogger(ManualWizardStep1.class.getName()).log(Level.SEVERE, null, ex);
@@ -148,18 +184,6 @@ public class ManualWizardStep4 extends WizardPane {
         }
         setContent(getInit());
     }
-    //Remove this !!
-    //    @Override
-    //    public void onExitingPage(Wizard wizard) {
-    //
-    //        ObservableList<ButtonType> list = getButtonTypes();
-    //        for (ButtonType type : list) {
-    //            if (type.getButtonData().equals(ButtonBar.ButtonData.FINISH)) {
-    //                System.out.println("SelectedObject Tree : " + tree.getSelectedObject().getName());
-    //                tree.expandSelected(true);
-    //            }
-    //        }
-    //    }
 
     private BorderPane getInit() {
         new CreateNewWizardTable(finish);
@@ -181,14 +205,14 @@ public class ManualWizardStep4 extends WizardPane {
     }
 
     public void addSymbols() {
-        listUnitSymbols.addAll("m/sÂ²",
-                "g", "mol", "atom", "rad", "bit", "%", "centiradian", "dB", "Â°", "'", "byte", "rev", "Â¨", "sphere", "sr", "rad/sÂ²", "rad/s", "Bq", "Ci", "Hz",
-                "mÂ²", "a", "ha", "cmÂ²", "kmÂ²", "kat", "â‚¬", "â‚¦", "\u20B9", "$", "*?*", "Â¥", "Hits/cmÂ²", "Hits/mÂ²", "Î©/cmÂ²", "bit/s", "-", "s", "m", "h", "day", "day_sidereal",
-                "week", "month", "year", "year_calendar", "year_sidereal", "g/(cms)", "F", "C", "e", "Fd", "Fr", "S", "A", "Gi", "H", "V", "Î©", "J",
-                "eV", "erg", "N", "dyn", "kgf", "lbf", "lx", "La", "W/mÂ²", "mÂ²/s", "cmÂ²/s", "Ã…", "ua", "cm", "foot_survey_us", "ft", "in", "km", "ly",
+        listUnitSymbols.addAll("m/sÃ‚Â²",
+                "g", "mol", "atom", "rad", "bit", "%", "centiradian", "dB", "Ã‚Â°", "'", "byte", "rev", "Ã‚Â¨", "sphere", "sr", "rad/sÃ‚Â²", "rad/s", "Bq", "Ci", "Hz",
+                "mÃ‚Â²", "a", "ha", "cmÃ‚Â²", "kmÃ‚Â²", "kat", "Ã¢â€šÂ¬", "Ã¢â€šÂ¦", "\u20B9", "$", "*?*", "Ã‚Â¥", "Hits/cmÃ‚Â²", "Hits/mÃ‚Â²", "ÃŽÂ©/cmÃ‚Â²", "bit/s", "-", "s", "m", "h", "day", "day_sidereal",
+                "week", "month", "year", "year_calendar", "year_sidereal", "g/(cms)", "F", "C", "e", "Fd", "Fr", "S", "A", "Gi", "H", "V", "ÃŽÂ©", "J",
+                "eV", "erg", "N", "dyn", "kgf", "lbf", "lx", "La", "W/mÃ‚Â²", "mÃ‚Â²/s", "cmÃ‚Â²/s", "Ãƒâ€¦", "ua", "cm", "foot_survey_us", "ft", "in", "km", "ly",
                 "mi", "mm", "nmi", "pc", "pixel", "pt", "yd", "W", "Wb", "Mx", "T", "G", "kg", "u", "me", "t", "oz", "lb", "ton_uk", "ton_us", "kg/s",
-                "cd", "hp", "lm", "var", "Pa", "atm", "bar", "in Hg", "mmHg", "Gy", "rem", "Sv", "rd", "Rd", "rev/s", "grade", "K", "â„ƒ", "Â°F", "Â°R",
-                "Nm", "Wh", "Ws", "m/s", "c", "km/h", "kn", "Mach", "mph", "mÂ³", "inÂ³", "gallon_dry_us", "gal", "gallon_uk", "l", "oz_uk", "kg/mÂ³", "mÂ³/s");
+                "cd", "hp", "lm", "var", "Pa", "atm", "bar", "in Hg", "mmHg", "Gy", "rem", "Sv", "rd", "Rd", "rev/s", "grade", "K", "Ã¢â€žÆ’", "Ã‚Â°F", "Ã‚Â°R",
+                "Nm", "Wh", "Ws", "m/s", "c", "km/h", "kn", "Mach", "mph", "mÃ‚Â³", "inÃ‚Â³", "gallon_dry_us", "gal", "gallon_uk", "l", "oz_uk", "kg/mÃ‚Â³", "mÃ‚Â³/s");
     }
 
     class CreateNewWizardTable {

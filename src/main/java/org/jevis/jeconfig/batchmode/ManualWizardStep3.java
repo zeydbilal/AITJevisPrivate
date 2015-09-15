@@ -61,7 +61,7 @@ public class ManualWizardStep3 extends WizardPane {
 
     @Override
     public void onEnteringPage(Wizard wizard) {
-        System.out.println("wizardSelectedObject lezte objekt : " + wizardSelectedObject.getCurrentSelectedObject().getName());
+//        System.out.println("wizardSelectedObject lezte objekt : " + wizardSelectedObject.getCurrentSelectedObject().getName());
         setContent(getInit());
         ObservableList<ButtonType> list = getButtonTypes();
 
@@ -156,7 +156,9 @@ public class ManualWizardStep3 extends WizardPane {
             }
 
             for (int i = 0; i < mylist.size(); i++) {
-                mylist.get(i).buildSample(new DateTime(), listBuildSample.get(i)).commit();
+                if (!listBuildSample.get(i).isEmpty()) {
+                    mylist.get(i).buildSample(new DateTime(), listBuildSample.get(i)).commit();
+                }
             }
 
         } catch (JEVisException ex) {
@@ -186,6 +188,9 @@ public class ManualWizardStep3 extends WizardPane {
                     TextField textField = new TextField();
                     textField.setId(createClass.getTypes().get(i).getName());
                     textField.setPrefWidth(400);
+
+                    map.put(textField.getId(), textField.getText());
+
                     textField.textProperty().addListener(new ChangeListener<String>() {
                         @Override
                         public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -197,6 +202,14 @@ public class ManualWizardStep3 extends WizardPane {
                     CheckBox checkBox = new CheckBox();
 
                     checkBox.setId(createClass.getTypes().get(i).getName());
+                    checkBox.setSelected(false);
+
+                    if (checkBox.isSelected() == true) {
+                        map.put(checkBox.getId(), "1");
+                    } else {
+                        map.put(checkBox.getId(), "0");
+                    }
+
                     checkBox.setOnAction(new EventHandler<ActionEvent>() {
                         @Override
                         public void handle(ActionEvent event) {
