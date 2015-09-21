@@ -63,7 +63,6 @@ public class WelcomePage {
 
         //TODO show it again if we habe a new version of the Config
         if (!pref.getBoolean("show", true)) {
-            System.out.println("Dont show welcome screen");
             return;
         }
 

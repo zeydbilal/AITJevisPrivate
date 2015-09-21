@@ -54,6 +54,7 @@ public class DateValueEditor implements AttributeEditor {
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
+    private boolean _readOnly = true;
 
     public DateValueEditor(JEVisAttribute att) {
         _attribute = att;
@@ -68,6 +69,11 @@ public class DateValueEditor implements AttributeEditor {
     @Override
     public BooleanProperty getValueChangedProperty() {
         return _changed;
+    }
+
+    @Override
+    public void setReadOnly(boolean canRead) {
+        _readOnly = canRead;
     }
 
 //    @Override
@@ -88,7 +94,7 @@ public class DateValueEditor implements AttributeEditor {
     @Override
     public Node getEditor() {
         try {
-            buildTextFild();
+            buildEditor();
         } catch (Exception ex) {
 
         }
@@ -97,7 +103,7 @@ public class DateValueEditor implements AttributeEditor {
 //        return _field;
     }
 
-    private void buildTextFild() throws JEVisException {
+    private void buildEditor() throws JEVisException {
         if (_datePicker == null) {
             _datePicker = new DatePicker();
             _datePicker.setPrefWidth(150);//TODO: remove this workaround
@@ -106,11 +112,8 @@ public class DateValueEditor implements AttributeEditor {
 
             if (_attribute.getLatestSample() != null) {
                 try {
-                    System.out.println("Date is not emty: " + _attribute.getLatestSample());
                     _datePicker.setValue(LocalDate.parse(_attribute.getLatestSample().getValueAsString(), DateTimeFormatter.ISO_DATE));
                 } catch (Exception ex) {
-                    System.out.println("Warning cannot parse");
-//                    ex.printStackTrace();
                 }
 //                _field.setText(_attribute.getLatestSample().getValueAsString());
                 _lastSample = _attribute.getLatestSample();
@@ -129,7 +132,6 @@ public class DateValueEditor implements AttributeEditor {
                             System.out.println("new Value");
                             _newSample = _attribute.buildSample(new DateTime(), _datePicker.getValue().format(DateTimeFormatter.ISO_DATE));
                             _changed.setValue(true);
-                            System.out.println("value changed");
                         } else {
                             System.out.println("change existing value");
                             _newSample.setValue(_datePicker.getValue().format(DateTimeFormatter.ISO_DATE));
@@ -191,6 +193,8 @@ public class DateValueEditor implements AttributeEditor {
             } catch (Exception ex) {
                 Logger.getLogger(DateValueEditor.class.getName()).log(Level.SEVERE, null, ex);
             }
+
+            _datePicker.setDisable(_readOnly);
 
         }
     }

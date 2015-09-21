@@ -72,7 +72,9 @@ import org.joda.time.Duration;
 import org.joda.time.Period;
 
 /**
+ * GUI Dialog to configure attributes and there sample.
  *
+ * @TODO: rename it to Attribute editor or something?!
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class SampleEditor {
@@ -82,10 +84,10 @@ public class SampleEditor {
     private SampleEditorExtension _visibleExtension = null;
     private DateTime _from = null;
     private DateTime _until = null;
-    final List<SampleEditorExtension> extensions = new ArrayList<>();
+    private final List<SampleEditorExtension> extensions = new ArrayList<>();
     private JEVisAttribute _attribute;
     private Task _dataProcessor;
-    private List<JEVisObject> _dataProcessors = new ArrayList<JEVisObject>();
+    private List<JEVisObject> _dataProcessors = new ArrayList<>();
 
     private enum AGGREGATION {
 
@@ -107,7 +109,7 @@ public class SampleEditor {
 //    final Label confirmL = new Label("Comfirm Password:");
 //    final PasswordField pass = new PasswordField();
 //    final PasswordField comfirm = new PasswordField();
-    final Button ok = new Button("OK");
+    final Button ok = new Button("Save");
 
     /**
      *
@@ -219,6 +221,7 @@ public class SampleEditor {
         extensions.add(new SampleGraphExtension(attribute));
         extensions.add(new AttributeStatesExtension(attribute));
         extensions.add(new SampleExportExtension(attribute));
+        extensions.add(new AttributeOptionExtension(attribute));
 
         final List<Tab> tabs = new ArrayList<>();
 
@@ -470,7 +473,6 @@ public class SampleEditor {
      * @param extensions
      */
     private void updateSamples(final JEVisAttribute att, final DateTime from, final DateTime until, List<SampleEditorExtension> extensions) {
-        System.out.println("update samples");
         try {
             samples.clear();
 

@@ -63,12 +63,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.jevis.api.JEVisDataSource;
-import org.jevis.application.dialog.InfoDialog;
 import org.jevis.application.resource.ResourceLoader;
-import org.jevis.commons.parsing.DataCollectorParser;
-import org.jevis.commons.parsing.csvParsing.CSVParsing;
-import org.jevis.commons.parsing.inputHandler.FileInputHandler;
-import org.jevis.commons.parsing.inputHandler.InputHandler;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.tool.NumberSpinner;
 
@@ -112,10 +107,9 @@ public class CSVImportDialog {
 
     TextField otherColumnF = new TextField();
     TextField otherTextF = new TextField();
-    public DataCollectorParser _fileParser;
     private File _csvFile;
     private JEVisDataSource _ds;
-    private CSVTable tree;
+    private CSVTable table;
 
     public static enum Format {
 
@@ -235,7 +229,7 @@ public class CSVImportDialog {
             @Override
             public void handle(ActionEvent t) {
                 System.out.println("size: h:" + stage.getHeight() + " w:" + stage.getWidth());
-                if (tree.doImport()) {
+                if (table.doImport()) {
                     Alert alert = new Alert(AlertType.INFORMATION);
                     alert.setTitle("Import Success");
                     alert.setHeaderText("Import was successful");
@@ -256,18 +250,18 @@ public class CSVImportDialog {
     private void updateTree() {
 //        System.out.println("UpdateTree");
         final CSVParser parser = parseCSV();
-        tree = new CSVTable(_ds, parser);
-        tableRootPane.getChildren().setAll(tree);
+        table = new CSVTable(_ds, parser);
+        tableRootPane.getChildren().setAll(table);
         tableRootPane.heightProperty().addListener(new ChangeListener<Number>() {
 
             @Override
             public void changed(ObservableValue<? extends Number> ov, Number t, Number t1) {
-                if (tree != null) {
-                    tree.setPrefHeight(t1.doubleValue());
+                if (table != null) {
+                    table.setPrefHeight(t1.doubleValue());
                 }
             }
         });
-        VBox.setVgrow(tree, Priority.ALWAYS);
+        VBox.setVgrow(table, Priority.ALWAYS);
 //        tree.setVisible(false);
 //        tree.setScrollBottom();
 //        tree.setVisible(true);
@@ -704,10 +698,6 @@ public class CSVImportDialog {
 
     private void openFile(File file) {
         _csvFile = file;
-        InputHandler inputHandler = new FileInputHandler(file);
-        inputHandler.convertInput();
-
-        _fileParser = new CSVParsing();
     }
 
     public class CSVTabel extends TreeView<CSVCell> {

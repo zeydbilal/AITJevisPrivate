@@ -193,7 +193,6 @@ public class ObjectEditor {
                             @Override
                             public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
                                 if (t1) {
-                                    System.out.println("Valuechanged for: " + ex.getTitel());
                                     _hasChanged = t1;//TODO: enable/disbale the save button
                                 }
                             }

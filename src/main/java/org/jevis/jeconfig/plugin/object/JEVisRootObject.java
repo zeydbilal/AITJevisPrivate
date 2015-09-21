@@ -78,13 +78,11 @@ public class JEVisRootObject implements JEVisObject {
 
     @Override
     public List<JEVisObject> getChildren() throws JEVisException {
-        System.out.println("Root getChildren");
         return _children;
     }
 
     @Override
     public List<JEVisObject> getChildren(JEVisClass type, boolean inherit) throws JEVisException {
-        System.out.println("Root getChildren");
         //TODO implement filter, copy form original sql
         return _children;
     }

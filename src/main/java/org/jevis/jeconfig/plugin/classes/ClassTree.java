@@ -19,6 +19,8 @@
  */
 package org.jevis.jeconfig.plugin.classes;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +36,6 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.DragEvent;
@@ -43,17 +44,24 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.util.Callback;
+import org.apache.commons.io.FilenameUtils;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisClassRelationship;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.application.dialog.ConfirmDialog;
+import org.jevis.commons.drivermanagment.ClassExporter;
 import org.jevis.commons.relationship.RelationshipFactory;
 import org.jevis.jeconfig.JEConfig;
 import org.jevis.jeconfig.plugin.classes.editor.ClassEditor;
 import org.jevis.jeconfig.tool.NewClassDialog;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 /**
  *
@@ -90,7 +98,7 @@ public class ClassTree extends TreeView<JEVisClass> {
             setShowRoot(true);
             rootItem.setExpanded(true);
 
-            getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+            getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
             _editor.setTreeView(this);
 
             setCellFactory(new Callback<TreeView<JEVisClass>, TreeCell<JEVisClass>>() {
@@ -419,9 +427,45 @@ public class ClassTree extends TreeView<JEVisClass> {
         }
     }
 
+    public void fireEventExport(ObservableList<TreeItem<JEVisClass>> items) {
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save JEVisClasses to File");
+        fileChooser.getExtensionFilters().addAll(
+                new ExtensionFilter("JEVis Files", "*.jev"),
+                new ExtensionFilter("All Files", "*.*"));
+
+        DateTime now = DateTime.now();
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyyMMdd");
+        if (items.size() > 1) {
+            fileChooser.setInitialFileName("JEViClassExport_" + fmt.print(now) + ".jev");
+        } else {
+            try {
+                fileChooser.setInitialFileName(items.get(0).getValue().getName() + "_" + fmt.print(now) + ".jev");
+            } catch (JEVisException ex) {
+                Logger.getLogger(ClassTree.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        File selectedFile = fileChooser.showSaveDialog(JEConfig.getStage());
+        if (selectedFile != null) {
+            List<JEVisClass> classes = new ArrayList<>();
+            for (TreeItem<JEVisClass> item : items) {
+                classes.add(item.getValue());
+            }
+
+            String extension = FilenameUtils.getExtension(selectedFile.getName());
+            if (extension.isEmpty()) {
+                selectedFile = new File(selectedFile.getAbsoluteFile() + ".jsv");
+            }
+
+            ClassExporter ce = new ClassExporter(selectedFile, classes);
+//            mainStage.display(selectedFile);
+        }
+    }
+
     public void fireEventNew(TreeItem<JEVisClass> item) {
         try {
-            System.out.println("fire new class:" + item);
             NewClassDialog dia = new NewClassDialog();
 
             JEVisClass currentClass = null;
@@ -441,8 +485,6 @@ public class ClassTree extends TreeView<JEVisClass> {
             if (dia.show(JEConfig.getStage(), currentClass, _ds) == NewClassDialog.Response.YES
                     && dia.getClassName() != null
                     && !dia.getClassName().equals("")) {
-//                System.out.println("dia end");
-                System.out.println("-----build class: " + dia.getClassName());
 
                 JEVisClass newClass = _ds.buildClass(dia.getClassName());
 
@@ -453,21 +495,17 @@ public class ClassTree extends TreeView<JEVisClass> {
 
                 final TreeItem<JEVisClass> treeItem = buildItem(newClass);
 
-                System.out.println("-----dia.getInheritance(): " + dia.getInheritance());
                 if (dia.getInheritance() != null) {
-                    System.out.println("-----Class in inherit of: " + dia.getInheritance());
-                    JEVisClassRelationship cr = RelationshipFactory.buildInheritance(dia.getInheritance(), newClass);
-                    System.out.println("-----new relationship: " + cr);
-                    getChildrenList(getObjectTreeItem(dia.getInheritance())).add(getObjectTreeItem(newClass));
-                    System.out.println("-----new Class end");
 
-//  sout
-//                    TreeItem<JEVisClass> parentItem = _itemCache.get(dia.getInheritance().getName());
-//                    System.out.println("------->parent: " + parentItem.getValue().getName());
-//                    parentItem.expandedProperty().setValue(false);
-//
-//                    parentItem.getChildren().add(treeItem);
-//                    parentItem.expandedProperty().setValue(true);
+                    //reload workaround, loading the relationship befor creation ein will execute the getFixedRelationships() function
+                    newClass.getRelationships();
+
+                    JEVisClassRelationship cr = RelationshipFactory.buildInheritance(dia.getInheritance(), newClass);
+
+//                    newClass = null;
+//                    newClass = _ds.getJEVisClass(dia.getClassName());
+//                    System.out.println("fixfix: " + newClass.getName());
+                    getChildrenList(getObjectTreeItem(dia.getInheritance())).add(getObjectTreeItem(newClass));
                 } else {
                     getChildrenList(getObjectTreeItem(getRoot().getValue())).add(getObjectTreeItem(newClass));
                 }

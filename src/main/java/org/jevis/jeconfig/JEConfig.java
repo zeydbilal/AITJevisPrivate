@@ -24,7 +24,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -46,16 +45,14 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.XMLConfiguration;
 import org.jevis.api.JEVisClass;
 import org.jevis.api.JEVisDataSource;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
 import org.jevis.application.application.JavaVersionCheck;
+import org.jevis.application.login.FXLogin;
 import org.jevis.application.statusbar.Statusbar;
 import org.jevis.commons.application.ApplicationInfo;
-import org.jevis.jeconfig.tool.LoginGlass;
 import org.jevis.jeconfig.tool.WelcomePage;
 
 /**
@@ -67,24 +64,21 @@ import org.jevis.jeconfig.tool.WelcomePage;
  */
 public class JEConfig extends Application {
 
-    final Configuration _config = new Configuration();
+    /**
+     * Defines the version information in the about dialog
+     */
+    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.14 2015-07-27");
+    private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
 
+    final Configuration _config = new Configuration();
     private static Stage _primaryStage;
     private static File _lastFile;
     private static JEVisDataSource _mainDS;
-
     private JEVisDataSource ds = null;
     //Workaround to load classes and roots while login
     private static List<JEVisClass> preLodedClasses = new ArrayList<>();
     private static List<JEVisObject> preLodedRootObjects = new ArrayList<>();
-
-    /**
-     * Defines the version information in the about dialog
-     */
-    public static ApplicationInfo PROGRAMM_INFO = new ApplicationInfo("JEConfig", "3.0.13 2015-07-10");
-    private static Preferences pref = Preferences.userRoot().node("JEVis.JEConfig");
     private static String _lastpath = "";
-
     private static User _currentUser;
 
     @Override
@@ -101,20 +95,12 @@ public class JEConfig extends Application {
     @Override
     public void start(Stage primaryStage) {
 
-//        System.out.println("edbug");
-//        InfoDialog debug = new InfoDialog();
-//        debug.show(primaryStage, "Debug", "Debug Info", _config.getLoginIcon() + " \n"); //        System.out.println("Java version: " + System.getProperty("java.version"));
-        //does this even work on an JAVA FX Application?
         JavaVersionCheck checkVersion = new JavaVersionCheck();
         if (!checkVersion.isVersionOK()) {
             System.exit(1);
         }
-        for (Map.Entry<String, String> entry : getParameters().getNamed().entrySet()) {
-            System.out.println(entry.getKey() + "/" + entry.getValue());
-        }
 
         _primaryStage = primaryStage;
-//        buildGUI(primaryStage);
         initGUI(primaryStage);
     }
 
@@ -124,10 +110,13 @@ public class JEConfig extends Application {
      * @param primaryStage
      */
     private void initGUI(Stage primaryStage) {
-        Scene scene;
-        LoginGlass login = new LoginGlass(primaryStage);
-
         AnchorPane jeconfigRoot = new AnchorPane();
+
+        Scene scene = new Scene(jeconfigRoot);
+        primaryStage.setScene(scene);
+
+        FXLogin login = new FXLogin(primaryStage, getParameters());
+
         AnchorPane.setTopAnchor(jeconfigRoot, 0.0);
         AnchorPane.setRightAnchor(jeconfigRoot, 0.0);
         AnchorPane.setLeftAnchor(jeconfigRoot, 0.0);
@@ -140,8 +129,8 @@ public class JEConfig extends Application {
 
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                System.out.println("Login value changed: " + newValue);
                 if (newValue) {
-                    System.out.println("after request");
                     _mainDS = login.getDataSource();
                     ds = _mainDS;
                     _currentUser = new User(ds);
@@ -202,6 +191,8 @@ public class JEConfig extends Application {
                             }
                         }
                     });
+                } else {
+                    System.exit(0);
                 }
 
             }
@@ -212,14 +203,12 @@ public class JEConfig extends Application {
         AnchorPane.setLeftAnchor(login, 0.0);
         AnchorPane.setBottomAnchor(login, 0.0);
 
-        scene = new Scene(jeconfigRoot, bounds.getWidth(), bounds.getHeight());
         scene.getStylesheets().add("/styles/Styles.css");
         primaryStage.getIcons().add(getImage("JEVisIconBlue.png"));
 
         primaryStage.setTitle("JEConfig");
-        primaryStage.setScene(scene);
+
         primaryStage.setMaximized(true);
-//        maximize(primaryStage);
         primaryStage.show();
 
         jeconfigRoot.getChildren().setAll(login);
@@ -248,7 +237,6 @@ public class JEConfig extends Application {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        System.out.println("main: " + args.length);
         launch(args);
     }
 
@@ -304,6 +292,7 @@ public class JEConfig extends Application {
     /**
      * maximized the given stage
      *
+     * @deprecated
      * @param primaryStage
      */
     public static void maximize(Stage primaryStage) {
@@ -363,15 +352,6 @@ public class JEConfig extends Application {
         return image;
     }
 
-    private void loadConfiguration(String url) {
-        try {
-            XMLConfiguration config = new XMLConfiguration(url);
-            config.getString("webservice.port");
-        } catch (ConfigurationException ex) {
-            Logger.getLogger(JEConfig.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
     /**
      * Inform the user the some precess is working
      *
@@ -391,14 +371,29 @@ public class JEConfig extends Application {
 
     }
 
+    /**
+     * Get the JEVisObkject of the current
+     *
+     * @return
+     */
     static public User getCurrentUser() {
         return _currentUser;
     }
 
+    /**
+     * Get the static list of preload JEVisClasses
+     *
+     * @return
+     */
     static public List<JEVisClass> getPreLodedClasses() {
         return preLodedClasses;
     }
 
+    /**
+     * Get the static list of all root objects for this user
+     *
+     * @return
+     */
     static public List<JEVisObject> getPreLodedRootObjects() {
         return preLodedRootObjects;
     }

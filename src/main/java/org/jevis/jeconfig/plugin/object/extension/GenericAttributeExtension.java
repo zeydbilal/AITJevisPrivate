@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 Envidatec GmbH <info@envidatec.com>
+ * Copyright (C) 2014-2015 Envidatec GmbH <info@envidatec.com>
  *
  * This file is part of JEConfig.
  *
@@ -40,6 +40,7 @@ import org.jevis.api.JEVisAttribute;
 import org.jevis.api.JEVisConstants;
 import org.jevis.api.JEVisException;
 import org.jevis.api.JEVisObject;
+import org.jevis.api.sql.RelationsManagment;
 import org.jevis.application.dialog.ExceptionDialog;
 import org.jevis.application.type.GUIConstants;
 import org.jevis.jeconfig.Constants;
@@ -50,7 +51,6 @@ import static org.jevis.jeconfig.JEConfig.PROGRAMM_INFO;
 import org.jevis.jeconfig.plugin.object.attribute.AttributeEditor;
 import org.jevis.jeconfig.plugin.object.attribute.BooleanValueEditor;
 import org.jevis.jeconfig.plugin.object.attribute.FileEdior;
-import org.jevis.jeconfig.plugin.object.attribute.FileValueEditor;
 import org.jevis.jeconfig.plugin.object.attribute.NumberWithUnit;
 import org.jevis.jeconfig.plugin.object.attribute.PasswordEditor;
 import org.jevis.jeconfig.plugin.object.attribute.StringMultyLine;
@@ -120,23 +120,28 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
         for (AttributeEditor editor : _attributesEditor) {
             try {
                 editor.commit();
+                _changed.setValue(false);
+                _needSave = false;
             } catch (JEVisException ex) {
                 Logger.getLogger(GenericAttributeExtension.class.getName()).log(Level.SEVERE, null, ex);
                 ExceptionDialog dia = new ExceptionDialog();
                 dia.show(JEConfig.getStage(), "Error", "Could not commit to Server", ex, PROGRAMM_INFO);
+                return false;
             }
         }
-
-        _changed.setValue(false);
-        _needSave = false;
-
-        //TODO: save
         return true;
     }
 
     private void buildGui(JEVisObject obj) {
 
         _needSave = false;
+
+        boolean readOnly = true;
+        try {
+            readOnly = !RelationsManagment.canWrite(obj.getDataSource().getCurrentUser(), obj);
+        } catch (JEVisException ex) {
+//            Logger.getLogger(GenericAttributeExtension.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
         GridPane gridPane = new GridPane();
         gridPane.setPadding(new Insets(5, 0, 20, 20));
@@ -195,11 +200,14 @@ public class GenericAttributeExtension implements ObjectEditorExtension {
 
                 }
 
+                if (editor != null) {
+                    editor.setReadOnly(readOnly);
+                }
+
                 _attributesEditor.add(editor);
                 editor.getValueChangedProperty().addListener(new ChangeListener<Boolean>() {
                     @Override
                     public void changed(ObservableValue<? extends Boolean> ov, Boolean t, Boolean t1) {
-                        System.out.println("GenericAttExtension.value.changed:" + t1);
                         if (t1) {
                             _changed.setValue(t1);
                         }

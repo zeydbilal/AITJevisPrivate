@@ -226,14 +226,12 @@ public class ObjectPlugin implements Plugin {
         try {
             switch (cmdType) {
                 case Constants.Plugin.Command.SAVE:
-                    System.out.println("save");
                     tree.fireSaveAttributes(false);
                     break;
                 case Constants.Plugin.Command.DELTE:
                     tree.fireDelete(tree.getSelectedObject());
                     break;
                 case Constants.Plugin.Command.EXPAND:
-                    System.out.println("Expand");
                     break;
                 case Constants.Plugin.Command.NEW:
                     tree.fireEventNew(tree.getSelectedObject());

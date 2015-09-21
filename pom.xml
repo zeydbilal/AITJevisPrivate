@@ -4,7 +4,7 @@
 
     <groupId>org.jevis.jeconfig</groupId>
     <artifactId>JEConfig</artifactId>
-    <version>3.0.13</version>
+    <version>3.0.14</version>
     <packaging>jar</packaging>
 
     <name>JEConfig</name>
@@ -107,6 +107,22 @@
                 </configuration>
             </plugin>
             
+            <!-- Alternativ JavaFX plugin - use build with mvn clean jfx:jar  -->
+            <plugin>
+                <groupId>com.zenjava</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>8.1.2</version>
+                <configuration>
+                    <mainClass>org.jevis.jeconfig.JEConfig</mainClass>                    
+                    <vendor>OpenJEVis</vendor>
+                    <!--
+                    <allPermissions>true</allPermissions>
+                    <keyStoreType>jks</keyStoreType>
+                    <keyStoreAlias>server</keyStoreAlias>
+                    <keyPassword>thelongone</keyPassword>
+                    -->
+                </configuration>
+            </plugin>
                         
         </plugins>
         

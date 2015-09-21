@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 - 2014 Envidatec GmbH <info@envidatec.com>
+ * Copyright (C) 2009 - 2015 Envidatec GmbH <info@envidatec.com>
  *
  * This file is part of JEConfig.
  *
@@ -26,7 +26,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-//import javafx.scene.control.Dialogs;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyEvent;
@@ -40,17 +39,19 @@ import org.jevis.jeconfig.JEConfig;
 import org.joda.time.DateTime;
 
 /**
+ * Basic editor for attributes of the type string.
  *
  * @author Florian Simon <florian.simon@envidatec.com>
  */
 public class StringValueEditor implements AttributeEditor {
 
-    HBox box = new HBox();
+    private HBox box = new HBox();
     public JEVisAttribute _attribute;
     private TextField _field;
     private JEVisSample _newSample;
     private JEVisSample _lastSample;
     private final BooleanProperty _changed = new SimpleBooleanProperty(false);
+    private boolean _readOnly = true;
 
     public StringValueEditor(JEVisAttribute att) {
         _attribute = att;
@@ -67,23 +68,25 @@ public class StringValueEditor implements AttributeEditor {
         return _changed;
     }
 
-//    @Override
-//    public void setAttribute(JEVisAttribute att) {
-//        _attribute = att;
-//    }
+    @Override
+    public void setReadOnly(boolean canRead) {
+        _readOnly = canRead;
+    }
+
     @Override
     public void commit() throws JEVisException {
         if (hasChanged() && _newSample != null) {
-
             //TODO: check if tpye is ok, maybe better at imput time
             _newSample.commit();
+            _lastSample = _newSample;
+            _changed.setValue(false);
         }
     }
 
     @Override
     public Node getEditor() {
         try {
-            buildTextFild();
+            init();
         } catch (Exception ex) {
 
         }
@@ -92,10 +95,16 @@ public class StringValueEditor implements AttributeEditor {
 //        return _field;
     }
 
-    private void buildTextFild() throws JEVisException {
+    /**
+     * Build the GUI for this editor
+     *
+     * @throws JEVisException
+     */
+    private void init() throws JEVisException {
         if (_field == null) {
             _field = new TextField();
             _field.setPrefWidth(500);//TODO: remove this workaround
+            _field.setEditable(!_readOnly);
 
             if (_attribute.getLatestSample() != null) {
                 _field.setText(_attribute.getLatestSample().getValueAsString());
@@ -110,15 +119,15 @@ public class StringValueEditor implements AttributeEditor {
                 public void handle(KeyEvent t) {
                     try {
                         if (_lastSample == null) {
-                            System.out.println("new Value");
-//                            _lastSample = _attribute.buildSample(new DateTime(), _field.getText());
+//                            System.out.println("new Value");
                             _newSample = _attribute.buildSample(new DateTime(), _field.getText());
                             _changed.setValue(true);
                         } else if (!_lastSample.getValueAsString().equals(_field.getText())) {
-                            _changed.setValue(true);
+//                            System.out.println("value changed");
                             _newSample = _attribute.buildSample(new DateTime(), _field.getText());
-                            System.out.println("value changed");
+                            _changed.setValue(true);
                         } else if (_lastSample.getValueAsString().equals(_field.getText())) {
+//                            System.out.println("Value no changed");
                             _changed.setValue(false);
                         }
                     } catch (JEVisException ex) {
@@ -128,41 +137,6 @@ public class StringValueEditor implements AttributeEditor {
                 }
             });
 
-//            _field.focusedProperty().addListener(new ChangeListener<Boolean>() {
-//                @Override
-//                public void changed(ObservableValue<? extends Boolean> arg0, Boolean oldPropertyValue, Boolean newPropertyValue) {
-//                    try {
-//                        if (newPropertyValue) {
-//                        } else {
-//                            if (_lastSample != null) {
-//                                if (!_lastSample.getValueAsString().equals(_field.getText())) {
-//                                    _hasChanged = true;
-//                                } else {
-//                                    _hasChanged = false;
-//                                }
-//                            } else {
-//                                if (!_field.getText().equals("")) {
-//                                    _hasChanged = true;
-//                                }
-//                            }
-//
-//                            if (_hasChanged) {
-//                                try {
-//                                    _newSample = _attribute.buildSample(new DateTime(), _field.getText());
-//                                } catch (JEVisException ex) {
-//                                    Logger.getLogger(StringValueEditor.class.getName()).log(Level.SEVERE, null, ex);
-//
-//                                    ExceptionDialog dia = new ExceptionDialog();
-//                                    dia.show(JEConfig.getStage(), "Error", "Could commit changes to Server", ex, PROGRAMM_INFO);
-//                                }
-//                            }
-//                        }
-//                    } catch (Exception ex) {
-//
-//                    }
-//
-//                }
-//            });
             _field.setPrefWidth(500);
             _field.setId("attributelabel");
 
@@ -192,22 +166,6 @@ public class StringValueEditor implements AttributeEditor {
                     box.getChildren().add(chartView);
                     HBox.setHgrow(chartView, Priority.NEVER);
 
-//                    chartView.setOnAction(new EventHandler<ActionEvent>() {
-//                        @Override
-//                        public void handle(ActionEvent t) {
-//                            Stage dialogStage = new Stage();
-//                            dialogStage.setTitle("Sample Editor");
-//                            HBox root = new HBox();
-//
-//                            root.getChildren().add(new SampleTable(_attribute));
-//
-//                            Scene scene = new Scene(root);
-//                            scene.getStylesheets().add("/styles/Styles.css");
-//                            dialogStage.setScene(scene);
-//                            dialogStage.show();
-//
-//                        }
-//                    });
                 }
             } catch (Exception ex) {
                 Logger.getLogger(StringValueEditor.class.getName()).log(Level.SEVERE, null, ex);

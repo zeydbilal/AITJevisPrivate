@@ -285,6 +285,10 @@ public class ClassEditor {
         return _view;
     }
 
+    /**
+     * @TODO: make this an extra GUI class
+     * @return
+     */
     private Node buildTypeNode() {
         ScrollPane cp = new ScrollPane();
 //        cp.setStyle("-fx-background-color: #E2E2E2");
@@ -308,31 +312,31 @@ public class ClassEditor {
         gridPane.add(headerColtrol, 4, 0);
         gridPane.add(headerSep, 0, 1, 7, 1);
 
+        //disabled as long the dont function right
+        headerUnit.setVisible(false);
+        headerColtrol.setVisible(false);
+        headerSep.setVisible(false);
+
         int row = 2;
         try {
             Collections.sort(_class.getTypes());
             if (_class.getTypes().isEmpty()) {
-                Label emty = new Label("Class has no Attributes");
+                Label emty = new Label("Class has no Types");
                 gridPane.add(emty, 0, row, 4, 1);
                 row++;
             }
             for (final JEVisType type : _class.getTypes()) {
-                type.getPrimitiveType();
+                boolean isInherited = !type.getJEVisClass().equals(_class);
+                //@todo: maybe implement an function into the JEAPI to ckec if an tpye is inherited
+
                 final Label lName = new Label(type.getName());
-//                final TextField lName = new TextField(type.getName());
-//                lName.setEditable(false);
 
                 //test
                 final ChoiceBox guiType = new ChoiceBox();
                 guiType.setMaxWidth(500);
                 guiType.setPrefWidth(160);
 
-//                guiType.setItems(FXCollections.observableArrayList(
-//                        "String,", "IP-Address", "Number", "File Selector", "Check Box", "PASSWORD Field"));
                 List<String> gTypes = new ArrayList<>();
-//                for (DisplayType id : GUIConstants.ALL) {
-//                    gTypes.add(id.getId());
-//                }
                 for (DisplayType id : GUIConstants.getALL(type.getPrimitiveType())) {
                     gTypes.add(id.getId());
                 }
@@ -519,8 +523,20 @@ public class ClassEditor {
                 gridPane.add(up, 5, row);
                 gridPane.add(down, 6, row);
 
+                lName.setDisable(isInherited);
+                primType.setDisable(isInherited);
+                guiType.setDisable(isInherited);
+                unitSelector.setDisable(isInherited);
+                remove.setDisable(isInherited);
+                up.setDisable(isInherited);
+                down.setDisable(isInherited);
+
+                //disabled as long the dont function right
+                up.setVisible(false);
+                down.setVisible(false);
+                unitSelector.setVisible(false);
+
                 GridPane.setHgrow(lName, Priority.ALWAYS);
-//                GridPane.setHgrow(unitSelector, Priority.ALWAYS);
 
                 row++;
 
@@ -553,6 +569,22 @@ public class ClassEditor {
             public void handle(KeyEvent ke) {
                 if (ke.getCode().equals(KeyCode.ENTER)) {
                     createTypeAction(fName.getText());
+                }
+            }
+        });
+
+        fName.visibleProperty().addListener(new ChangeListener<Boolean>() {
+
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (newValue) {
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            fName.requestFocus();
+                        }
+                    });
                 }
             }
         });

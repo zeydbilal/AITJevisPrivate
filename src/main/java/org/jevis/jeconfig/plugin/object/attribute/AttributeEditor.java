@@ -37,4 +37,6 @@ public interface AttributeEditor {
     Node getEditor();
 
     BooleanProperty getValueChangedProperty();
+
+    void setReadOnly(boolean canRead);
 }
