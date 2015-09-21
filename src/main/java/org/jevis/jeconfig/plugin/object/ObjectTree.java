@@ -581,7 +581,6 @@ public class ObjectTree extends TreeView<JEVisObject> {
 
                     }
                 }
-
             }
         }
 

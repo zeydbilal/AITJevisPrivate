@@ -15,7 +15,7 @@ import org.jevis.jeconfig.plugin.object.ObjectTree;
  *
  * @author CalisZ
  */
-//192.71.247.119
+
 public class WizardMain extends Wizard {
 
     private JEVisObject parentObject;

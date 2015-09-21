@@ -88,7 +88,6 @@ public class WizardStartPane extends WizardPane {
             if (type.getButtonData().equals(ButtonBar.ButtonData.BACK_PREVIOUS)) {
                 Node prev = lookupButton(type);
                 prev.visibleProperty().setValue(Boolean.FALSE);
-
             }
         }
     }
