@@ -41,8 +41,10 @@ import org.joda.time.DateTime;
 
 /**
  *
- * @author CalisZ
+ * @author Bilal
  */
+
+//TODO Implement the copy functions
 public class ManualWizardStep4 extends WizardPane {
 
     private final ObservableList<ObservableList<SpreadsheetCell>> rows = FXCollections.observableArrayList();

@@ -308,7 +308,7 @@ public class CreateTable {
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.initOwner(owner);
         stage.setScene(scene);
-        stage.setWidth(1000);
+        stage.setWidth(1250);
         stage.setHeight(1000);
         stage.initStyle(StageStyle.UTILITY);
         stage.setResizable(true);

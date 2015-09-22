@@ -18,7 +18,7 @@ import org.jevis.jeconfig.JEConfig;
 
 /**
  *
- * @author CalisZ
+ * @author Bilal
  */
 public class WizardStartPane extends WizardPane {
 

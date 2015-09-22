@@ -17,7 +17,7 @@ import org.controlsfx.dialog.WizardPane;
 
 /**
  *
- * @author CalisZ
+ * @author Bilal
  */
 public class AutomatedWizardStep1 extends WizardPane {
 

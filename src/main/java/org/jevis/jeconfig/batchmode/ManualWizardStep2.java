@@ -46,7 +46,7 @@ import org.joda.time.DateTime;
 
 /**
  *
- * @author CalisZ
+ * @author Bilal
  */
 public class ManualWizardStep2 extends WizardPane {
 

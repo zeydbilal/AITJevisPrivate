@@ -30,7 +30,7 @@ import org.jevis.jeconfig.plugin.object.ObjectTree;
 
 /**
  *
- * @author CalisZ
+ * @author Bilal
  */
 public class ManualWizardStep1 extends WizardPane {
 
