@@ -6,7 +6,6 @@
 package org.jevis.jeconfig.batchmode;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,7 +42,6 @@ import org.joda.time.DateTime;
  *
  * @author Bilal
  */
-
 //TODO Implement the copy functions
 public class ManualWizardStep4 extends WizardPane {
 
@@ -79,10 +77,6 @@ public class ManualWizardStep4 extends WizardPane {
                 Node prev = lookupButton(type);
                 prev.visibleProperty().setValue(Boolean.FALSE);
             }
-//            if (type.getButtonData().equals(ButtonBar.ButtonData.FINISH)) {
-//                Node finish = lookupButton(type);
-//                finish.disableProperty().setValue(Boolean.TRUE);
-//            }
 
             if (type.getButtonData().equals(ButtonBar.ButtonData.FINISH)) {
                 finish = (Button) lookupButton(type);
@@ -235,7 +229,7 @@ public class ManualWizardStep4 extends WizardPane {
                 rows.add(cells);
             }
             grid.setRows(rows);
-            spv = new SpreadsheetView();
+            spv = new SpreadsheetViewTable(rows, grid);
             spv.setGrid(grid);
             spv.getStylesheets().add("styles/Table.css");
             ObservableList<SpreadsheetColumn> colList = spv.getColumns();

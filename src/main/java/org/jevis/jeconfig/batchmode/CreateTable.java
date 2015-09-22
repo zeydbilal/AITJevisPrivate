@@ -3,7 +3,6 @@ package org.jevis.jeconfig.batchmode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -21,11 +20,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Separator;
-import javafx.scene.control.TablePosition;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.DataFormat;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -56,8 +51,6 @@ import org.jevis.jeconfig.tool.ImageConverter;
 public class CreateTable {
 
     //declarations
-    private static final String EXCEL_IDENTIFIER = "Biff8";
-    private DataFormat fmtExcel;
     private final ObservableList<ObservableList<SpreadsheetCell>> rows = FXCollections.observableArrayList();
     private ObservableList<SpreadsheetCell> cells;
     private SpreadsheetView spv;
@@ -95,26 +88,8 @@ public class CreateTable {
             }
             grid.setRows(rows);
             grid.setRowHeightCallback(new GridBase.MapBasedRowHeightFactory(generateRowHeight()));
-            spv = new SpreadsheetView() {
-                @Override
-                public void copyClipboard() {
-                    super.copyClipboard();
-                    copyClipBoardSpecific();
-                }
+            spv = new SpreadsheetViewTable(rows, grid);
 
-                @Override
-                public void pasteClipboard() {
-                    final Clipboard clipboard = Clipboard.getSystemClipboard();
-                    DataFormat excelFormat = findExcelFormat(clipboard.getContentTypes());
-
-                    if (excelFormat == null) {
-                        super.pasteClipboard();
-                    } else {
-                        pasteClipBoardSpecific();
-                    }
-
-                }
-            };
             spv.setGrid(grid);
 
             ObservableList<SpreadsheetColumn> colList = spv.getColumns();
@@ -369,26 +344,8 @@ public class CreateTable {
             }
             grid.setRows(rows);
             grid.setRowHeightCallback(new GridBase.MapBasedRowHeightFactory(generateRowHeight()));
-            spv = new SpreadsheetView() {
-                @Override
-                public void copyClipboard() {
-                    super.copyClipboard();
-                    copyClipBoardSpecific();
-                }
+            spv = new SpreadsheetViewTable(rows, grid);
 
-                @Override
-                public void pasteClipboard() {
-                    final Clipboard clipboard = Clipboard.getSystemClipboard();
-                    DataFormat excelFormat = findExcelFormat(clipboard.getContentTypes());
-
-                    if (excelFormat == null) {
-                        super.pasteClipboard();
-                    } else {
-                        pasteClipBoardSpecific();
-                    }
-
-                }
-            };
             spv.setGrid(grid);
 
             ObservableList<SpreadsheetColumn> colList = spv.getColumns();
@@ -566,94 +523,5 @@ public class CreateTable {
             rowHeight.put(i, 30.0);
         }
         return rowHeight;
-    }
-
-    public DataFormat findExcelFormat(Set<DataFormat> formats) {
-        for (DataFormat format : formats) {
-            if (format.getIdentifiers().contains(EXCEL_IDENTIFIER)) {
-                return format;
-            }
-        }
-        return null;
-    }
-
-    public DataFormat findSpreadsheetViewFormat(Set<DataFormat> formats) {
-        for (DataFormat format : formats) {
-            if (format.getIdentifiers().contains("SpreadsheetView")) {
-                return format;
-            }
-        }
-        return null;
-    }
-
-    public void copyClipBoardSpecific() {
-        try {
-            Clipboard clipboard = Clipboard.getSystemClipboard();
-            DataFormat spreadsheetViewFormat = findSpreadsheetViewFormat(clipboard.getContentTypes());
-            ClipboardContent content = new ClipboardContent();
-
-            ObservableList<TablePosition> focusedCell = spv.getSelectionModel().getSelectedCells();
-
-            String contentText = "";
-
-            int oldRow = -1;
-
-            for (final TablePosition<?, ?> p : focusedCell) {
-                int currentRow = p.getRow();
-                int currentColumn = p.getColumn();
-
-                if (oldRow == currentRow) {
-                    contentText += "\t";
-                } else if (oldRow != -1) {
-                    contentText += "\n";
-                }
-
-                String spcText = rows.get(currentRow).get(currentColumn).getText();
-
-                contentText += spcText;
-
-                oldRow = currentRow;
-
-            }
-
-            content.putString(contentText);
-            if (fmtExcel == null) {
-                fmtExcel = DataFormat.PLAIN_TEXT;
-            }
-            Object templist = Clipboard.getSystemClipboard().getContent(spreadsheetViewFormat);
-            content.put(spreadsheetViewFormat, templist);
-            content.put(fmtExcel, contentText);
-            clipboard.setContent(content);
-        } catch (IndexOutOfBoundsException e) {
-        }
-    }
-
-    public void pasteClipBoardSpecific() {
-        try {
-            Clipboard clipboard = Clipboard.getSystemClipboard();
-            String[] words = clipboard.getString().split("\n");
-            ObservableList<TablePosition> focusedCell = spv.getSelectionModel().getSelectedCells();
-
-            int currentRow = 0;
-            int currentColumn = 0;
-
-            for (final TablePosition<?, ?> p : focusedCell) {
-                currentRow = p.getRow();
-                currentColumn = p.getColumn();
-            }
-
-            for (String word : words) {
-                String[] parseWord = word.split("\t");
-                int col = currentColumn;
-                for (int i = 0; i < parseWord.length; i++) {
-                    SpreadsheetCell spc = rows.get(currentRow).get(col);
-                    grid.setCellValue(currentRow, col, spc.getCellType().convertValue(parseWord[i].trim()));
-
-                    col++;
-                }
-                currentRow++;
-            }
-        } catch (IndexOutOfBoundsException e) {
-        }
     }
 }
