@@ -13,21 +13,25 @@ import org.jevis.jeconfig.plugin.object.ObjectTree;
 
 /**
  *
- * @author Bilal
+ * @author Zeyd Bilal Calis
  */
-
 public class WizardMain extends Wizard {
 
     private JEVisObject parentObject;
     private ObjectTree tree;
     private WizardStartPane wizardStartPane;
+    private WizardSelectedObject wizardSelectedObject = new WizardSelectedObject();
+    private SensorMap sensorMap = new SensorMap();
+    
     private ManualWizardStep1 manualStep1;
     private ManualWizardStep2 manualStep2;
     private ManualWizardStep3 manualStep3;
     private ManualWizardStep4 manualStep4;
-    private WizardSelectedObject wizardSelectedObject = new WizardSelectedObject();
 
-    private AutomatedWizardStep1 automatedWizardStep1 = new AutomatedWizardStep1();
+    private AutomatedWizardStep1 automatedWizardStep1;
+    private AutomatedWizardStep2 automatedWizardStep2;
+    private AutomatedWizardStep3 automatedWizardStep3;
+    private AutomatedWizardStep4 automatedWizardStep4;
 
     public WizardMain(JEVisObject parentObject, ObjectTree tree) {
         setParentObject(parentObject);
@@ -38,6 +42,11 @@ public class WizardMain extends Wizard {
         manualStep2 = new ManualWizardStep2(tree, wizardSelectedObject);
         manualStep3 = new ManualWizardStep3(tree, wizardSelectedObject);
         manualStep4 = new ManualWizardStep4(tree, wizardSelectedObject);
+
+        automatedWizardStep1 = new AutomatedWizardStep1(parentObject, tree, wizardSelectedObject);
+        automatedWizardStep2 = new AutomatedWizardStep2(tree, wizardSelectedObject,sensorMap);
+        automatedWizardStep3 = new AutomatedWizardStep3(tree, wizardSelectedObject);
+        automatedWizardStep4 = new AutomatedWizardStep4(tree, wizardSelectedObject,sensorMap);
 
         setTitle("JEVIS Wizard");
         initWizard();
@@ -54,8 +63,7 @@ public class WizardMain extends Wizard {
 
             @Override
             public boolean canAdvance(WizardPane currentPage) {
-                //FIXME for Template Based
-                return currentPage != manualStep4 && currentPage != automatedWizardStep1;
+                return currentPage != manualStep4 && currentPage != automatedWizardStep4;
             }
 
             private WizardPane getNext(WizardPane currentPage) {
@@ -73,6 +81,12 @@ public class WizardMain extends Wizard {
                     return manualStep4;
                 } else if (currentPage.equals(wizardStartPane) && wizardStartPane.getControl().equals("Automated")) {
                     return automatedWizardStep1;
+                } else if (currentPage.equals(automatedWizardStep1)) {
+                    return automatedWizardStep2;
+                } else if (currentPage.equals(automatedWizardStep2)) {
+                    return automatedWizardStep3;
+                } else if (currentPage.equals(automatedWizardStep3)) {
+                    return automatedWizardStep4;
                 } else {
                     return null;
                 }

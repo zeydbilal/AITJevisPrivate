@@ -18,21 +18,17 @@ import org.jevis.jeconfig.JEConfig;
 
 /**
  *
- * @author Bilal
+ * @author Zeyd Bilal Calis
  */
 public class WizardStartPane extends WizardPane {
 
     private String control = "Manual";
     private RadioButton manual;
     private RadioButton automated;
-    private RadioButton templateBased;
 
     public WizardStartPane() {
         setMinSize(500, 500);
 
-        //INFO
-        //Stage stage = (Stage) this.getScene().getWindow();
-        //stage.setTitle("JEVIS Wizard");
         setContent(getInit());
         setGraphic(JEConfig.getImage("create_wizard.png", 100, 100));
     }
@@ -51,29 +47,21 @@ public class WizardStartPane extends WizardPane {
         automated = new RadioButton("Automated");
         automated.setToggleGroup(group);
 
-        templateBased = new RadioButton("Template Based");
-        templateBased.setToggleGroup(group);
-
         group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
             @Override
             public void changed(ObservableValue<? extends Toggle> ov,
                     Toggle old_toggle, Toggle new_toggle) {
                 if (manual.isSelected()) {
                     setControl(manual.getText());
-//                    System.out.println(manual.getText());
                 } else if (automated.isSelected()) {
                     setControl(automated.getText());
-//                    System.out.println(automated.getText());
-                } else if (templateBased.isSelected()) {
-                    setControl(templateBased.getText());
-//                    System.out.println(templateBased.getText());
                 }
             }
         });
 
         vbox.setSpacing(30);
 
-        vbox.getChildren().addAll(index, manual, automated, templateBased);
+        vbox.getChildren().addAll(index, manual, automated);
         vbox.setPadding(new Insets(200, 10, 10, 20));
 
         return vbox;

@@ -53,7 +53,7 @@ import org.jevis.jeconfig.tool.ImageConverter;
 
 /**
  *
- * @author Bilal
+ * @author Zeyd Bilal Calis
  */
 public class EditTable {
 
@@ -282,26 +282,6 @@ public class EditTable {
         return selectedClass;
     }
 
-    private void addUnits() {
-        JEVisUnit.Prefix[] prefixes = JEVisUnit.Prefix.values();
-
-        for (int i = 0; i < prefixes.length; i++) {
-            String strPrefix = prefixes[i].toString();
-            listUnits.add(strPrefix);
-        }
-    }
-
-    public void addSymbols() {
-        listUnitSymbols.addAll("m/s²",
-                "g", "mol", "atom", "rad", "bit", "%", "centiradian", "dB", "°", "'", "byte", "rev", "¨", "sphere", "sr", "rad/s²", "rad/s", "Bq", "Ci", "Hz",
-                "m²", "a", "ha", "cm²", "km²", "kat", "€", "₦", "\u20B9", "$", "*?*", "¥", "Hits/cm²", "Hits/m²", "Ω/cm²", "bit/s", "-", "s", "m", "h", "day", "day_sidereal",
-                "week", "month", "year", "year_calendar", "year_sidereal", "g/(cms)", "F", "C", "e", "Fd", "Fr", "S", "A", "Gi", "H", "V", "Ω", "J",
-                "eV", "erg", "N", "dyn", "kgf", "lbf", "lx", "La", "W/m²", "m²/s", "cm²/s", "Å", "ua", "cm", "foot_survey_us", "ft", "in", "km", "ly",
-                "mi", "mm", "nmi", "pc", "pixel", "pt", "yd", "W", "Wb", "Mx", "T", "G", "kg", "u", "me", "t", "oz", "lb", "ton_uk", "ton_us", "kg/s",
-                "cd", "hp", "lm", "var", "Pa", "atm", "bar", "in Hg", "mmHg", "Gy", "rem", "Sv", "rd", "Rd", "rev/s", "grade", "K", "℃", "°F", "°R",
-                "Nm", "Wh", "Ws", "m/s", "c", "km/h", "kn", "Mach", "mph", "m³", "in³", "gallon_dry_us", "gal", "gallon_uk", "l", "oz_uk", "kg/m³", "m³/s");
-    }
-
     // Erstelle eine neue Tabelle für die Objekte zu editieren.
     class CreateNewEditTable {
 
@@ -418,6 +398,7 @@ public class EditTable {
     }
 
     // Erstelle eine neue Tabelle für die Data-Objekte zu editieren.
+    // Diese Klasse spezial nur für das Data-Object implementiert.
     class CreateNewDataEditTable {
 
         private ObservableList<Pair<JEVisObject, ObservableList<Pair<String, String>>>> listObjectAndValueAttribute = FXCollections.observableArrayList();
@@ -456,13 +437,11 @@ public class EditTable {
             columnHeaderNamesDataTable.addAll(colNames);
 
             spv.getGrid().getColumnHeaders().addAll(columnHeaderNamesDataTable);
-            //change it
-            //editBtn.setDisable(true);
 
             try {
                 for (int i = 0; i < grid.getRowCount(); i++) {
                     // Get attributes
-                    List<JEVisAttribute> attributes = listChildren.get(i).getAttributes();//parent.getChildren(selectedClass, true).get(i).getAttributes();
+                    List<JEVisAttribute> attributes = listChildren.get(i).getAttributes();
                     ObservableList<Pair<String, String>> listValueAttribute = FXCollections.observableArrayList();
 
                     for (int z = 0; z < attributes.size(); z++) {
@@ -728,5 +707,25 @@ public class EditTable {
         };
 
         FXCollections.sort(list, sort);
+    }
+
+    private void addUnits() {
+        JEVisUnit.Prefix[] prefixes = JEVisUnit.Prefix.values();
+
+        for (int i = 0; i < prefixes.length; i++) {
+            String strPrefix = prefixes[i].toString();
+            listUnits.add(strPrefix);
+        }
+    }
+
+    public void addSymbols() {
+        listUnitSymbols.addAll("m/s²",
+                "g", "mol", "atom", "rad", "bit", "%", "centiradian", "dB", "°", "'", "byte", "rev", "¨", "sphere", "sr", "rad/s²", "rad/s", "Bq", "Ci", "Hz",
+                "m²", "a", "ha", "cm²", "km²", "kat", "€", "₦", "\u20B9", "$", "*?*", "¥", "Hits/cm²", "Hits/m²", "Ω/cm²", "bit/s", "-", "s", "m", "h", "day", "day_sidereal",
+                "week", "month", "year", "year_calendar", "year_sidereal", "g/(cms)", "F", "C", "e", "Fd", "Fr", "S", "A", "Gi", "H", "V", "Ω", "J",
+                "eV", "erg", "N", "dyn", "kgf", "lbf", "lx", "La", "W/m²", "m²/s", "cm²/s", "Å", "ua", "cm", "foot_survey_us", "ft", "in", "km", "ly",
+                "mi", "mm", "nmi", "pc", "pixel", "pt", "yd", "W", "Wb", "Mx", "T", "G", "kg", "u", "me", "t", "oz", "lb", "ton_uk", "ton_us", "kg/s",
+                "cd", "hp", "lm", "var", "Pa", "atm", "bar", "in Hg", "mmHg", "Gy", "rem", "Sv", "rd", "Rd", "rev/s", "grade", "K", "℃", "°F", "°R",
+                "Nm", "Wh", "Ws", "m/s", "c", "km/h", "kn", "Mach", "mph", "m³", "in³", "gallon_dry_us", "gal", "gallon_uk", "l", "oz_uk", "kg/m³", "m³/s");
     }
 }

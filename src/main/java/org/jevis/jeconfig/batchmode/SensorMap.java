@@ -26,16 +26,23 @@ import org.apache.commons.io.IOUtils;
  */
 public class SensorMap {
 
-    static InputStream inputStream;
+    private InputStream inputStream;
+    private String urlToRead;
+    private String url;
+    private String port;
+    private String database;
 
-    public SensorMap(String urlToRead) {
+    public SensorMap() {
 
+    }
+
+    public void connection() {
         URL url;
         HttpURLConnection conn;
-        Logger.getLogger(SensorMap.class.getName()).log(Level.INFO, "Host name: " + urlToRead);
+        Logger.getLogger(SensorMap.class.getName()).log(Level.INFO, "Host name: " + getUrlToRead());
 
         try {
-            url = new URL(urlToRead);
+            url = new URL(getUrlToRead());
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             this.inputStream = conn.getInputStream();
@@ -48,46 +55,8 @@ public class SensorMap {
             Logger.getLogger(SensorMap.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
-    public static void main(String[] args) {
-
-        SensorMap sensorMapClass = new SensorMap("http://localhost:3001/db");
-        Map<String, LinkedHashMap<String, String>> sm = sensorMapClass.getSensorMap(inputStream);
-
-        for (Map.Entry<String, LinkedHashMap<String, String>> sensorEntry : sm.entrySet()) {
-            if (sensorEntry.getValue().size() != 3) {
-                continue;
-            }
-            String sensorName = sensorEntry.getKey();
-            String unit = (String) sensorEntry.getValue().keySet().toArray()[1];
-            System.out.println(sensorName + " + " + unit);
-        }
-    }
-
-    /**
-     *
-     * @param inputStream json string
-     * @return Map<String, Map<String, String>> returns a map with sensor meta
-     * data
-     *
-     * e.g. "T": { "MacAddr": "28524295050000AB", "Temperature": "sd.22",
-     * "Time": "2015-08-09T14:27:43+02:00" }, "RH": { "MacAddr":
-     * "28524295050000AB", "Relative Humidity": "33.33", "Time":
-     * "2015-08-09T14:27:43+02:00" }
-     *
-     * for (String key : map.keySet()) {
-     *
-     * }
-     * use the following code to get sensor name and unit
-     *
-     * for (Map.Entry<String, LinkedHashMap<String, String>> sensorEntry :
-     * map.entrySet()) { if(sensorEntry.getValue().size()!=3){ continue; }
-     * String sensorName = sensorEntry.getKey(); String unit = (String)
-     * sensorEntry.getValue().keySet().toArray()[1];
-     * System.out.println(sensorName + " + " + unit); }
-     *
-     */
-    public Map<String, LinkedHashMap<String, String>> getSensorMap(InputStream inputStream) {
+    
+    public Map<String, LinkedHashMap<String, String>> getSensorMap() {
 
         Map<String, LinkedHashMap<String, String>> map = null;
         try {
@@ -100,7 +69,37 @@ public class SensorMap {
         } catch (IOException ex) {
             Logger.getLogger(SensorMap.class.getName()).log(Level.SEVERE, null, ex);
         }
-
         return map;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public void setPort(String port) {
+        this.port = port;
+    }
+
+    public void setDatabase(String database) {
+        this.database = database;
+    }
+
+    public String getUrl() {
+        //http://192.71.247.119
+        return url;
+    }
+
+    public String getPort() {
+       //return "3000";
+        return port;
+    }
+
+    public String getDatabase() {
+       //return "db";
+        return database;
+    }
+
+    public String getUrlToRead() {
+        return this.urlToRead = getUrl() + ":" + getPort() + "/" + getDatabase();
     }
 }

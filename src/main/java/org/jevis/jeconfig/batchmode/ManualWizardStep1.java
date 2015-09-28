@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.jevis.jeconfig.batchmode;
 
 import java.util.List;
@@ -30,7 +25,7 @@ import org.jevis.jeconfig.plugin.object.ObjectTree;
 
 /**
  *
- * @author Bilal
+ * @author Zeyd Bilal Calis
  */
 public class ManualWizardStep1 extends WizardPane {
 
@@ -83,7 +78,6 @@ public class ManualWizardStep1 extends WizardPane {
     @Override
     public void onExitingPage(Wizard wizard) {
         commitObject();
-//        System.out.println("SelectedWizardObject ManualStep1 onExitingPage :::::::: " + wizardSelectedObject.getCurrentSelectedObject().getName());
     }
 
     public void commitObject() {

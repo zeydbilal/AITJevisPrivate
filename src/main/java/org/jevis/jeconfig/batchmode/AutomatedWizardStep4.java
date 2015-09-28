@@ -6,7 +6,9 @@
 package org.jevis.jeconfig.batchmode;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
@@ -40,9 +42,9 @@ import org.joda.time.DateTime;
 
 /**
  *
- * @author Bilal
+ * @author Zeyd Bilal Calis
  */
-public class ManualWizardStep4 extends WizardPane {
+public class AutomatedWizardStep4 extends WizardPane {
 
     private final ObservableList<ObservableList<SpreadsheetCell>> rows = FXCollections.observableArrayList();
     private ObservableList<SpreadsheetCell> cells;
@@ -57,8 +59,11 @@ public class ManualWizardStep4 extends WizardPane {
     private ObservableList<Pair<String, ArrayList<String>>> pairList = FXCollections.observableArrayList();
     private ObservableList<String> listUnits = FXCollections.observableArrayList();
     private ObservableList<String> listUnitSymbols = FXCollections.observableArrayList();
+    private ObservableList<String> listSensors = FXCollections.observableArrayList();
+    private SensorMap sensorMap;
 
-    public ManualWizardStep4(ObjectTree tree, WizardSelectedObject wizardSelectedObject) {
+    public AutomatedWizardStep4(ObjectTree tree, WizardSelectedObject wizardSelectedObject, SensorMap sensorMap) {
+        this.sensorMap = sensorMap;
         this.wizardSelectedObject = wizardSelectedObject;
         this.tree = tree;
         setMinSize(700, 830);
@@ -68,6 +73,8 @@ public class ManualWizardStep4 extends WizardPane {
 
     @Override
     public void onEnteringPage(Wizard wizard) {
+        sensorMap.connection();
+
         ObservableList<ButtonType> list = getButtonTypes();
 
         for (ButtonType type : list) {
@@ -181,6 +188,14 @@ public class ManualWizardStep4 extends WizardPane {
     }
 
     private BorderPane getInit() {
+        //add to list
+        Map<String, LinkedHashMap<String, String>> sm = sensorMap.getSensorMap();
+
+        for (Map.Entry<String, LinkedHashMap<String, String>> sensorEntry : sm.entrySet()) {
+            String sensorName = sensorEntry.getKey();
+            listSensors.add(sensorName);
+        }
+
         new CreateNewWizardTable(finish);
 
         BorderPane root = new BorderPane();
@@ -214,7 +229,7 @@ public class ManualWizardStep4 extends WizardPane {
 
         public CreateNewWizardTable(Button finish) {
             String[] colNames = {"Object Name", "Prefix", "Symbol", "Channel"};
-            rowCount = 1000;
+            rowCount = listSensors.size();
             columnCount = colNames.length;
 
             grid = new GridBase(rowCount, columnCount);
@@ -236,12 +251,22 @@ public class ManualWizardStep4 extends WizardPane {
                 colListElement.setPrefWidth(150);
             }
 
-            spv.setEditable(true);
+            spv.setEditable(false);
             spv.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
             columnHeaderNamesDataTable.addAll(colNames);
 
             spv.getGrid().getColumnHeaders().addAll(columnHeaderNamesDataTable);
 
+            //add to table
+            for (int i = 0; i < grid.getRowCount(); i++) {
+                for (int j = 0; j < grid.getColumnCount(); j++) {
+                    if (columnHeaderNamesDataTable.get(j).equals("Object Name")) {
+                        grid.setCellValue(i, 0, listSensors.get(i));
+                    } else if (columnHeaderNamesDataTable.get(j).equals("Channel")) {
+                        grid.setCellValue(i, 3, listSensors.get(i));
+                    }
+                }
+            }
             addUnits();
             addSymbols();
             //GridChange Event for Prefix and Symbol Input Control

@@ -171,5 +171,10 @@
             <artifactId>jidefx-fields</artifactId>
             <version>0.9.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.jevis.commons.parsing.jsonParsing</groupId>
+            <artifactId>JSONParsing</artifactId>
+            <version>0.2-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>

@@ -9,7 +9,7 @@ import org.jevis.api.JEVisObject;
 
 /**
  *
- * @author Bilal
+ * @author Zeyd Bilal Calis
  */
 //New parent and new child object
 //This is a help class for selected objects

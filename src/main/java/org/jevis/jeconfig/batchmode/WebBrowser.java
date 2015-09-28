@@ -14,9 +14,10 @@ import javafx.stage.Stage;
 
 /**
  *
- * @author Bilal
+ * @author Zeyd Bilal Calis
  */
-//WebBrowser for help.html file
+//class declaration for batch_mode_help.html
+//WebBrowser for batch_mode_help.html file
 public class WebBrowser {
 
     private Scene scene;

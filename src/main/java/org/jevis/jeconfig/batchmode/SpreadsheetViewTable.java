@@ -12,7 +12,7 @@ import org.controlsfx.control.spreadsheet.SpreadsheetView;
 
 /**
  *
- * @author Bilal
+ * @author Zeyd Bilal Calis
  */
 public class SpreadsheetViewTable extends SpreadsheetView {
 

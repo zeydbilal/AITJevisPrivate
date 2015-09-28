@@ -32,6 +32,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import org.controlsfx.dialog.Wizard;
@@ -48,16 +49,20 @@ import org.joda.time.DateTime;
  *
  * @author Zeyd Bilal Calis
  */
-public class ManualWizardStep2 extends WizardPane {
+public class AutomatedWizardStep2 extends WizardPane {
 
     private JEVisClass createClass;
     private TextField serverNameTextField;
+    private TextField databaseNameTextField;
     private ObjectTree tree;
     private ObservableList<String> typeNames = FXCollections.observableArrayList();
     private ObservableList<String> listBuildSample = FXCollections.observableArrayList();
     private WizardSelectedObject wizardSelectedObject;
     private Map<String, String> map = new TreeMap<String, String>();
-    public ManualWizardStep2(ObjectTree tree, WizardSelectedObject wizardSelectedObject) {
+    private SensorMap sensorMap;
+
+    public AutomatedWizardStep2(ObjectTree tree, WizardSelectedObject wizardSelectedObject, SensorMap sensorMap) {
+        this.sensorMap = sensorMap;
         this.wizardSelectedObject = wizardSelectedObject;
         this.tree = tree;
         setMinSize(500, 500);
@@ -81,6 +86,7 @@ public class ManualWizardStep2 extends WizardPane {
     @Override
     public void onExitingPage(Wizard wizard) {
         commitServerObject();
+        System.out.println(sensorMap.getUrlToRead());
     }
 
     public void commitServerObject() {
@@ -92,8 +98,9 @@ public class ManualWizardStep2 extends WizardPane {
             //wähle den Server als neue Objekt!
             wizardSelectedObject.setCurrentSelectedObject(newObject);
 
+            sensorMap.setDatabase(databaseNameTextField.getText());
         } catch (JEVisException ex) {
-            Logger.getLogger(ManualWizardStep2.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AutomatedWizardStep2.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -105,6 +112,12 @@ public class ManualWizardStep2 extends WizardPane {
 
             for (Map.Entry<String, String> entrySet : map.entrySet()) {
                 listBuildSample.add(entrySet.getValue());
+                System.out.println(entrySet.getKey() + " :  " + entrySet.getValue());
+                if (entrySet.getKey().equals("Host")) {
+                    sensorMap.setUrl(entrySet.getValue());
+                } else if (entrySet.getKey().equals("Port")) {
+                    sensorMap.setPort(entrySet.getValue());
+                }
             }
 
             for (int i = 0; i < mylist.size(); i++) {
@@ -114,7 +127,7 @@ public class ManualWizardStep2 extends WizardPane {
             }
 
         } catch (JEVisException ex) {
-            Logger.getLogger(ManualWizardStep2.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AutomatedWizardStep2.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -136,7 +149,7 @@ public class ManualWizardStep2 extends WizardPane {
         try {
             options = FXCollections.observableArrayList(wizardSelectedObject.getCurrentSelectedObject().getAllowedChildrenClasses());
         } catch (JEVisException ex) {
-            Logger.getLogger(ManualWizardStep2.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AutomatedWizardStep2.class.getName()).log(Level.SEVERE, null, ex);
         }
         // Set the cell properties for ComboBox
         Callback<ListView<JEVisClass>, ListCell<JEVisClass>> cellFactory = new Callback<ListView<JEVisClass>, ListCell<JEVisClass>>() {
@@ -175,11 +188,28 @@ public class ManualWizardStep2 extends WizardPane {
         serverNameTextField.setPrefWidth(200);
         serverNameTextField.setPromptText("Server Name");
 
-        ComboBox<JEVisClass> classComboBox = new ComboBox<JEVisClass>(options);
+        Label databaseName = new Label();
+        databaseNameTextField = new TextField();
+        databaseNameTextField.setPrefWidth(200);
+        databaseNameTextField.setPromptText("Datenbank Name");
+
+        ComboBox<JEVisClass> classComboBox = new ComboBox<JEVisClass>();
+
+        for (JEVisClass option : options) {
+            try {
+                if (option.getName().equals("HTTP Server")) {
+                    classComboBox.getItems().add(option);
+                }
+            } catch (JEVisException ex) {
+                Logger.getLogger(AutomatedWizardStep2.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
         classComboBox.setCellFactory(cellFactory);
         classComboBox.setButtonCell(cellFactory.call(null));
         classComboBox.setMinWidth(250);
         classComboBox.getSelectionModel().selectFirst();
+
         createClass = classComboBox.getSelectionModel().getSelectedItem();
 
         classComboBox.setOnAction(new EventHandler<ActionEvent>() {
@@ -196,7 +226,6 @@ public class ManualWizardStep2 extends WizardPane {
                 } catch (JEVisException ex) {
                     Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
                 }
-
                 root.setCenter(getTypes());
             }
         });
@@ -210,18 +239,27 @@ public class ManualWizardStep2 extends WizardPane {
             Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        serverName.setText("Name : ");
-
+        serverName.setText("Server Name : ");
+        databaseName.setText("Database Name : ");
         //Servername and ComboBox
-        HBox hBoxTop = new HBox();
-        hBoxTop.setSpacing(10);
-        hBoxTop.getChildren().addAll(serverName, serverNameTextField, classComboBox);
-        hBoxTop.setPadding(new Insets(10, 10, 10, 10));
+        HBox hBoxTopServerName = new HBox();
+        hBoxTopServerName.setSpacing(30);
+        hBoxTopServerName.getChildren().addAll(serverName, serverNameTextField, classComboBox);
+        hBoxTopServerName.setPadding(new Insets(10, 10, 10, 0));
 
-        root.setTop(hBoxTop);
+        HBox hBoxTopDatabaseName = new HBox();
+        hBoxTopDatabaseName.setSpacing(10);
+        hBoxTopDatabaseName.getChildren().addAll(databaseName, databaseNameTextField);
+        hBoxTopDatabaseName.setPadding(new Insets(10, 10, 10, 0));
+
+        VBox vBoxTop = new VBox();
+        vBoxTop.getChildren().addAll(hBoxTopServerName, hBoxTopDatabaseName);
+        vBoxTop.setPadding(new Insets(10, 10, 10, 10));
+        root.setTop(vBoxTop);
         root.setCenter(getTypes());
 
         return root;
+
     }
 
     //Erzeuge Label,TextField und CheckBox variablen von schon definierter Typen.
@@ -274,7 +312,7 @@ public class ManualWizardStep2 extends WizardPane {
                     gridpane.addRow(i, label, checkBox);
                 }
             } catch (JEVisException ex) {
-                Logger.getLogger(ManualWizardStep2.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(AutomatedWizardStep2.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         gridpane.setHgap(10);//horizontal gap in pixels 

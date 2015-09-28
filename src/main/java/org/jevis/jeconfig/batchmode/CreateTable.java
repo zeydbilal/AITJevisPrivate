@@ -44,7 +44,7 @@ import org.jevis.jeconfig.tool.ImageConverter;
 
 /**
  *
- * @author Bilal
+ * @author Zeyd Bilal Calis
  */
 // CreateTable ist für die eine neue Tabelle zu erzeugen.
 // CreateTable hat zwei Unterklasse die erste ist CreateNewTable und die zweite ist CreateNewDataTable.
@@ -64,58 +64,6 @@ public class CreateTable {
     private ObservableList<Pair<String, ArrayList<String>>> pairList = FXCollections.observableArrayList();
     private ObservableList<String> listUnits = FXCollections.observableArrayList();
     private ObservableList<String> listUnitSymbols = FXCollections.observableArrayList();
-
-    // Erstelle eine neue Tabelle
-    class CreateNewTable {
-
-        public CreateNewTable() {
-            try {
-                rowCount = 1000;
-                columnCount = createClass.getTypes().size() + 1;
-            } catch (JEVisException ex) {
-                Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-            grid = new GridBase(rowCount, columnCount);
-
-            for (int row = 0; row < grid.getRowCount(); ++row) {
-                cells = FXCollections.observableArrayList();
-                for (int column = 0; column < grid.getColumnCount(); ++column) {
-                    cells.add(SpreadsheetCellType.STRING.createCell(row, column, 1, 1, ""));
-                }
-
-                rows.add(cells);
-            }
-            grid.setRows(rows);
-            grid.setRowHeightCallback(new GridBase.MapBasedRowHeightFactory(generateRowHeight()));
-            spv = new SpreadsheetViewTable(rows, grid);
-
-            spv.setGrid(grid);
-
-            ObservableList<SpreadsheetColumn> colList = spv.getColumns();
-
-            for (SpreadsheetColumn colListElement : colList) {
-                colListElement.setPrefWidth(150);
-            }
-
-            spv.setEditable(true);
-            spv.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-
-            columnHeaderNames.add("Object Name");
-            try {
-
-                //Get and set the typenames from a class.
-                //Typenames werden von der Ausgewählte Klasse aufgerufen.Diese Namen werden in der columnHeaderNames Liste verwendet.
-                for (int i = 0; i < createClass.getTypes().size(); i++) {
-                    columnHeaderNames.add(createClass.getTypes().get(i).getName());
-                }
-
-            } catch (JEVisException ex) {
-                Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            spv.getGrid().getColumnHeaders().addAll(columnHeaderNames);
-        }
-    }
 
     public static enum Type {
 
@@ -304,28 +252,60 @@ public class CreateTable {
         return columnHeaderNames;
     }
 
-    private void addUnits() {
-        JEVisUnit.Prefix[] prefixes = JEVisUnit.Prefix.values();
+    // Erstelle eine neue Tabelle
+    class CreateNewTable {
 
-        for (int i = 0; i < prefixes.length; i++) {
-            String strPrefix = prefixes[i].toString();
-            listUnits.add(strPrefix);
+        public CreateNewTable() {
+            try {
+                rowCount = 1000;
+                columnCount = createClass.getTypes().size() + 1;
+            } catch (JEVisException ex) {
+                Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            grid = new GridBase(rowCount, columnCount);
+
+            for (int row = 0; row < grid.getRowCount(); ++row) {
+                cells = FXCollections.observableArrayList();
+                for (int column = 0; column < grid.getColumnCount(); ++column) {
+                    cells.add(SpreadsheetCellType.STRING.createCell(row, column, 1, 1, ""));
+                }
+
+                rows.add(cells);
+            }
+            grid.setRows(rows);
+            grid.setRowHeightCallback(new GridBase.MapBasedRowHeightFactory(generateRowHeight()));
+            spv = new SpreadsheetViewTable(rows, grid);
+
+            spv.setGrid(grid);
+
+            ObservableList<SpreadsheetColumn> colList = spv.getColumns();
+
+            for (SpreadsheetColumn colListElement : colList) {
+                colListElement.setPrefWidth(150);
+            }
+
+            spv.setEditable(true);
+            spv.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+            columnHeaderNames.add("Object Name");
+            try {
+
+                //Get and set the typenames from a class.
+                //Typenames werden von der Ausgewählte Klasse aufgerufen.Diese Namen werden in der columnHeaderNames Liste verwendet.
+                for (int i = 0; i < createClass.getTypes().size(); i++) {
+                    columnHeaderNames.add(createClass.getTypes().get(i).getName());
+                }
+
+            } catch (JEVisException ex) {
+                Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            spv.getGrid().getColumnHeaders().addAll(columnHeaderNames);
         }
     }
 
-    // JEVIS Unit symbols
-    public void addSymbols() {
-        listUnitSymbols.addAll("m/sÂ²",
-                "g", "mol", "atom", "rad", "bit", "%", "centiradian", "dB", "Â°", "'", "byte", "rev", "Â¨", "sphere", "sr", "rad/sÂ²", "rad/s", "Bq", "Ci", "Hz",
-                "mÂ²", "a", "ha", "cmÂ²", "kmÂ²", "kat", "â‚¬", "â‚¦", "\u20B9", "$", "*?*", "Â¥", "Hits/cmÂ²", "Hits/mÂ²", "Î©/cmÂ²", "bit/s", "-", "s", "m", "h", "day", "day_sidereal",
-                "week", "month", "year", "year_calendar", "year_sidereal", "g/(cms)", "F", "C", "e", "Fd", "Fr", "S", "A", "Gi", "H", "V", "Î©", "J",
-                "eV", "erg", "N", "dyn", "kgf", "lbf", "lx", "La", "W/mÂ²", "mÂ²/s", "cmÂ²/s", "Ã…", "ua", "cm", "foot_survey_us", "ft", "in", "km", "ly",
-                "mi", "mm", "nmi", "pc", "pixel", "pt", "yd", "W", "Wb", "Mx", "T", "G", "kg", "u", "me", "t", "oz", "lb", "ton_uk", "ton_us", "kg/s",
-                "cd", "hp", "lm", "var", "Pa", "atm", "bar", "in Hg", "mmHg", "Gy", "rem", "Sv", "rd", "Rd", "rev/s", "grade", "K", "â„ƒ", "Â°F", "Â°R",
-                "Nm", "Wh", "Ws", "m/s", "c", "km/h", "kn", "Mach", "mph", "mÂ³", "inÂ³", "gallon_dry_us", "gal", "gallon_uk", "l", "oz_uk", "kg/mÂ³", "mÂ³/s");
-    }
-
     // Erstelle eine neue Data-Tabelle
+    // Diese Klasse spezialist nur für das Data-Object deklariert
     class CreateNewDataTable {
 
         public CreateNewDataTable(Button createBtn) {
@@ -523,5 +503,26 @@ public class CreateTable {
             rowHeight.put(i, 30.0);
         }
         return rowHeight;
+    }
+
+    private void addUnits() {
+        JEVisUnit.Prefix[] prefixes = JEVisUnit.Prefix.values();
+
+        for (int i = 0; i < prefixes.length; i++) {
+            String strPrefix = prefixes[i].toString();
+            listUnits.add(strPrefix);
+        }
+    }
+
+    // JEVIS Unit symbols
+    public void addSymbols() {
+        listUnitSymbols.addAll("m/sÂ²",
+                "g", "mol", "atom", "rad", "bit", "%", "centiradian", "dB", "Â°", "'", "byte", "rev", "Â¨", "sphere", "sr", "rad/sÂ²", "rad/s", "Bq", "Ci", "Hz",
+                "mÂ²", "a", "ha", "cmÂ²", "kmÂ²", "kat", "â‚¬", "â‚¦", "\u20B9", "$", "*?*", "Â¥", "Hits/cmÂ²", "Hits/mÂ²", "Î©/cmÂ²", "bit/s", "-", "s", "m", "h", "day", "day_sidereal",
+                "week", "month", "year", "year_calendar", "year_sidereal", "g/(cms)", "F", "C", "e", "Fd", "Fr", "S", "A", "Gi", "H", "V", "Î©", "J",
+                "eV", "erg", "N", "dyn", "kgf", "lbf", "lx", "La", "W/mÂ²", "mÂ²/s", "cmÂ²/s", "Ã…", "ua", "cm", "foot_survey_us", "ft", "in", "km", "ly",
+                "mi", "mm", "nmi", "pc", "pixel", "pt", "yd", "W", "Wb", "Mx", "T", "G", "kg", "u", "me", "t", "oz", "lb", "ton_uk", "ton_us", "kg/s",
+                "cd", "hp", "lm", "var", "Pa", "atm", "bar", "in Hg", "mmHg", "Gy", "rem", "Sv", "rd", "Rd", "rev/s", "grade", "K", "â„ƒ", "Â°F", "Â°R",
+                "Nm", "Wh", "Ws", "m/s", "c", "km/h", "kn", "Mach", "mph", "mÂ³", "inÂ³", "gallon_dry_us", "gal", "gallon_uk", "l", "oz_uk", "kg/mÂ³", "mÂ³/s");
     }
 }

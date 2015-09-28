@@ -36,12 +36,11 @@ import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.plugin.object.ObjectTree;
 import org.joda.time.DateTime;
 
-
 /**
  *
  * @author Zeyd Bilal Calis
  */
-public class ManualWizardStep3 extends WizardPane {
+public class AutomatedWizardStep3 extends WizardPane {
 
     private WizardSelectedObject wizardSelectedObject;
     private TextField csvFileNameTextField;
@@ -51,7 +50,7 @@ public class ManualWizardStep3 extends WizardPane {
     private ObservableList<String> listBuildSample = FXCollections.observableArrayList();
     private Map<String, String> map = new TreeMap<String, String>();
 
-    public ManualWizardStep3(ObjectTree tree, WizardSelectedObject wizardSelectedObject) {
+    public AutomatedWizardStep3(ObjectTree tree, WizardSelectedObject wizardSelectedObject) {
         this.wizardSelectedObject = wizardSelectedObject;
         this.tree = tree;
         setMinSize(500, 500);
@@ -96,7 +95,8 @@ public class ManualWizardStep3 extends WizardPane {
         try {
             childrenList = FXCollections.observableArrayList(wizardSelectedObject.getCurrentSelectedObject().getAllowedChildrenClasses());
             for (JEVisClass child : childrenList) {
-                if (child.getName().equals("CSV Parser")) {
+                System.out.println(child.getName());
+                if (child.getName().equals("JSON Parser")) {
                     // createClass wurde initialisiert
                     createClass = child;
                 }
@@ -127,10 +127,10 @@ public class ManualWizardStep3 extends WizardPane {
             childrenList = FXCollections.observableArrayList(wizardSelectedObject.getCurrentSelectedObject().getAllowedChildrenClasses());
 
             for (JEVisClass child : childrenList) {
-                if (child.getName().equals("CSV Parser")) {
+                if (child.getName().equals("JSON Parser")) {
                     JEVisObject newObject = wizardSelectedObject.getCurrentSelectedObject().buildObject(csvFileNameTextField.getText(), child);
                     newObject.commit();
-                    //Commit attributes for CSV Parser
+                    //Commit attributes for JSON Parser
                     commitAttributes(newObject);
 
                 } else if (child.getName().equals("Data Point Directory")) {
@@ -140,7 +140,7 @@ public class ManualWizardStep3 extends WizardPane {
                 }
             }
         } catch (JEVisException ex) {
-            Logger.getLogger(ManualWizardStep3.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AutomatedWizardStep3.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
