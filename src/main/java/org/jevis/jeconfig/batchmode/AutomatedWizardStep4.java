@@ -85,7 +85,7 @@ public class AutomatedWizardStep4 extends WizardPane {
 
             if (type.getButtonData().equals(ButtonBar.ButtonData.FINISH)) {
                 finish = (Button) lookupButton(type);
-                finish.setDisable(true);
+                finish.setDisable(false);
                 finish.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent event) {
@@ -251,7 +251,7 @@ public class AutomatedWizardStep4 extends WizardPane {
                 colListElement.setPrefWidth(150);
             }
 
-            spv.setEditable(false);
+            spv.setEditable(true);
             spv.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
             columnHeaderNamesDataTable.addAll(colNames);
 

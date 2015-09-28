@@ -22,7 +22,7 @@ public class WizardMain extends Wizard {
     private WizardStartPane wizardStartPane;
     private WizardSelectedObject wizardSelectedObject = new WizardSelectedObject();
     private SensorMap sensorMap = new SensorMap();
-    
+
     private ManualWizardStep1 manualStep1;
     private ManualWizardStep2 manualStep2;
     private ManualWizardStep3 manualStep3;
@@ -44,9 +44,9 @@ public class WizardMain extends Wizard {
         manualStep4 = new ManualWizardStep4(tree, wizardSelectedObject);
 
         automatedWizardStep1 = new AutomatedWizardStep1(parentObject, tree, wizardSelectedObject);
-        automatedWizardStep2 = new AutomatedWizardStep2(tree, wizardSelectedObject,sensorMap);
+        automatedWizardStep2 = new AutomatedWizardStep2(tree, wizardSelectedObject, sensorMap);
         automatedWizardStep3 = new AutomatedWizardStep3(tree, wizardSelectedObject);
-        automatedWizardStep4 = new AutomatedWizardStep4(tree, wizardSelectedObject,sensorMap);
+        automatedWizardStep4 = new AutomatedWizardStep4(tree, wizardSelectedObject, sensorMap);
 
         setTitle("JEVIS Wizard");
         initWizard();

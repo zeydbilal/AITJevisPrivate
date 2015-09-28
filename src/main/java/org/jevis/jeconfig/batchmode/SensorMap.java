@@ -55,7 +55,7 @@ public class SensorMap {
             Logger.getLogger(SensorMap.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public Map<String, LinkedHashMap<String, String>> getSensorMap() {
 
         Map<String, LinkedHashMap<String, String>> map = null;
@@ -90,12 +90,12 @@ public class SensorMap {
     }
 
     public String getPort() {
-       //return "3000";
+        //return "3000";
         return port;
     }
 
     public String getDatabase() {
-       //return "db";
+        //return "db";
         return database;
     }
 
