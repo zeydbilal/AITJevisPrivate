@@ -149,32 +149,11 @@
             <groupId>org.jevis.api.sql</groupId>
             <artifactId>jeapi-sql</artifactId>
             <version>3.0.1</version>
-        </dependency>           
-        <dependency>
-            <groupId>commons-configuration</groupId>
-            <artifactId>commons-configuration</artifactId>
-            <version>1.8</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>  
-            <groupId>org.jgrapht</groupId>  
-            <artifactId>jgrapht-jdk1.5</artifactId>  
-            <version>0.7.3</version>  
-        </dependency>   
-        <dependency>
+        </dependency>                  
+         <dependency>      
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
             <version>8.40.9</version>
-        </dependency>      
-        <dependency>
-            <groupId>com.jidesoft</groupId>
-            <artifactId>jidefx-fields</artifactId>
-            <version>0.9.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jevis.commons.parsing.jsonParsing</groupId>
-            <artifactId>JSONParsing</artifactId>
-            <version>0.2-SNAPSHOT</version>
-        </dependency>
+        </dependency>   
     </dependencies>
 </project>
