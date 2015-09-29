@@ -496,13 +496,11 @@ public class ObjectTree extends TreeView<JEVisObject> {
     }
 
     public void fireSaveAttributes(boolean ask) throws JEVisException {
-
         if (ask) {
             _editor.checkIfSaved(null);
         } else {
             _editor.commitAll();
         }
-
     }
 
     public void fireDelete(JEVisObject obj) {

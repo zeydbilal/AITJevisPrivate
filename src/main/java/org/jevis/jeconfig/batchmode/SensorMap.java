@@ -27,7 +27,6 @@ import org.apache.commons.io.IOUtils;
 public class SensorMap {
 
     private InputStream inputStream;
-    private String urlToRead;
     private String url;
     private String port;
     private String database;
@@ -100,6 +99,6 @@ public class SensorMap {
     }
 
     public String getUrlToRead() {
-        return this.urlToRead = getUrl() + ":" + getPort() + "/" + getDatabase();
+        return getUrl() + ":" + getPort() + "/" + getDatabase();
     }
 }

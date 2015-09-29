@@ -107,8 +107,8 @@ public class AutomatedWizardStep1 extends WizardPane {
                     tree.getSelectionModel().select(newTreeItem);
                 }
             });
+            
             //We need this object name for the last step. -> tree.expandSelected(true); 
-
             wizardSelectedObject.setCurrentSelectedBuildingObject(newObject);
 
             ObservableList<JEVisClass> allowedChildrenClasses = FXCollections.observableArrayList(newTreeItem.getValue().getAllowedChildrenClasses());
