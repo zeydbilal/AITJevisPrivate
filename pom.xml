@@ -153,7 +153,17 @@
          <dependency>      
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
+<<<<<<< HEAD
             <version>8.40.9</version>
         </dependency>   
+=======
+            <version>8.20.8</version>
+        </dependency>        
+        <dependency>
+            <groupId>com.jidesoft</groupId>
+            <artifactId>jidefx-fields</artifactId>
+            <version>0.9.1</version>
+        </dependency>
+>>>>>>> parent of 48eb1e7... Merge pull request #6 from AIT-JEVis/branch_workspace
     </dependencies>
 </project>
