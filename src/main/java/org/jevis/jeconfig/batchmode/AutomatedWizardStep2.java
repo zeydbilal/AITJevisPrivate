@@ -67,7 +67,6 @@ public class AutomatedWizardStep2 extends WizardPane {
         this.tree = tree;
         setMinSize(500, 500);
         setGraphic(null);
-
     }
 
     @Override
@@ -85,8 +84,8 @@ public class AutomatedWizardStep2 extends WizardPane {
 
     @Override
     public void onExitingPage(Wizard wizard) {
+        //Erzeuge das Server-Objekt
         commitServerObject();
-        System.out.println(sensorMap.getUrlToRead());
     }
 
     public void commitServerObject() {

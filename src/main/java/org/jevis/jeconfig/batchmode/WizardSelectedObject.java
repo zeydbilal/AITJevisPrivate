@@ -11,8 +11,8 @@ import org.jevis.api.JEVisObject;
  *
  * @author Zeyd Bilal Calis
  */
-//New parent and new child object
-//This is a help class for selected objects
+//This is a help class for selected objects.
+//Die ausgewaehlte Objekte werden in dieser Klasse abgespeichert bzw. gelagert.
 public class WizardSelectedObject {
 
     // Selected objects from tree

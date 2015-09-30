@@ -48,7 +48,6 @@ public class AutomatedWizardStep1 extends WizardPane {
 
         HBox hbox = new HBox();
         Label namelbl = new Label();
-        //Please give your building name : 
         namelbl.setText("Building name : ");
 
         nameTextField = new TextField();
@@ -77,6 +76,7 @@ public class AutomatedWizardStep1 extends WizardPane {
 
     @Override
     public void onExitingPage(Wizard wizard) {
+        //Erzeuge die Building ,Data Source Directory und Data Directory Objekte
         commitObject();
     }
 
@@ -107,7 +107,7 @@ public class AutomatedWizardStep1 extends WizardPane {
                     tree.getSelectionModel().select(newTreeItem);
                 }
             });
-            
+
             //We need this object name for the last step. -> tree.expandSelected(true); 
             wizardSelectedObject.setCurrentSelectedBuildingObject(newObject);
 

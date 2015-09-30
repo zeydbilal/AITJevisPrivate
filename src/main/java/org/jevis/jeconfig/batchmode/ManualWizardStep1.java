@@ -77,6 +77,7 @@ public class ManualWizardStep1 extends WizardPane {
 
     @Override
     public void onExitingPage(Wizard wizard) {
+        //Erzeuge die Building ,Data Source Directory und Data Directory Objekte
         commitObject();
     }
 

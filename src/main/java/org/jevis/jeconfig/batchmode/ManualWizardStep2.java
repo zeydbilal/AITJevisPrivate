@@ -80,6 +80,7 @@ public class ManualWizardStep2 extends WizardPane {
 
     @Override
     public void onExitingPage(Wizard wizard) {
+        //Erzeuge das Server-Objekt
         commitServerObject();
     }
 
@@ -89,7 +90,7 @@ public class ManualWizardStep2 extends WizardPane {
             newObject.commit();
             commitAttributes(newObject);
 
-            //wähle den Server als neue Objekt!
+            //wähle den Server als neue Objekt aus!
             wizardSelectedObject.setCurrentSelectedObject(newObject);
 
         } catch (JEVisException ex) {

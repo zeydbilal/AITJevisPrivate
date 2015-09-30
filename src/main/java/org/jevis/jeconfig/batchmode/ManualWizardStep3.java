@@ -75,6 +75,7 @@ public class ManualWizardStep3 extends WizardPane {
 
     @Override
     public void onExitingPage(Wizard wizard) {
+        //Erzeuge die CSV-Parser und Data Point Directory
         commitObjects();
     }
 

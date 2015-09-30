@@ -74,6 +74,7 @@ public class AutomatedWizardStep3 extends WizardPane {
 
     @Override
     public void onExitingPage(Wizard wizard) {
+        //Erzeuge die JSON-Parser und Data Point Directory
         commitObjects();
     }
 
@@ -136,6 +137,7 @@ public class AutomatedWizardStep3 extends WizardPane {
                 } else if (child.getName().equals("Data Point Directory")) {
                     JEVisObject newObject = wizardSelectedObject.getCurrentSelectedObject().buildObject(child.getName(), child);
                     newObject.commit();
+                    //newObject is the new DataPointDirectory
                     wizardSelectedObject.setCurrentDataPointDirectory(newObject);
                 }
             }

@@ -501,7 +501,7 @@ public class EditTable {
             }
 
             //Add to table
-            //sortiere die Liste! Die Reihenfolge genau wie Baumsreihenfolge
+            //sortiere die Liste! Die Reihenfolge ist genau wie Baumsreihenfolge
             sortTheChildren(listChildren);
             sortTheAttribute(listObjectAndValueAttribute);
             for (int i = 0; i < grid.getRowCount(); i++) {

@@ -20,14 +20,17 @@ public class WizardMain extends Wizard {
     private JEVisObject parentObject;
     private ObjectTree tree;
     private WizardStartPane wizardStartPane;
+    //The selected Parents.
     private WizardSelectedObject wizardSelectedObject = new WizardSelectedObject();
     private SensorMap sensorMap = new SensorMap();
 
+    //Manual Steps
     private ManualWizardStep1 manualStep1;
     private ManualWizardStep2 manualStep2;
     private ManualWizardStep3 manualStep3;
     private ManualWizardStep4 manualStep4;
 
+    //Automated Steps
     private AutomatedWizardStep1 automatedWizardStep1;
     private AutomatedWizardStep2 automatedWizardStep2;
     private AutomatedWizardStep3 automatedWizardStep3;
