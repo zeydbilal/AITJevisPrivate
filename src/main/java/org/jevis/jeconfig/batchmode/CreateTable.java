@@ -46,8 +46,10 @@ import org.jevis.jeconfig.tool.ImageConverter;
  *
  * @author Zeyd Bilal Calis
  */
-// CreateTable ist für die eine neue Tabelle zu erzeugen.
-// CreateTable hat zwei Unterklasse die erste ist CreateNewTable und die zweite ist CreateNewDataTable.
+// CreateTable wurde um eine neue Tabelle zu erzeugen implementiert.
+// CreateTable hat zwei untere Klassen die erste ist CreateNewTable und die zweite ist CreateNewDataTable.
+// CreateNewDataTable wurde nur fuer das "Data" Objekt implementiert. Wenn man in JEConfig ein Data Objekt definiert,wird diese
+// Klasse aufgerufen, fuer die alle andere definierte Objekten wird die CreateNewTable Klasse aufgeruden.
 public class CreateTable {
 
     //declarations
@@ -89,7 +91,7 @@ public class CreateTable {
         } catch (JEVisException ex) {
             Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        //cellFactory for the ComboBox 
         Callback<ListView<JEVisClass>, ListCell<JEVisClass>> cellFactory = new Callback<ListView<JEVisClass>, ListCell<JEVisClass>>() {
             @Override
             public ListCell<JEVisClass> call(ListView<JEVisClass> param) {
@@ -123,16 +125,20 @@ public class CreateTable {
             }
         };
 
+        //ComboBox ist fuer die Kinder vom ausgewählten Parent zu zeigen.
         ComboBox<JEVisClass> classComboBox = new ComboBox<JEVisClass>(options);
         classComboBox.setCellFactory(cellFactory);
         classComboBox.setButtonCell(cellFactory.call(null));
         classComboBox.setMinWidth(250);
         classComboBox.getSelectionModel().selectFirst();
+        //Wähle das erste Item aus und initialisiere createClass.
         createClass = classComboBox.getSelectionModel().getSelectedItem();
 
         Button createBtn = new Button("Create Structure");
         Button cancelBtn = new Button("Cancel");
 
+        //Wenn createclass ein JEconfig "Data" object ist,wird CreateNewDataTable aufgerufen.
+        //Wenn nicht CreateNewTable aufgerufen.
         try {
             if (createClass.getName().equals("Data")) {
                 new CreateNewDataTable(createBtn);
@@ -144,12 +150,13 @@ public class CreateTable {
         }
 
         BorderPane root = new BorderPane();
-//        root.setPadding(new Insets(3));
+        //root.setPadding(new Insets(3));
 
         HBox hBoxTop = new HBox();
         hBoxTop.setSpacing(10);
-//        hBoxTop.setPadding(new Insets(3, 3, 3, 3));
+        //hBoxTop.setPadding(new Insets(3, 3, 3, 3));
         Label lClass = new Label("Class:");
+        //Help Button ist fuer den WebBrowser in den WebBrowser wird die batch_mode_help.html Datei aufgerufen.
         Button help = new Button("Help", JEConfig.getImage("quick_help_icon.png", 22, 22));
         Separator sep1 = new Separator();
         hBoxTop.getChildren().addAll(lClass, classComboBox, sep1, help);
@@ -158,7 +165,7 @@ public class CreateTable {
 
         HBox hBoxBottom = new HBox();
         hBoxBottom.setSpacing(10);
-//        hBoxBottom.setPadding(new Insets(0, 3, 3, 3));
+        //hBoxBottom.setPadding(new Insets(0, 3, 3, 3));
         hBoxBottom.getChildren().addAll(createBtn, cancelBtn);
         hBoxBottom.setAlignment(Pos.BASELINE_RIGHT);
         root.setBottom(hBoxBottom);
@@ -166,20 +173,25 @@ public class CreateTable {
         root.setCenter(spv);
         Scene scene = new Scene(root);
         scene.getStylesheets().add("styles/Table.css");
-
+        //Die inputs werden schrit zu schrit so abgespeichert.
         createBtn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
                 stage.close();
                 for (int i = 0; i < grid.getRowCount(); i++) {
+                    //Schritt1 : In der ersten Spalte steht der Objektname. 
                     String spcObjectName = rows.get(i).get(0).getText();
-
+                    //Schritt2 : Wenn der Objektname nicht leer ist werden die Attribute gelesen.
                     if (!spcObjectName.equals("")) {
+                        //Schritt3 : Ab zweiten Spalten fangen wir die Attribute abzulesen.
+                        //Die Attribute werden in eine Liste abgespeichert.
                         ArrayList<String> attributs = new ArrayList<>();
                         for (int j = 1; j < grid.getColumnCount(); j++) {
                             SpreadsheetCell spcAttribut = rows.get(i).get(j);
                             attributs.add(spcAttribut.getText());
                         }
+                        //Schritt4 : Objektname und die Attribute werden in die pairList abgepeichert.
+                        //Diese Liste wird in der fireEventCreateTable() Methode von der Klasse ObjectTree.java aufgerufen.                     
                         pairList.add(new Pair(spcObjectName, attributs));
                     }
                 }
@@ -195,7 +207,7 @@ public class CreateTable {
 
             }
         });
-
+        //Wenn man vom ComboBox ein neues Objekt auswählt,wird 
         classComboBox.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -257,12 +269,15 @@ public class CreateTable {
 
         public CreateNewTable() {
             try {
+                //Zeilen anzahl ist 1000
+                //Spalten-Anzahl ist gleich Typen-Anzahl von der ausgewählten JEVisClass.
+                //Spalten-Anzahl : Klassen Attribute(Types) und +1 ist fuer die Objectname.
                 rowCount = 1000;
                 columnCount = createClass.getTypes().size() + 1;
             } catch (JEVisException ex) {
                 Logger.getLogger(CreateTable.class.getName()).log(Level.SEVERE, null, ex);
             }
-
+            //Ab hier wird die Tabelle und ihre Eigenschaften erzeugt.
             grid = new GridBase(rowCount, columnCount);
 
             for (int row = 0; row < grid.getRowCount(); ++row) {
@@ -287,7 +302,7 @@ public class CreateTable {
 
             spv.setEditable(true);
             spv.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-
+            // Spaltennamen werden in die columnHeaderNames speichert(Object Name und Typnames).
             columnHeaderNames.add("Object Name");
             try {
 
@@ -305,10 +320,11 @@ public class CreateTable {
     }
 
     // Erstelle eine neue Data-Tabelle
-    // Diese Klasse spezialist nur für das Data-Object deklariert
+    // Diese Klasse spezial nur fuer das Data-Object deklariert.
     class CreateNewDataTable {
 
         public CreateNewDataTable(Button createBtn) {
+            //Erzeuge eine fixe Tabelle mit dieser Spaltennamen.
             String[] colNames = {"Object Name", "Display Prefix", "Display Symbol", "Display Sample Rate", "Input Prefix", "Input Symbol", "Input Sample Rate"};
             rowCount = 1000;
             columnCount = colNames.length;
@@ -329,7 +345,7 @@ public class CreateTable {
             spv.setGrid(grid);
 
             ObservableList<SpreadsheetColumn> colList = spv.getColumns();
-
+            //Die Breite von der Spalte wird als 150 eingesetzt.
             for (SpreadsheetColumn colListElement : colList) {
                 colListElement.setPrefWidth(150);
             }
@@ -339,11 +355,11 @@ public class CreateTable {
             columnHeaderNamesDataTable.addAll(colNames);
 
             spv.getGrid().getColumnHeaders().addAll(columnHeaderNamesDataTable);
-            //change it
-            //createBtn.setDisable(true);
+
             addUnits();
             addSymbols();
-            //GridChange Event for Prefix and Symbol Input Control
+
+            //GridChangeEvent kontrolliert die Änderungen in der Tabelle und ueberprüft mit hilfe des inputControls ob sie richtrig sind oder nicht.
             spv.getGrid().addEventHandler(GridChange.GRID_CHANGE_EVENT, new EventHandler<GridChange>() {
 
                 @Override
@@ -354,7 +370,7 @@ public class CreateTable {
         }
     }
 
-    //Hier wird die Eingaben überprüft für diese Spalten (Prefix,Symbol und Sample Rate ).
+    //Hier wird die Eingaben fuer die Spalten(Prefix,Symbol und Sample Rate ) ueberprueft.
     public void inputControl(Button createBtn) {
         ObservableList<String> listPrefix = FXCollections.observableArrayList();
         ObservableList<String> listSymbols = FXCollections.observableArrayList();
@@ -505,6 +521,7 @@ public class CreateTable {
         return rowHeight;
     }
 
+    //Get the Prefix values from JEVisUnit.Prefix.
     private void addUnits() {
         JEVisUnit.Prefix[] prefixes = JEVisUnit.Prefix.values();
 

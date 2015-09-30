@@ -14,6 +14,8 @@ import org.controlsfx.control.spreadsheet.SpreadsheetView;
  *
  * @author Zeyd Bilal Calis
  */
+//Diese Klasse abgeleitet von der SpreadsheetView. Mit Hilfe des ClipBoardSpecific Methode
+//kann man die Inputs zu einem Excel-Sheet exportieren oder von einem Excel-Sheet in die Tabelle importieren.
 public class SpreadsheetViewTable extends SpreadsheetView {
 
     private static final String EXCEL_IDENTIFIER = "Biff8";
@@ -46,6 +48,7 @@ public class SpreadsheetViewTable extends SpreadsheetView {
 
     }
 
+    //Kopie den Inhalt zum ClipBoard
     public void copyClipBoardSpecific() {
         try {
             Clipboard clipboard = Clipboard.getSystemClipboard();
@@ -88,6 +91,7 @@ public class SpreadsheetViewTable extends SpreadsheetView {
         }
     }
 
+    //Paste den Inhalt vom ClipBoard
     public void pasteClipBoardSpecific() {
         try {
             Clipboard clipboard = Clipboard.getSystemClipboard();
@@ -117,6 +121,7 @@ public class SpreadsheetViewTable extends SpreadsheetView {
         }
     }
 
+    //Sucht ein ExcelFormat im Clipboard.
     public DataFormat findExcelFormat(Set<DataFormat> formats) {
         for (DataFormat format : formats) {
             if (format.getIdentifiers().contains(EXCEL_IDENTIFIER)) {
@@ -126,6 +131,7 @@ public class SpreadsheetViewTable extends SpreadsheetView {
         return null;
     }
 
+    //Sucht ein SpreadsheetViewFormat im Clipboard.
     public DataFormat findSpreadsheetViewFormat(Set<DataFormat> formats) {
         for (DataFormat format : formats) {
             if (format.getIdentifiers().contains("SpreadsheetView")) {

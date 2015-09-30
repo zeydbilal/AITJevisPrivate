@@ -167,11 +167,11 @@ public class EditTable {
         }
 
         BorderPane root = new BorderPane();
-//        root.setPadding(new Insets(3));
+        //root.setPadding(new Insets(3));
 
         HBox hBoxTop = new HBox();
         hBoxTop.setSpacing(10);
-//        hBoxTop.setPadding(new Insets(3, 3, 3, 3));
+        //hBoxTop.setPadding(new Insets(3, 3, 3, 3));
         Label lClass = new Label("Class:");
         Button help = new Button("Help", JEConfig.getImage("quick_help_icon.png", 22, 22));
         Separator sep1 = new Separator();
@@ -180,7 +180,7 @@ public class EditTable {
 
         HBox hBoxBottom = new HBox();
         hBoxBottom.setSpacing(10);
-//        hBoxBottom.setPadding(new Insets(3, 3, 3, 3));
+        //hBoxBottom.setPadding(new Insets(3, 3, 3, 3));
         hBoxBottom.getChildren().addAll(editBtn, cancelBtn);
         hBoxBottom.setAlignment(Pos.BASELINE_RIGHT);
         root.setBottom(hBoxBottom);
@@ -282,7 +282,7 @@ public class EditTable {
         return selectedClass;
     }
 
-    // Erstelle eine neue Tabelle für die Objekte zu editieren.
+    // Erstelle eine neue Tabelle fuer die Objekte zu editieren.
     class CreateNewEditTable {
 
         private ObservableList<Pair<JEVisObject, ObservableList<Pair<String, String>>>> listObjectAndSample = FXCollections.observableArrayList();
@@ -290,6 +290,7 @@ public class EditTable {
         public CreateNewEditTable(JEVisObject parent) {
             try {
                 rowCount = getListChildren().size();
+                //Spalten-Anzahl : Klassen Attribute(Types) und +2 ist fuer die Object ID,Objectname.
                 columnCount = selectedClass.getTypes().size() + 2;
             } catch (JEVisException ex) {
                 Logger.getLogger(CreateNewEditTable.class.getName()).log(Level.SEVERE, null, ex);
@@ -397,8 +398,8 @@ public class EditTable {
         }
     }
 
-    // Erstelle eine neue Tabelle für die Data-Objekte zu editieren.
-    // Diese Klasse spezial nur für das Data-Object implementiert.
+    // Erstelle eine neue Tabelle fuer die Data-Objekte zu editieren.
+    // Diese Klasse spezial nur fuer das Data-Object implementiert.
     class CreateNewDataEditTable {
 
         private ObservableList<Pair<JEVisObject, ObservableList<Pair<String, String>>>> listObjectAndValueAttribute = FXCollections.observableArrayList();

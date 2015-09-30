@@ -35,6 +35,12 @@ public class SensorMap {
 
     }
 
+    public SensorMap(String url, String port, String database) {
+        setUrl(url);
+        setPort(port);
+        setDatabase(database);
+    }
+
     public void connection() {
         URL url;
         HttpURLConnection conn;
@@ -60,12 +66,13 @@ public class SensorMap {
         Map<String, LinkedHashMap<String, String>> map = null;
         try {
             String jsonString = IOUtils.toString(inputStream);
-            //String jsonTestString ="{\"T\": {  \"MacAddr\": \"28524295050000AB\",  \"Temperature\": \"24.19\",  \"Time\": \"2014-05-26T07:06:43+02:00\"}}";
             Gson gson = new Gson();
             Type complexMap = new TypeToken<Map<String, LinkedHashMap<String, String>>>() {
             }.getType();
             map = gson.fromJson(jsonString, complexMap);
         } catch (IOException ex) {
+            Logger.getLogger(SensorMap.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NullPointerException ex) {
             Logger.getLogger(SensorMap.class.getName()).log(Level.SEVERE, null, ex);
         }
         return map;
@@ -84,17 +91,14 @@ public class SensorMap {
     }
 
     public String getUrl() {
-        //http://192.71.247.119
         return url;
     }
 
     public String getPort() {
-        //return "3000";
         return port;
     }
 
     public String getDatabase() {
-        //return "db";
         return database;
     }
 

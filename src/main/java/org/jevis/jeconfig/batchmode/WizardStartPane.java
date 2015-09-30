@@ -20,6 +20,7 @@ import org.jevis.jeconfig.JEConfig;
  *
  * @author Zeyd Bilal Calis
  */
+// Entscheidungsklasse fuer die Manual oder Automatedauswahl.
 public class WizardStartPane extends WizardPane {
 
     private String control = "Manual";
