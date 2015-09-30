@@ -90,8 +90,8 @@ public class EditTable {
 
     private void addListChildren(JEVisObject parent, JEVisClass selectedClass) {
         try {
-            for (int i = 0; i < parent.getChildren(selectedClass, true).size(); i++) {
-                listChildren.add(parent.getChildren(selectedClass, true).get(i));
+            for (int i = 0; i < parent.getChildren(selectedClass, false).size(); i++) {
+                listChildren.add(parent.getChildren(selectedClass, false).get(i));
             }
         } catch (JEVisException ex) {
             Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
