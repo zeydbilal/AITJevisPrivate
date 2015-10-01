@@ -200,14 +200,14 @@ public class ManualWizardStep4 extends WizardPane {
     }
 
     public void addSymbols() {
-        listUnitSymbols.addAll("m/sÃ‚Â²",
-                "g", "mol", "atom", "rad", "bit", "%", "centiradian", "dB", "Ã‚Â°", "'", "byte", "rev", "Ã‚Â¨", "sphere", "sr", "rad/sÃ‚Â²", "rad/s", "Bq", "Ci", "Hz",
-                "mÃ‚Â²", "a", "ha", "cmÃ‚Â²", "kmÃ‚Â²", "kat", "Ã¢â€šÂ¬", "Ã¢â€šÂ¦", "\u20B9", "$", "*?*", "Ã‚Â¥", "Hits/cmÃ‚Â²", "Hits/mÃ‚Â²", "ÃŽÂ©/cmÃ‚Â²", "bit/s", "-", "s", "m", "h", "day", "day_sidereal",
-                "week", "month", "year", "year_calendar", "year_sidereal", "g/(cms)", "F", "C", "e", "Fd", "Fr", "S", "A", "Gi", "H", "V", "ÃŽÂ©", "J",
-                "eV", "erg", "N", "dyn", "kgf", "lbf", "lx", "La", "W/mÃ‚Â²", "mÃ‚Â²/s", "cmÃ‚Â²/s", "Ãƒâ€¦", "ua", "cm", "foot_survey_us", "ft", "in", "km", "ly",
+	listUnitSymbols.addAll("m/s\u00B2",
+                "g", "mol", "atom", "rad", "bit", "\u0025", "centiradian", "dB", "\u00b0", "\u0027", "byte", "rev", "\u00A8", "sphere", "sr", "rad/s\u00B2", "rad/s", "Bq", "Ci", "Hz",
+                "m\u00B2", "a", "ha", "cm\u00B2", "km\u00B2", "kat", "\u20AC", "\u20A6", "\u20B9", "\u0024", "*\u003F*", "\u00A5", "Hits/cm\u00B2", "Hits/m\u00B2", "\u03A9/cm\u00B2", "bit/s", "\u002D", "s", "m", "h", "day", "day_sidereal",
+                "week", "month", "year", "year_calendar", "year_sidereal", "g/\u0028cms\u0029", "F", "C", "e", "Fd", "Fr", "S", "A", "Gi", "H", "V", "\u03A9", "J",
+                "eV", "erg", "N", "dyn", "kgf", "lbf", "lx", "La", "W/m\u00B2", "m\u00B2/s", "cm\u00B2/s", "\u00C5", "ua", "cm", "foot_survey_us", "ft", "in", "km", "ly",
                 "mi", "mm", "nmi", "pc", "pixel", "pt", "yd", "W", "Wb", "Mx", "T", "G", "kg", "u", "me", "t", "oz", "lb", "ton_uk", "ton_us", "kg/s",
-                "cd", "hp", "lm", "var", "Pa", "atm", "bar", "in Hg", "mmHg", "Gy", "rem", "Sv", "rd", "Rd", "rev/s", "grade", "K", "Ã¢â€žÆ’", "Ã‚Â°F", "Ã‚Â°R",
-                "Nm", "Wh", "Ws", "m/s", "c", "km/h", "kn", "Mach", "mph", "mÃ‚Â³", "inÃ‚Â³", "gallon_dry_us", "gal", "gallon_uk", "l", "oz_uk", "kg/mÃ‚Â³", "mÃ‚Â³/s");
+                "cd", "hp", "lm", "var", "Pa", "atm", "bar", "in Hg", "mmHg", "Gy", "rem", "Sv", "rd", "Rd", "rev/s", "grade", "K", "\u00b0C", "\u00b0F", "\u00b0R",
+                "Nm", "Wh", "Ws", "m/s", "c", "km/h", "kn", "Mach", "mph", "m\u00B3", "in\u00B3", "gallon_dry_us", "gal", "gallon_uk", "l", "oz_uk", "kg/m\u00B3", "m\u00B3/s");
     }
 
     class CreateNewWizardTable {
