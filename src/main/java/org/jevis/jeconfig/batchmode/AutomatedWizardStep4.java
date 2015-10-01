@@ -166,7 +166,7 @@ public class AutomatedWizardStep4 extends WizardPane {
                                 JEVisObject newDataPointObject = wizardSelectedObject.getCurrentDataPointDirectory().buildObject(pair.getKey(), dataPointClass);
                                 newDataPointObject.commit();
 
-                                // Set attribute for Target // Value Identifier
+                                // Set the attribute for Target and Value Identifier
                                 JEVisAttribute attributeTarget = newDataPointObject.getAttribute("Target");
                                 attributeTarget.buildSample(new DateTime(), newDataObject.getID()).commit();
 
