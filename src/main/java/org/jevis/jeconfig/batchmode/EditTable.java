@@ -334,7 +334,7 @@ public class EditTable {
             }
             spv.getGrid().getColumnHeaders().addAll(columnHeaderNames);
 
-            //Add to listObjectAndSample
+            //Add the attributes and the samples in to the listObjectAndSample
             try {
                 for (int i = 0; i < grid.getRowCount(); i++) {
                     // Get attributes
@@ -358,11 +358,11 @@ public class EditTable {
                 Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
             }
 
-            //Add to table
             //sortiere die Liste! Die Reihenfolge genau wie Baumsreihenfolge
             sortTheChildren(listChildren);
             sortTheAttribute(listObjectAndSample);
-
+            //Add to table
+            //Hier wird die Daten von den listChildren und listObjectAndSample aufgerufen und dann in die Tabelle eingefügt.
             for (int i = 0; i < grid.getRowCount(); i++) {
                 for (int j = 0; j < grid.getColumnCount(); j++) {
                     if (columnHeaderNames.get(j).equals("Object ID")) {
@@ -500,10 +500,12 @@ public class EditTable {
                 Logger.getLogger(EditTable.class.getName()).log(Level.SEVERE, null, ex);
             }
 
-            //Add to table
             //sortiere die Liste! Die Reihenfolge ist genau wie Baumsreihenfolge
             sortTheChildren(listChildren);
             sortTheAttribute(listObjectAndValueAttribute);
+            
+            //Add to table
+            //Hier wird die Daten von den listChildren und listObjectAndValueAttribute aufgerufen und dann in die Tabelle eingefügt.
             for (int i = 0; i < grid.getRowCount(); i++) {
                 for (int j = 0; j < grid.getColumnCount(); j++) {
                     if (columnHeaderNamesDataTable.get(j).equals("Object ID")) {
@@ -720,7 +722,7 @@ public class EditTable {
     }
 
     private void addSymbols() {
-	listUnitSymbols.addAll("m/s\u00B2",
+        listUnitSymbols.addAll("m/s\u00B2",
                 "g", "mol", "atom", "rad", "bit", "\u0025", "centiradian", "dB", "\u00b0", "\u0027", "byte", "rev", "\u00A8", "sphere", "sr", "rad/s\u00B2", "rad/s", "Bq", "Ci", "Hz",
                 "m\u00B2", "a", "ha", "cm\u00B2", "km\u00B2", "kat", "\u20AC", "\u20A6", "\u20B9", "\u0024", "*\u003F*", "\u00A5", "Hits/cm\u00B2", "Hits/m\u00B2", "\u03A9/cm\u00B2", "bit/s", "\u002D", "s", "m", "h", "day", "day_sidereal",
                 "week", "month", "year", "year_calendar", "year_sidereal", "g/\u0028cms\u0029", "F", "C", "e", "Fd", "Fr", "S", "A", "Gi", "H", "V", "\u03A9", "J",

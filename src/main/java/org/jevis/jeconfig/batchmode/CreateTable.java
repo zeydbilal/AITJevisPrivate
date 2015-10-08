@@ -207,7 +207,7 @@ public class CreateTable {
 
             }
         });
-        //Wenn man vom ComboBox ein neues Objekt auswählt,wird 
+        //Wenn man vom ComboBox ein neues Objekt auswählt,wird die Tabelle neue Strukturiert.
         classComboBox.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override
@@ -231,7 +231,8 @@ public class CreateTable {
                 }
             }
         });
-
+        
+        //Help Button für die help Datei.
         help.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -320,7 +321,7 @@ public class CreateTable {
     }
 
     // Erstelle eine neue Data-Tabelle
-    // Diese Klasse spezial nur fuer das Data-Object deklariert.
+    // Diese Klasse spezial nur fuer das Data-Object implementiert.
     class CreateNewDataTable {
 
         public CreateNewDataTable(Button createBtn) {
