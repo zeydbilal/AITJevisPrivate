@@ -48,6 +48,7 @@ import org.joda.time.DateTime;
  *
  * @author Zeyd Bilal Calis
  */
+//In dieser Klasse wird ein Server Objekt erzeugt und seine Attribute werden in die datenbank abgespeichert.
 public class ManualWizardStep2 extends WizardPane {
 
     private JEVisClass createClass;
@@ -57,6 +58,7 @@ public class ManualWizardStep2 extends WizardPane {
     private ObservableList<String> listBuildSample = FXCollections.observableArrayList();
     private WizardSelectedObject wizardSelectedObject;
     private Map<String, String> map = new TreeMap<String, String>();
+
     public ManualWizardStep2(ObjectTree tree, WizardSelectedObject wizardSelectedObject) {
         this.wizardSelectedObject = wizardSelectedObject;
         this.tree = tree;
@@ -86,8 +88,10 @@ public class ManualWizardStep2 extends WizardPane {
 
     public void commitServerObject() {
         try {
+            //Create Server.
             JEVisObject newObject = wizardSelectedObject.getCurrentSelectedObject().buildObject(serverNameTextField.getText(), createClass);
             newObject.commit();
+            //Commit the Attributes
             commitAttributes(newObject);
 
             //wähle den Server als neue Objekt aus!
@@ -129,6 +133,7 @@ public class ManualWizardStep2 extends WizardPane {
         FXCollections.sort(list, sort);
     }
 
+    // GUI Elemente
     private BorderPane getInit() {
         BorderPane root = new BorderPane();
 
@@ -176,6 +181,7 @@ public class ManualWizardStep2 extends WizardPane {
         serverNameTextField.setPrefWidth(200);
         serverNameTextField.setPromptText("Server Name");
 
+        // Add the servers in to the ComboBox ComboBox
         ComboBox<JEVisClass> classComboBox = new ComboBox<JEVisClass>(options);
         classComboBox.setCellFactory(cellFactory);
         classComboBox.setButtonCell(cellFactory.call(null));
@@ -225,7 +231,7 @@ public class ManualWizardStep2 extends WizardPane {
         return root;
     }
 
-    //Erzeuge Label,TextField und CheckBox variablen von schon definierter Typen.
+    //Erzeuge Label,TextField und CheckBox variablen von schon vordefinierten Typen.
     public GridPane getTypes() {
         GridPane gridpane = new GridPane();
 

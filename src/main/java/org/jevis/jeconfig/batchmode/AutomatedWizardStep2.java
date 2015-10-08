@@ -60,6 +60,7 @@ public class AutomatedWizardStep2 extends WizardPane {
     private ObservableList<String> listBuildSample = FXCollections.observableArrayList();
     private WizardSelectedObject wizardSelectedObject;
     private Map<String, String> map = new TreeMap<String, String>();
+    //Hier wird die Verbindungsdaten(Datanbankname,Host,Port) für den HTTP-Server initialisiert.
     private SensorMap sensorMap;
 
     public AutomatedWizardStep2(ObjectTree tree, WizardSelectedObject wizardSelectedObject, SensorMap sensorMap) {
@@ -91,13 +92,15 @@ public class AutomatedWizardStep2 extends WizardPane {
 
     public void commitServerObject() {
         try {
+            //Create Server.
             JEVisObject newObject = wizardSelectedObject.getCurrentSelectedObject().buildObject(serverNameTextField.getText(), createClass);
             newObject.commit();
+            //Commit the Attributes
             commitAttributes(newObject);
 
             //wähle den Server als neue Objekt!
             wizardSelectedObject.setCurrentSelectedObject(newObject);
-
+            //Set the database name 
             sensorMap.setDatabase(databaseNameTextField.getText());
         } catch (JEVisException ex) {
             Logger.getLogger(AutomatedWizardStep2.class.getName()).log(Level.SEVERE, null, ex);
@@ -112,14 +115,15 @@ public class AutomatedWizardStep2 extends WizardPane {
 
             for (Map.Entry<String, String> entrySet : map.entrySet()) {
                 listBuildSample.add(entrySet.getValue());
-                System.out.println(entrySet.getKey() + " :  " + entrySet.getValue());
+                // Set the host
                 if (entrySet.getKey().equals("Host")) {
                     sensorMap.setUrl(entrySet.getValue());
+                    // Set the port
                 } else if (entrySet.getKey().equals("Port")) {
                     sensorMap.setPort(entrySet.getValue());
                 }
             }
-
+            //Speichere die Samples in die Datenbank ab.
             for (int i = 0; i < mylist.size(); i++) {
                 if (!listBuildSample.get(i).isEmpty()) {
                     mylist.get(i).buildSample(new DateTime(), listBuildSample.get(i)).commit();
@@ -141,6 +145,7 @@ public class AutomatedWizardStep2 extends WizardPane {
         FXCollections.sort(list, sort);
     }
 
+    // GUI Elemente
     private BorderPane getInit() {
         BorderPane root = new BorderPane();
 
@@ -197,6 +202,7 @@ public class AutomatedWizardStep2 extends WizardPane {
 
         for (JEVisClass option : options) {
             try {
+                //Add only HTTP Server in to the ComboBox
                 if (option.getName().equals("HTTP Server")) {
                     classComboBox.getItems().add(option);
                 }
@@ -262,7 +268,7 @@ public class AutomatedWizardStep2 extends WizardPane {
 
     }
 
-    //Erzeuge Label,TextField und CheckBox variablen von schon definierter Typen.
+    //Erzeuge Label,TextField und CheckBox variablen von schon vordefinierten Typen.
     public GridPane getTypes() {
         GridPane gridpane = new GridPane();
 

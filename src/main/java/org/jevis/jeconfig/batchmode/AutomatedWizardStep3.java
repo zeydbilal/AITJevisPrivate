@@ -97,7 +97,6 @@ public class AutomatedWizardStep3 extends WizardPane {
         try {
             childrenList = FXCollections.observableArrayList(wizardSelectedObject.getCurrentSelectedObject().getAllowedChildrenClasses());
             for (JEVisClass child : childrenList) {
-                System.out.println(child.getName());
                 if (child.getName().equals("JSON Parser")) {
                     // createClass wurde initialisiert
                     createClass = child;
@@ -122,6 +121,7 @@ public class AutomatedWizardStep3 extends WizardPane {
         return root;
     }
 
+    //Create JSON Parser and Data Point Directory
     public void commitObjects() {
         ObservableList<JEVisClass> childrenList = FXCollections.observableArrayList();
 
@@ -130,15 +130,18 @@ public class AutomatedWizardStep3 extends WizardPane {
 
             for (JEVisClass child : childrenList) {
                 if (child.getName().equals("JSON Parser")) {
+                    //Create JSON Parser
                     JEVisObject newObject = wizardSelectedObject.getCurrentSelectedObject().buildObject(csvFileNameTextField.getText(), child);
                     newObject.commit();
                     //Commit attributes for JSON Parser
                     commitAttributes(newObject);
 
                 } else if (child.getName().equals("Data Point Directory")) {
+                    //Create Data Point Directory
                     JEVisObject newObject = wizardSelectedObject.getCurrentSelectedObject().buildObject(child.getName(), child);
                     newObject.commit();
-                    //newObject is the new DataPointDirectory
+                    //Selected object is the new DataPointDirectory
+                    //Set the Data Point Directory for the last Step.
                     wizardSelectedObject.setCurrentDataPointDirectory(newObject);
                 }
             }
@@ -147,6 +150,7 @@ public class AutomatedWizardStep3 extends WizardPane {
         }
     }
 
+    //Commit the attributes and create the samples
     public void commitAttributes(JEVisObject newObject) {
         try {
             List<JEVisAttribute> attribut = newObject.getAttributes();
@@ -178,7 +182,7 @@ public class AutomatedWizardStep3 extends WizardPane {
         FXCollections.sort(list, sort);
     }
 
-    //Erzeuge Label,TextField und CheckBox variablen von schon definierter Typen.
+    //Erzeuge Label,TextField und CheckBox variablen von schon definierten Typen.
     public GridPane getTypes() {
         GridPane gridpane = new GridPane();
 

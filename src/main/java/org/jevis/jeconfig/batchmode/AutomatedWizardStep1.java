@@ -49,6 +49,7 @@ public class AutomatedWizardStep1 extends WizardPane {
 
         HBox hbox = new HBox();
         Label namelbl = new Label();
+        //Give your building name : 
         namelbl.setText("Building name : ");
 
         nameTextField = new TextField();
@@ -64,7 +65,7 @@ public class AutomatedWizardStep1 extends WizardPane {
 
     @Override
     public void onEnteringPage(Wizard wizard) {
-
+        //Hide the back button.
         ObservableList<ButtonType> list = getButtonTypes();
 
         for (ButtonType type : list) {
@@ -77,7 +78,7 @@ public class AutomatedWizardStep1 extends WizardPane {
 
     @Override
     public void onExitingPage(Wizard wizard) {
-        //Erzeuge die Building ,Data Source Directory und Data Directory Objekte
+        //Erzeuge Building ,Data Source Directory und Data Directory Objekte
         commitObject();
     }
 
@@ -86,14 +87,15 @@ public class AutomatedWizardStep1 extends WizardPane {
         JEVisClass buildingClass = null;
         List<JEVisClass> listClasses = null;
         try {
+            //Get the all children from selected Parent.
             listClasses = getParentObject().getAllowedChildrenClasses();
-
+            //If the child name equals Building than get the type(JEVisClass) of this class.
             for (JEVisClass element : listClasses) {
                 if (element.getName().equals("Building")) {
                     buildingClass = element;
                 }
             }
-
+            //Create Building object
             JEVisObject newObject = getParentObject().buildObject(nameTextField.getText(), buildingClass);
             newObject.commit();
 
@@ -109,12 +111,13 @@ public class AutomatedWizardStep1 extends WizardPane {
                 }
             });
 
-            //We need this object name for the last step. -> tree.expandSelected(true); 
+            //Speichere das neue erzeugte Building-Objekt als CurrentSelectedBuildingObject.
+            //Das brauchen wir in dem letzten Schritt. --> -> tree.expandSelected(true); 
             wizardSelectedObject.setCurrentSelectedBuildingObject(newObject);
 
             ObservableList<JEVisClass> allowedChildrenClasses = FXCollections.observableArrayList(newTreeItem.getValue().getAllowedChildrenClasses());
 
-            //Erzeuge Data Source Directory and Data Directory
+            //Create Data Source Directory and Data Directory
             if (allowedChildrenClasses.size() > 0) {
                 for (int i = 0; i < allowedChildrenClasses.size(); i++) {
                     JEVisObject newChildObject = newTreeItem.getValue().buildObject(allowedChildrenClasses.get(i).getName(), allowedChildrenClasses.get(i));
@@ -125,8 +128,8 @@ public class AutomatedWizardStep1 extends WizardPane {
                 }
             }
 
-            //Set the new parent!
-            //New parent object for second step  Data Source Directory
+            //Set the new parent.The new parent is Data Source Directory!
+            //We need Data Source Directory for second step
             List<JEVisObject> listChildren = newTreeItem.getValue().getChildren();
             for (int i = 0; i < listChildren.size(); i++) {
                 if (listChildren.get(i).getName().equals("Data Source Directory")) {

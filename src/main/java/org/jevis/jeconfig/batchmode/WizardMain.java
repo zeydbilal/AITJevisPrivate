@@ -22,6 +22,7 @@ public class WizardMain extends Wizard {
     private WizardStartPane wizardStartPane;
     //The selected Parents.
     private WizardSelectedObject wizardSelectedObject = new WizardSelectedObject();
+    //Create SensorMap object for Step2 and Step4
     private SensorMap sensorMap = new SensorMap();
 
     //Manual Steps

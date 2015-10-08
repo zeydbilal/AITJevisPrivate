@@ -73,6 +73,7 @@ public class AutomatedWizardStep4 extends WizardPane {
 
     @Override
     public void onEnteringPage(Wizard wizard) {
+        //Connect to HTTP-Server
         sensorMap.connection();
 
         ObservableList<ButtonType> list = getButtonTypes();
@@ -89,7 +90,7 @@ public class AutomatedWizardStep4 extends WizardPane {
                 finish.setOnAction(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent event) {
-                        //Speichere alles in die pairList ab.
+                        //Lies die Daten von der Tabelle und Speichere sie in die pairList ab.
                         for (int i = 0; i < grid.getRowCount(); i++) {
                             String spcObjectName = rows.get(i).get(0).getText();
 
@@ -112,6 +113,7 @@ public class AutomatedWizardStep4 extends WizardPane {
                         List<JEVisClass> listDataPointClasses = null;
 
                         try {
+                            //Get the all children from created DataDirectory und DataPointDirectory.
                             listDataDirectoryClasses = wizardSelectedObject.getCurrentDataDirectory().getAllowedChildrenClasses();
                             listDataPointClasses = wizardSelectedObject.getCurrentDataPointDirectory().getAllowedChildrenClasses();
 
@@ -166,7 +168,7 @@ public class AutomatedWizardStep4 extends WizardPane {
                                 JEVisObject newDataPointObject = wizardSelectedObject.getCurrentDataPointDirectory().buildObject(pair.getKey(), dataPointClass);
                                 newDataPointObject.commit();
 
-                                // Set the attribute for Target and Value Identifier
+                                // Create the samples  for the Target and Value Identifier attribute.
                                 JEVisAttribute attributeTarget = newDataPointObject.getAttribute("Target");
                                 attributeTarget.buildSample(new DateTime(), newDataObject.getID()).commit();
 
@@ -188,7 +190,7 @@ public class AutomatedWizardStep4 extends WizardPane {
     }
 
     private BorderPane getInit() {
-        //add to list
+        //Add the Sensors to the listSensors
         Map<String, LinkedHashMap<String, String>> sm = sensorMap.getSensorMap();
 
         for (Map.Entry<String, LinkedHashMap<String, String>> sensorEntry : sm.entrySet()) {
@@ -225,6 +227,7 @@ public class AutomatedWizardStep4 extends WizardPane {
                 "Nm", "Wh", "Ws", "m/s", "c", "km/h", "kn", "Mach", "mph", "m\u00B3", "in\u00B3", "gallon_dry_us", "gal", "gallon_uk", "l", "oz_uk", "kg/m\u00B3", "m\u00B3/s");
     }
 
+    // Erstelle eine neue Tabelle
     class CreateNewWizardTable {
 
         public CreateNewWizardTable(Button finish) {
@@ -257,7 +260,7 @@ public class AutomatedWizardStep4 extends WizardPane {
 
             spv.getGrid().getColumnHeaders().addAll(columnHeaderNamesDataTable);
 
-            //add to table
+            //Hier wird die Sensor-daten in die Tabelle eingefügt.
             for (int i = 0; i < grid.getRowCount(); i++) {
                 for (int j = 0; j < grid.getColumnCount(); j++) {
                     if (columnHeaderNamesDataTable.get(j).equals("Object Name")) {

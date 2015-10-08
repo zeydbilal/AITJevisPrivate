@@ -36,7 +36,6 @@ import org.jevis.api.JEVisObject;
 import org.jevis.jeconfig.plugin.object.ObjectTree;
 import org.joda.time.DateTime;
 
-
 /**
  *
  * @author Zeyd Bilal Calis
@@ -120,7 +119,8 @@ public class ManualWizardStep3 extends WizardPane {
 
         return root;
     }
-
+    
+    //Create CSV Parser and Data Point Directory
     public void commitObjects() {
         ObservableList<JEVisClass> childrenList = FXCollections.observableArrayList();
 
@@ -144,7 +144,8 @@ public class ManualWizardStep3 extends WizardPane {
             Logger.getLogger(ManualWizardStep3.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
+    //Commit the attributes and create the samples
     public void commitAttributes(JEVisObject newObject) {
         try {
             List<JEVisAttribute> attribut = newObject.getAttributes();
@@ -176,7 +177,7 @@ public class ManualWizardStep3 extends WizardPane {
         FXCollections.sort(list, sort);
     }
 
-    //Erzeuge Label,TextField und CheckBox variablen von schon definierter Typen.
+    //Erzeuge Label,TextField und CheckBox variablen von schon definierten Typen.
     public GridPane getTypes() {
         GridPane gridpane = new GridPane();
 
