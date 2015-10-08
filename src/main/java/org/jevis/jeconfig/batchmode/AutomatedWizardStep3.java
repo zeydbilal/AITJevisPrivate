@@ -40,6 +40,7 @@ import org.joda.time.DateTime;
  *
  * @author Zeyd Bilal Calis
  */
+//In dieser Klasse wird ein JSON-Parser und Data Point Directory erzeugt.
 public class AutomatedWizardStep3 extends WizardPane {
 
     private WizardSelectedObject wizardSelectedObject;

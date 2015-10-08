@@ -27,6 +27,7 @@ import org.jevis.jeconfig.plugin.object.ObjectTree;
  *
  * @author Zeyd Bilal Calis
  */
+ //In dieser Klasse wird ein Building ,Data Source Directory und Data Directory Objekt erzeugt.
 public class AutomatedWizardStep1 extends WizardPane {
 
     private JEVisObject parentObject;

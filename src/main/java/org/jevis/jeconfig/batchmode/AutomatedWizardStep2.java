@@ -49,6 +49,7 @@ import org.joda.time.DateTime;
  *
  * @author Zeyd Bilal Calis
  */
+//In dieser Klasse wird ein Server Objekt erzeugt und seine Attribute werden in die datenbank abgespeichert.
 public class AutomatedWizardStep2 extends WizardPane {
 
     private JEVisClass createClass;
